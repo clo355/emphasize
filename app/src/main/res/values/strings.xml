@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Emphasize</string>
+    <string name="main_settings_button_label">Settings</string>
+    <string name="main_new_text_file_button_label">New</string>
+    <string name="text_editor_save_button">Save</string>
+    <string name="text_editor_save_as_button">Save As</string>
+</resources>
