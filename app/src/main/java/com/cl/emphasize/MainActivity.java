@@ -14,17 +14,22 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /*
-    This app allows you to emphasize your note widgets by making them glow and jiggle.
-    You can also save your notes as actual text files.
-    The editor's save feature is modeled after Microsoft Word.
+    This app allows you to post your notes to your home screen, and emphasize them
+    by making them glow and jiggle. You can also save your notes as actual text files.
+    The editor's save features are modeled after Microsoft Word's Save and Save As.
  */
 
 public class MainActivity extends AppCompatActivity {
 
-    private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
+    ListView listView;
+    ArrayAdapter<File> listViewAdapter;
+    ArrayList<File> myFileArray;
+    File workingDir;
+    //private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
     //Test output
     TextView textPrint = null;
@@ -36,9 +41,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textPrint = (TextView) findViewById(R.id.textPrint);
-        Button newTextFile = (Button)findViewById(R.id.mainNewTextFileButton);
+        Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
 
         //App permissions
+        /*
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -46,40 +52,57 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
+        */
 
-        //ListView objects
-        ArrayList<Integer> myInts = new ArrayList<Integer>();
-        for (int i = 0; i <= 19; i++) {
-            myInts.add(i);
+        //Initially populate ListView
+        myFileArray = new ArrayList<File>();
+        workingDir = new File(getFilesDir().toString());
+        File[] fileListOnCreate = workingDir.listFiles();
+        for(File foundFile : fileListOnCreate){
+            myFileArray.add(foundFile);
         }
-
-        ListView listView = (ListView) findViewById(R.id.listView);
-        ArrayAdapter<Integer> listViewAdapter = new ArrayAdapter<Integer>(
+        listView = (ListView) findViewById(R.id.listView);
+        listViewAdapter = new ArrayAdapter<File>(
                 this,
                 android.R.layout.simple_list_item_1,
-                myInts);
+                myFileArray);
         listView.setAdapter(listViewAdapter);
 
-        newTextFile.setOnClickListener(new View.OnClickListener(){
+        //Buttons
+        mainNewTextFileButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
-                String fileName = "New File";
+                String fileName = "NewFile.txt";
                 boolean isNewFile = true;
                 newFileIntent.putExtra("fileName", fileName);
                 newFileIntent.putExtra("isNewFile", isNewFile);
                 startActivity(newFileIntent);
             }
         });
+    }
 
-        /*
-        for(Integer i : myInts) {
-            textPrint.append(i.toString());
+    public void updateListView(){
+        myFileArray.clear();
+        File[] fileListUpdateListView = workingDir.listFiles();
+        for(File foundFile : fileListUpdateListView){
+            myFileArray.add(foundFile);
         }
-        */
+        listView.setAdapter(null);
+        listViewAdapter.clear();
+        listViewAdapter.addAll(fileListUpdateListView);
+        listViewAdapter.notifyDataSetChanged(); //updates the view
+        listView.setAdapter(listViewAdapter);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        updateListView();
     }
 
     //App permissions
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[],
                                            int[] grantResults) {
@@ -99,4 +122,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    */
 }
