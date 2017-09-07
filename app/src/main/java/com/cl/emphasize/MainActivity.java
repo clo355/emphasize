@@ -8,14 +8,26 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
+
+import static com.cl.emphasize.R.id.parent;
 
 /*
     This app allows you to post your notes to your home screen, and emphasize them
@@ -30,9 +42,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<File> myFileArray;
     File workingDir;
     //private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
-
-    //Test output
     TextView textPrint = null;
+    FileInputStream myInputStream;
 
     @TargetApi(21)
     @Override
@@ -68,15 +79,45 @@ public class MainActivity extends AppCompatActivity {
                 myFileArray);
         listView.setAdapter(listViewAdapter);
 
-        //Buttons
+        if(fileListOnCreate.length == 0){
+            textPrint.setText("No files found");
+        } else{
+            textPrint.setText("");
+        }
+
+        //Press new
         mainNewTextFileButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
-                String fileName = "NewFile.txt";
-                boolean isNewFile = true;
-                newFileIntent.putExtra("fileName", fileName);
-                newFileIntent.putExtra("isNewFile", isNewFile);
+                newFileIntent.putExtra("fileName", "NewFile.txt");
+                newFileIntent.putExtra("fileContents", "");
+                newFileIntent.putExtra("isNewFile", true);
+                startActivity(newFileIntent);
+            }
+        });
+
+        //Pressing ListView objects
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                File fileClicked = myFileArray.get(position);
+                String fileContents = "";
+                Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
+                try {
+                    BufferedReader fileReader = new BufferedReader(new FileReader(fileClicked));
+                    String line = "";
+                    while((line = fileReader.readLine()) != null) {
+                        fileContents += line;
+                    }
+                } catch(IOException e){
+                    Log.d("MAIN", "IOException");
+                }
+
+                newFileIntent.putExtra("fileName", fileClicked.getName());
+                newFileIntent.putExtra("fileContents", fileContents);
+                newFileIntent.putExtra("isNewFile", false);
+                fileContents = "";
                 startActivity(newFileIntent);
             }
         });
@@ -93,6 +134,12 @@ public class MainActivity extends AppCompatActivity {
         listViewAdapter.addAll(fileListUpdateListView);
         listViewAdapter.notifyDataSetChanged(); //updates the view
         listView.setAdapter(listViewAdapter);
+
+        if(fileListUpdateListView.length == 0){
+            textPrint.setText("No files found");
+        } else{
+            textPrint.setText("");
+        }
     }
 
     @Override

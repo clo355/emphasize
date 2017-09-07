@@ -31,6 +31,7 @@ public class TextEditorActivity extends AppCompatActivity {
 
         fileName = getIntent().getExtras().getString("fileName");
         isNewFile = getIntent().getExtras().getBoolean("isNewFile");
+        textEditor.setText(getIntent().getExtras().getString("fileContents"));
         continueEditing = true;
 
         textPrint.append("fileName=" + fileName + "\n");
