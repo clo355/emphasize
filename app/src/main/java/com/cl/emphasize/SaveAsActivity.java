@@ -17,14 +17,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class SaveAsActivity extends AppCompatActivity {
-
-    boolean isNewFile;
     String fileContents;
     String fileName;
     Button saveAsOkButton;
     Button saveAsCancelButton;
     EditText saveAsFileName;
-    File myFile;
     FileOutputStream myOutputStream;
 
     @Override
@@ -32,7 +29,6 @@ public class SaveAsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_save_as);
 
-        isNewFile = getIntent().getExtras().getBoolean("isNewFile");
         fileContents = getIntent().getExtras().getString("fileContents");
         fileName = getIntent().getExtras().getString("fileName");
 
@@ -46,17 +42,33 @@ public class SaveAsActivity extends AppCompatActivity {
             public void onClick(View v){
                 String userInputFileName = saveAsFileName.getText().toString();
                 if(fileNameAlreadyExists(userInputFileName)){
-                    //already exists. Overwrite? Yes no
+                    //already exists. Should ask: Overwrite? Yes no
+
+                    File oldFile = new File(getFilesDir(), userInputFileName);
+                    oldFile.delete();
+                    File newFile = new File(getFilesDir(), userInputFileName);
+                    try{
+                        myOutputStream = new FileOutputStream(newFile, false);
+                        myOutputStream.write(fileContents.getBytes());
+                        myOutputStream.close();
+                    } catch(FileNotFoundException e){
+                        Log.d("SAVEAS", "FileNotFoundException");
+                    } catch(IOException e) {
+                        Log.d("SAVEAS", "IOException");
+                    }
+
+
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("isNewFile", false);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 } else{
                     //file name not taken. Now save it
-                    myFile = new File(getFilesDir(), userInputFileName);
-
+                    File oldFile = new File(getFilesDir(), userInputFileName);
+                    oldFile.delete();
+                    File newFile = new File(getFilesDir(), userInputFileName);
                     try{
-                        myOutputStream = new FileOutputStream(myFile);
+                        myOutputStream = new FileOutputStream(newFile, false);
                         myOutputStream.write(fileContents.getBytes());
                         myOutputStream.close();
                     } catch(FileNotFoundException e){

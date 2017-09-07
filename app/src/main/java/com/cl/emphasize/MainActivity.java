@@ -1,11 +1,7 @@
 package com.cl.emphasize;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,15 +15,9 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
-
-import static com.cl.emphasize.R.id.parent;
 
 /*
     This app allows you to post your notes to your home screen, and emphasize them
@@ -117,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 newFileIntent.putExtra("fileName", fileClicked.getName());
                 newFileIntent.putExtra("fileContents", fileContents);
                 newFileIntent.putExtra("isNewFile", false);
-                fileContents = "";
+                //fileContents = "";
                 startActivity(newFileIntent);
             }
         });

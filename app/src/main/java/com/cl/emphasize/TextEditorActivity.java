@@ -2,13 +2,18 @@ package com.cl.emphasize;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class TextEditorActivity extends AppCompatActivity {
 
@@ -43,6 +48,7 @@ public class TextEditorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 if(isNewFile){
+                    //new file, go to save as
                     Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
                     saveAsIntent.putExtra("isNewFile", isNewFile);
                     saveAsIntent.putExtra("fileName", fileName);
@@ -50,8 +56,34 @@ public class TextEditorActivity extends AppCompatActivity {
                     startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
                     //on return, calls the overrided onActivityResult()
                 } else{
-                    /*overwrite file with given fileName*/
+                    //overwrite file with given fileName
+                    File oldFile = new File(getFilesDir(), fileName);
+                    oldFile.delete();
+                    File newFile = new File(getFilesDir(), fileName);
+                    try{
+                        FileOutputStream myOutputStream = new FileOutputStream(newFile, false);
+                        myOutputStream.write(textEditor.getText().toString().getBytes());
+                        myOutputStream.close();
+                    } catch(FileNotFoundException e){
+                        Log.d("SAVEAS", "FileNotFoundException");
+                    } catch(IOException e) {
+                        Log.d("SAVEAS", "IOException");
+                    }
+                    //Toast here "Saved changes"
                 }
+            }
+        });
+
+        Button saveAsButton = (Button)findViewById(R.id.textEditorSaveAsButton);
+        saveAsButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
+                //saveAsIntent.putExtra("isNewFile", isNewFile);
+                saveAsIntent.putExtra("fileName", fileName);
+                saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
+                startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
+                //on return, calls the overrided onActivityResult()
             }
         });
     }
@@ -61,7 +93,7 @@ public class TextEditorActivity extends AppCompatActivity {
         if(requestCode == NEW_FILE_REQUEST_CODE){
             if(resultCode == Activity.RESULT_OK){
                 //user pressed ok and saved file. incoming isNewFile should be false
-                //also update file name
+                //also, update file name
                 isNewFile = returnedIntent.getExtras().getBoolean("isNewFile");
             }
             if(resultCode == Activity.RESULT_CANCELED){
