@@ -20,7 +20,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".TextEditorActivity" />
-        <activity android:name=".SaveAsActivity"></activity>
+        <activity android:name=".SaveAsActivity" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

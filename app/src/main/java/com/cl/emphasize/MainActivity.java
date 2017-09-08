@@ -1,7 +1,9 @@
 package com.cl.emphasize;
 
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         textPrint = (TextView) findViewById(R.id.textPrint);
         Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
+        Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
 
         //App permissions
         /*
@@ -87,16 +90,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Pressing ListView objects
+        //Press settings
+        mainSettingsButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent newFileIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(newFileIntent);
+            }
+        });
+
+        //Pressing or holding ListView objects
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
                 File fileClicked = myFileArray.get(position);
                 String fileContents = "";
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
                 try {
                     BufferedReader fileReader = new BufferedReader(new FileReader(fileClicked));
-                    String line = "";
+                    String line;
                     while((line = fileReader.readLine()) != null) {
                         fileContents += line;
                     }
@@ -107,8 +119,56 @@ public class MainActivity extends AppCompatActivity {
                 newFileIntent.putExtra("fileName", fileClicked.getName());
                 newFileIntent.putExtra("fileContents", fileContents);
                 newFileIntent.putExtra("isNewFile", false);
-                //fileContents = "";
                 startActivity(newFileIntent);
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l){
+                CharSequence options[] = new CharSequence[] {"View", "Edit", "Delete"};
+                final File longClickedFile = myFileArray.get(position);
+                final String optionsFileName = longClickedFile.getName();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Options:  " + optionsFileName);
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int clickedOption) {
+                        switch(clickedOption){
+                            case 0:{ //View: open in TextViewerActivity
+                                break;
+                            }
+                            case 1:{ //Edit: open in TextEditorActivity
+                                String fileContents = "";
+                                Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
+                                try {
+                                    BufferedReader fileReader = new BufferedReader(new FileReader(longClickedFile));
+                                    String line;
+                                    while((line = fileReader.readLine()) != null) {
+                                        fileContents += line;
+                                    }
+                                } catch(IOException e){
+                                    Log.d("MAIN", "IOException");
+                                }
+
+                                newFileIntent.putExtra("fileName", longClickedFile.getName());
+                                newFileIntent.putExtra("fileContents", fileContents);
+                                newFileIntent.putExtra("isNewFile", false);
+                                startActivity(newFileIntent);
+                                break;
+                            }
+                            case 2:{ //Delete: delete file
+                                File oldFile = new File(getFilesDir(), optionsFileName);
+                                oldFile.delete();
+                                updateListView();
+                                break;
+                            }
+                        }
+                    }
+                });
+                builder.show();
+                return true; //stops onItemClick()
             }
         });
     }
