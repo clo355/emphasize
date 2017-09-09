@@ -17,12 +17,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class SaveAsActivity extends AppCompatActivity {
-    String fileContents;
-    String fileName;
-    Button saveAsOkButton;
-    Button saveAsCancelButton;
-    EditText saveAsFileName;
-    FileOutputStream myOutputStream;
+    protected String fileContents;
+    protected String fileName;
+    protected Button saveAsOkButton;
+    protected Button saveAsCancelButton;
+    protected EditText saveAsFileName;
+    protected FileOutputStream myOutputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +60,7 @@ public class SaveAsActivity extends AppCompatActivity {
 
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("isNewFile", false);
+                    returnIntent.putExtra("fileName", userInputFileName);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 } else{
@@ -79,6 +80,7 @@ public class SaveAsActivity extends AppCompatActivity {
 
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("isNewFile", false);
+                    returnIntent.putExtra("fileName", userInputFileName);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }

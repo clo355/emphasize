@@ -21,7 +21,7 @@
         </activity>
         <activity android:name=".TextEditorActivity" />
         <activity android:name=".SaveAsActivity" />
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>

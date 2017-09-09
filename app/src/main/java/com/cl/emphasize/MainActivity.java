@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,13 +28,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    ListView listView;
-    ArrayAdapter<File> listViewAdapter;
-    ArrayList<File> myFileArray;
-    File workingDir;
+    protected ListView listView;
+    protected ArrayAdapter<File> listViewAdapter;
+    protected ArrayList<File> myFileArray;
+    protected File workingDir;
+    protected TextView textPrint = null;
     //private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
-    TextView textPrint = null;
-    FileInputStream myInputStream;
 
     @TargetApi(21)
     @Override
@@ -99,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Pressing or holding ListView objects
+        //Press or hold ListView object
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
@@ -126,20 +124,17 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l){
-                CharSequence options[] = new CharSequence[] {"View", "Edit", "Delete"};
+                CharSequence options[] = new CharSequence[] {"Edit", "Delete", "Post on home screen"};
                 final File longClickedFile = myFileArray.get(position);
                 final String optionsFileName = longClickedFile.getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Options:  " + optionsFileName);
+                builder.setTitle(optionsFileName);
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int clickedOption) {
                         switch(clickedOption){
-                            case 0:{ //View: open in TextViewerActivity
-                                break;
-                            }
-                            case 1:{ //Edit: open in TextEditorActivity
+                            case 0: { //Edit: open in TextEditorActivity
                                 String fileContents = "";
                                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
                                 try {
@@ -158,17 +153,38 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(newFileIntent);
                                 break;
                             }
-                            case 2:{ //Delete: delete file
-                                File oldFile = new File(getFilesDir(), optionsFileName);
-                                oldFile.delete();
-                                updateListView();
+                            case 1: { //Delete
+                                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which){
+                                            case DialogInterface.BUTTON_POSITIVE: {
+                                                File oldFile = new File(getFilesDir(), optionsFileName);
+                                                oldFile.delete();
+                                                updateListView();
+                                                break;
+                                            }
+                                            case DialogInterface.BUTTON_NEGATIVE: {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                };
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setMessage("Delete " + optionsFileName + "?")
+                                        .setPositiveButton("Delete", dialogClickListener)
+                                        .setNegativeButton("Cancel", dialogClickListener)
+                                        .show();
                                 break;
+                            }
+                            case 2: { //Post on home screen
                             }
                         }
                     }
                 });
                 builder.show();
-                return true; //stops onItemClick()
+                return true; //prevents onItemClick() from also firing
             }
         });
     }

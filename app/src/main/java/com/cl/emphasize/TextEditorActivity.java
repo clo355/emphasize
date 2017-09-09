@@ -1,7 +1,9 @@
 package com.cl.emphasize;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,9 +20,9 @@ import java.io.IOException;
 public class TextEditorActivity extends AppCompatActivity {
 
     String fileName;
+    String originalFileContents;
     boolean isNewFile;
-    boolean continueEditing = true;
-    boolean madeChanges = false;
+    boolean changesSaved = false;
     public static final int NEW_FILE_REQUEST_CODE = 1;
 
     TextView textPrint;
@@ -36,12 +38,10 @@ public class TextEditorActivity extends AppCompatActivity {
 
         fileName = getIntent().getExtras().getString("fileName");
         isNewFile = getIntent().getExtras().getBoolean("isNewFile");
-        textEditor.setText(getIntent().getExtras().getString("fileContents"));
-        continueEditing = true;
+        originalFileContents = getIntent().getExtras().getString("fileContents");
+        textEditor.setText(originalFileContents);
 
-        textPrint.append("fileName=" + fileName + "\n");
-        textPrint.append("isNewFile=" + Boolean.toString(isNewFile) + "\n");
-        textPrint.append("path=" + getFilesDir().toString());
+        textPrint.setText("fileName=" + fileName);
 
         Button saveButton = (Button)findViewById(R.id.textEditorSaveButton);
         saveButton.setOnClickListener(new View.OnClickListener(){
@@ -56,7 +56,7 @@ public class TextEditorActivity extends AppCompatActivity {
                     startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
                     //on return, calls the overrided onActivityResult()
                 } else{
-                    //overwrite file with given fileName
+                    //overwrite file with given fileName, toast here "File updated"
                     File oldFile = new File(getFilesDir(), fileName);
                     oldFile.delete();
                     File newFile = new File(getFilesDir(), fileName);
@@ -93,8 +93,10 @@ public class TextEditorActivity extends AppCompatActivity {
         if(requestCode == NEW_FILE_REQUEST_CODE){
             if(resultCode == Activity.RESULT_OK){
                 //user pressed ok and saved file. incoming isNewFile should be false
-                //also, update file name
+                //should toast here "Saved"
                 isNewFile = returnedIntent.getExtras().getBoolean("isNewFile");
+                fileName = returnedIntent.getExtras().getString("fileName");
+                textPrint.setText("fileName=" + fileName);
             }
             if(resultCode == Activity.RESULT_CANCELED){
                 //user pressed cancel in SaveAsActivity
@@ -105,6 +107,31 @@ public class TextEditorActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         //if file was changed, ask "Save changes? Yes No". If yes, go to SaveAsActivity
-        finish();
+        if(textEditor.getText().toString().equals(originalFileContents)){
+            //no changes. exit
+            finish();
+        } else{
+            //changes were made. ask "You have unsaved changes. Exit without saving?" Cancel Exit
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which){
+                        case DialogInterface.BUTTON_POSITIVE: { //exit
+                            finish();
+                            break;
+                        }
+                        case DialogInterface.BUTTON_NEGATIVE: { //cancel
+                            break;
+                        }
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(TextEditorActivity.this);
+            builder.setMessage("You have unsaved changes.\nExit without saving?")
+                    .setPositiveButton("Exit", dialogClickListener)
+                    .setNegativeButton("Cancel", dialogClickListener)
+                    .show();
+        }
     }
 }
