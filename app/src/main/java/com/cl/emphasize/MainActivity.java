@@ -23,17 +23,18 @@ import java.util.ArrayList;
 /*
     This app allows you to post your notes to your home screen, and emphasize them
     by making them glow and jiggle. You can also save your notes as actual text files.
-    The editor's save features are modeled after Microsoft Word's Save and Save As.
+    The editor's save features are modeled after Microsoft Word's Save As.
+
+    ListView contents: I only put file names (String) into the listview. User taps one of the
+    listview buttons and I get the file name, make a file object with it, then open it.
  */
 
 public class MainActivity extends AppCompatActivity {
 
     protected ListView listView;
-    protected ArrayAdapter<File> listViewAdapter;
-    protected ArrayList<File> myFileArray;
-    protected File workingDir;
+    protected ArrayAdapter<String> listViewAdapter;
+    protected ArrayList<String> myFileNameArray;
     protected TextView textPrint = null;
-    //private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
     @TargetApi(21)
     @Override
@@ -45,29 +46,19 @@ public class MainActivity extends AppCompatActivity {
         Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
         Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
 
-        //App permissions
-        /*
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
-        */
-
         //Initially populate ListView
-        myFileArray = new ArrayList<File>();
-        workingDir = new File(getFilesDir().toString());
-        File[] fileListOnCreate = workingDir.listFiles();
+        myFileNameArray = new ArrayList<String>();
+        File[] fileListOnCreate = getFilesDir().listFiles();
         for(File foundFile : fileListOnCreate){
-            myFileArray.add(foundFile);
+            String foundFileName = foundFile.getName();
+            myFileNameArray.add(foundFileName);
         }
+
         listView = (ListView) findViewById(R.id.listView);
-        listViewAdapter = new ArrayAdapter<File>(
-                this,
+        listViewAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
-                myFileArray);
+                new ArrayList(myFileNameArray));
+        //myFileNameArray will be deleted by clear(), if passed by reference! So, used new ArrayList().
         listView.setAdapter(listViewAdapter);
 
         if(fileListOnCreate.length == 0){
@@ -101,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
-                File fileClicked = myFileArray.get(position);
+                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
                 String fileContents = "";
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
                 try {
@@ -125,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l){
                 CharSequence options[] = new CharSequence[] {"Edit", "Delete", "Post on home screen"};
-                final File longClickedFile = myFileArray.get(position);
+                final File longClickedFile = new File(getFilesDir(), myFileNameArray.get(position));
                 final String optionsFileName = longClickedFile.getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -190,14 +181,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateListView(){
-        myFileArray.clear();
-        File[] fileListUpdateListView = workingDir.listFiles();
+        myFileNameArray.clear();
+        File[] fileListUpdateListView = getFilesDir().listFiles();
         for(File foundFile : fileListUpdateListView){
-            myFileArray.add(foundFile);
+            String foundFileName = foundFile.getName();
+            myFileNameArray.add(foundFileName);
         }
         listView.setAdapter(null);
         listViewAdapter.clear();
-        listViewAdapter.addAll(fileListUpdateListView);
+        listViewAdapter.addAll(new ArrayList(myFileNameArray));
+        //myFileNameArray will be deleted by clear(), if passed by reference! So, used new ArrayList().
         listViewAdapter.notifyDataSetChanged(); //updates the view
         listView.setAdapter(listViewAdapter);
 
@@ -213,27 +206,4 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         updateListView();
     }
-
-    //App permissions
-    /*
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[],
-                                           int[] grantResults) {
-        switch(requestCode){
-            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:{
-                if(grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                        textPrint.append("***WRITE_EXTERNAL_STORAGE granted\n");
-                } else {
-                    // permission denied. display ok box warning "This app won't be able
-                    // to save text files unless the permission is granted." loop ask again
-                    textPrint.append("***WRITE_EXTERNAL_STORAGE denied\n");
-                }
-            }
-            default: {
-                return;
-            }
-        }
-    }
-    */
 }

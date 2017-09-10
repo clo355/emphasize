@@ -81,6 +81,7 @@ public class SaveAsActivity extends AppCompatActivity {
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("isNewFile", false);
                     returnIntent.putExtra("fileName", userInputFileName);
+                    returnIntent.putExtra("changesSaved", true);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }
@@ -99,5 +100,12 @@ public class SaveAsActivity extends AppCompatActivity {
 
     public boolean fileNameAlreadyExists(String userInputFileName){
         return (new File(getFilesDir(), userInputFileName)).exists();
+    }
+
+    @Override
+    public void onBackPressed(){
+        Intent returnIntent = new Intent();
+        setResult(Activity.RESULT_CANCELED, returnIntent);
+        finish();
     }
 }

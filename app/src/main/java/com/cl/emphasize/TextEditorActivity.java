@@ -69,6 +69,7 @@ public class TextEditorActivity extends AppCompatActivity {
                     } catch(IOException e) {
                         Log.d("SAVEAS", "IOException");
                     }
+                    originalFileContents = textEditor.getText().toString();
                     //Toast here "Saved changes"
                 }
             }
@@ -96,17 +97,17 @@ public class TextEditorActivity extends AppCompatActivity {
                 //should toast here "Saved"
                 isNewFile = returnedIntent.getExtras().getBoolean("isNewFile");
                 fileName = returnedIntent.getExtras().getString("fileName");
+                originalFileContents = textEditor.getText().toString();
                 textPrint.setText("fileName=" + fileName);
             }
             if(resultCode == Activity.RESULT_CANCELED){
-                //user pressed cancel in SaveAsActivity
+                //user pressed cancel or hardware back in SaveAsActivity
             }
         }
     }
 
     @Override
     public void onBackPressed(){
-        //if file was changed, ask "Save changes? Yes No". If yes, go to SaveAsActivity
         if(textEditor.getText().toString().equals(originalFileContents)){
             //no changes. exit
             finish();
