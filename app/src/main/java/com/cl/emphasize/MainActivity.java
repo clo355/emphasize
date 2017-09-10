@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Press or hold ListView object
+        //Press ListView object
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     BufferedReader fileReader = new BufferedReader(new FileReader(fileClicked));
                     String line;
                     while((line = fileReader.readLine()) != null) {
-                        fileContents += line;
+                        fileContents = fileContents + line + "\n";
                     }
                 } catch(IOException e){
                     Log.d("MAIN", "IOException");
@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Hold ListView object
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l){
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                                     BufferedReader fileReader = new BufferedReader(new FileReader(longClickedFile));
                                     String line;
                                     while((line = fileReader.readLine()) != null) {
-                                        fileContents += line;
+                                        fileContents = fileContents + line + "\n";
                                     }
                                 } catch(IOException e){
                                     Log.d("MAIN", "IOException");
