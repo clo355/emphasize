@@ -3,6 +3,9 @@
     <color name="blue1">#3F51B5</color>
     <color name="blue2">#303F9F</color>
     <color name="pink1">#FF4081</color>
+    <color name="neon_green1">#00ff00</color>
     <color name="beige1">#FFF8E7</color>
+    <color name="dark_beige1">#B29E6C</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>

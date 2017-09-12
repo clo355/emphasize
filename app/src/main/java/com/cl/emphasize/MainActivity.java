@@ -20,14 +20,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/*
-    This app allows you to post your notes to your home screen, and emphasize them
-    by making them glow and jiggle. You can also save your notes as actual text files.
-    The editor's save features are modeled after Microsoft Word's Save As.
-
-    ListView contents: I only put file names (String) into the listview. User taps one of the
-    listview buttons and I get the file name, make a file object with it, then open it.
- */
+/**********************************************************************************
+ *   Emphasize
+ *
+ *   This app allows you post notes onto your home screen, and emphasize them
+ *   by making them flash. Your notes are saved as actual text files.
+ *   Based on Colornote.
+ *   The editor's save features are modeled after Microsoft Word's.
+ *
+ *   CL
+ **********************************************************************************/
 
 public class MainActivity extends AppCompatActivity {
 
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l){
-                CharSequence options[] = new CharSequence[] {"Edit", "Delete", "Post on home screen"};
+                CharSequence options[] = new CharSequence[] {"Edit", "Delete", "Properties"};
                 final File longClickedFile = new File(getFilesDir(), myFileNameArray.get(position));
                 final String optionsFileName = longClickedFile.getName();
 
@@ -170,13 +172,13 @@ public class MainActivity extends AppCompatActivity {
                                         .show();
                                 break;
                             }
-                            case 2: { //Post on home screen
+                            case 2: { //Properties: show create date, last edit date, file size
                             }
                         }
                     }
                 });
                 builder.show();
-                return true; //prevents onItemClick() from also firing
+                return true; //prevents onItemClick() from also firing after doing onItemLongClick()
             }
         });
     }
@@ -191,8 +193,8 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(null);
         listViewAdapter.clear();
         listViewAdapter.addAll(new ArrayList(myFileNameArray));
-        //myFileNameArray will be deleted by clear(), if passed by reference! So, used new ArrayList().
-        listViewAdapter.notifyDataSetChanged(); //updates the view
+        //myFileNameArray will be deleted by clear(), if passed by reference! So, use new ArrayList()
+        listViewAdapter.notifyDataSetChanged(); //update ListView to show changes
         listView.setAdapter(listViewAdapter);
 
         if(fileListUpdateListView.length == 0){
