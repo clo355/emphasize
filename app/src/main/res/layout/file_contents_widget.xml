@@ -13,7 +13,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_margin="8dp"
-        android:background="@color/beige1"
         android:contentDescription="file contents"
         android:text="widget text here"
         android:textColor="@color/black"

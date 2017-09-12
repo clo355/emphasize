@@ -1,55 +1,118 @@
 package com.cl.emphasize;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Handler;
-import android.util.Log;
+import android.os.Looper;
 import android.widget.RemoteViews;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class FileContentsWidget extends AppWidgetProvider {
 
-    private String fileContents;
-
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
-
-        Intent intent = new Intent(context, FileContentsWidget.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+    static void updateAppWidget(Context context, final AppWidgetManager appWidgetManager,
+                                final int appWidgetId) {
 
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.file_contents_widget);
-
         CharSequence widgetText = context.getString(R.string.appwidget_text);
 
-        boolean lightOn = true;
+        //loop switch between 2 colors
+        final Handler myHandler = new Handler();
+        final Runnable runnable = new Runnable() {
+            int count = 0;
+            public void run() {
+                if ((count++ % 2) == 0){
+                    views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                            Color.argb(220, 255, 248, 231)); //light "on"
+                    appWidgetManager.updateAppWidget(appWidgetId, views);
+                    myHandler.postDelayed(this, 333);
+                } else{
+                    views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                            Color.argb(150, 255, 248, 231)); //light "off"
+                    appWidgetManager.updateAppWidget(appWidgetId, views);
+                    myHandler.postDelayed(this, 333);
+                }
+            }
+        };
+
+        //start the loop
+        myHandler.post(runnable);
+
+
+
         /*
-        if(lightOn){
-            views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                    Color.rgb(178, 158, 108)); //dark beige
-            lightOn = false;
-        } else{
-            views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                    Color.rgb(255, 248, 231)); //light beige
-            lightOn = true;
+        final Handler handler = new Handler();
+        new Runnable() {
+            @Override
+            public void run() {
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(220, 255, 248, 231)); //beige "on"
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+                handler.postDelayed(this, 300);
+            }
+        }.run();
+        new Runnable() {
+            @Override
+            public void run() {
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(150, 255, 248, 231)); //beige "off"
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+                handler.postDelayed(this, 300);
+            }
+        }.run();
+        */
+
+
+
+        /*
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run(){
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(255, 0, 255, 0)); //green
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            }
+        }, 1000);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run(){
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(255, 0, 0, 255)); //blue
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            }
+        }, 1000);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run(){
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(255, 255, 0, 0)); //red
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            }
+        }, 1000);
+        */
+
+        /*
+        boolean lightOn = true;
+
+        for(int i = 0; i <= 20; i++){
+            if (lightOn) {
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(150, 255, 248, 231)); //beige "off"
+                lightOn = false;
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            } else {
+                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        Color.argb(220, 255, 248, 231)); //beige "on"
+                lightOn = true;
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            }
         }
         */
-        try { //"wait x seconds"
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-
-        views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                Color.rgb(249, 124, 243));
-
-        appWidgetManager.updateAppWidget(appWidgetId, views); //tell widget update changes
-
     }
+
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -72,3 +135,6 @@ public class FileContentsWidget extends AppWidgetProvider {
     }
 }
 
+class WaitThread extends Thread{
+
+}

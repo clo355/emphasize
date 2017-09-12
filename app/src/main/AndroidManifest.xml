@@ -20,7 +20,8 @@
         <activity android:name=".SaveAsActivity" />
         <activity android:name=".SettingsActivity" />
 
-        <receiver android:name=".FileContentsWidget">
+        <receiver android:name=".FileContentsWidget"
+            android:label="@string/widget_name_blink">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

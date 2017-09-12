@@ -6,4 +6,7 @@
     <string name="text_editor_save_as_button">Save As</string>
     <string name="appwidget_text">App widget textlalala</string>
     <string name="add_widget">Add widget</string>
+    <string name="widget_name_blink">Emphasize - Blink</string>
+    <string name="widget_name_jiggle">Emphasize - Jiggle</string>
+    <string name="widget_name_normal">Emphasize - Normal</string>
 </resources>
