@@ -24,10 +24,10 @@ import java.util.ArrayList;
  *   Emphasize
  *
  *   This app allows you post notes onto your home screen, and emphasize them
- *   by making them flash. Your notes are saved as actual text files.
- *   Based on Colornote.
- *   The editor's save features are modeled after Microsoft Word's.
+ *   by having them flash or jiggle. Your notes are saved as actual
+ *   text files.
  *
+ *   Inspired by Colornote!
  *   CL
  **********************************************************************************/
 

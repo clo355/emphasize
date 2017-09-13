@@ -1,12 +1,14 @@
 package com.cl.emphasize;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.Looper;
+import android.widget.Button;
 import android.widget.RemoteViews;
 
 public class FileContentsWidget extends AppWidgetProvider {
@@ -15,102 +17,44 @@ public class FileContentsWidget extends AppWidgetProvider {
                                 final int appWidgetId) {
 
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.file_contents_widget);
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
+
+        //open activity to choose file
+        Intent chooseIntent = new Intent(context, ChooseFileForWidgetActivity.class);
+        chooseIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent choosePendingIntent = PendingIntent.getActivity(context, 0, chooseIntent, 0);
+        views.setOnClickPendingIntent(R.id.widget_button, choosePendingIntent);
+        appWidgetManager.updateAppWidget(appWidgetId, views);
+
+
+        final int blinkDelay = 333;
+        CharSequence fileContents = "Select file"; //intent get extra?
+        views.setTextViewText(R.id.appwidget_text, fileContents);
 
         //loop switch between 2 colors
         final Handler myHandler = new Handler();
         final Runnable runnable = new Runnable() {
-            int count = 0;
+            boolean status = true;
             public void run() {
-                if ((count++ % 2) == 0){
+                if (status){
+                    status = false;
                     views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
                             Color.argb(220, 255, 248, 231)); //light "on"
                     appWidgetManager.updateAppWidget(appWidgetId, views);
-                    myHandler.postDelayed(this, 333);
+                    myHandler.postDelayed(this, blinkDelay);
                 } else{
+                    status = true;
                     views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
                             Color.argb(150, 255, 248, 231)); //light "off"
                     appWidgetManager.updateAppWidget(appWidgetId, views);
-                    myHandler.postDelayed(this, 333);
+                    myHandler.postDelayed(this, blinkDelay);
                 }
             }
         };
 
-        //start the loop
+
+        //start the blink loop
         myHandler.post(runnable);
 
-
-
-        /*
-        final Handler handler = new Handler();
-        new Runnable() {
-            @Override
-            public void run() {
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(220, 255, 248, 231)); //beige "on"
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-                handler.postDelayed(this, 300);
-            }
-        }.run();
-        new Runnable() {
-            @Override
-            public void run() {
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(150, 255, 248, 231)); //beige "off"
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-                handler.postDelayed(this, 300);
-            }
-        }.run();
-        */
-
-
-
-        /*
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run(){
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(255, 0, 255, 0)); //green
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-            }
-        }, 1000);
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run(){
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(255, 0, 0, 255)); //blue
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-            }
-        }, 1000);
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run(){
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(255, 255, 0, 0)); //red
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-            }
-        }, 1000);
-        */
-
-        /*
-        boolean lightOn = true;
-
-        for(int i = 0; i <= 20; i++){
-            if (lightOn) {
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(150, 255, 248, 231)); //beige "off"
-                lightOn = false;
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-            } else {
-                views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                        Color.argb(220, 255, 248, 231)); //beige "on"
-                lightOn = true;
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-            }
-        }
-        */
     }
 
 
@@ -133,8 +77,4 @@ public class FileContentsWidget extends AppWidgetProvider {
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
     }
-}
-
-class WaitThread extends Thread{
-
 }
