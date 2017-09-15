@@ -24,6 +24,7 @@
         android:id="@+id/listView"
         android:layout_width="365dp"
         android:layout_height="456dp"
+        android:background="@color/lighter_beige1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.526"
         app:layout_constraintLeft_toLeftOf="parent"

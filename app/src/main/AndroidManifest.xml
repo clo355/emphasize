@@ -27,6 +27,7 @@
             android:label="@string/widget_name_blink">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
             </intent-filter>
 
             <meta-data

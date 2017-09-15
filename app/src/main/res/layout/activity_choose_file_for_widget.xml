@@ -23,6 +23,7 @@
         android:id="@+id/listViewCFFW"
         android:layout_width="330dp"
         android:layout_height="379dp"
+        android:background="@color/lighter_beige1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

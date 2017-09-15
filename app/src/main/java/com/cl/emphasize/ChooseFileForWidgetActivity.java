@@ -1,5 +1,6 @@
 package com.cl.emphasize;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,10 +26,13 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                    Intent intent = new Intent(getApplicationContext(), FileContentsWidget.class);
+                    intent.setAction(FileContentsWidget.CHOOSE_FILE_ACTION);
+                    intent.putExtra("fileContents", "hi");
+                    sendBroadcast(intent);
+                    finish();
             }
         });
-
 
         //Initially populate ListView
         ArrayList<String> myFileNameArray = new ArrayList<String>();
