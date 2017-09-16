@@ -44,48 +44,69 @@ public class SaveAsActivity extends AppCompatActivity {
             public void onClick(View v){
                 final String userInputFileName = saveAsFileName.getText().toString();
                 if(fileNameAlreadyExists(userInputFileName)){
-                    //file name is already taken. Ask to overwrite
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener(){
-                        @Override
-                        public void onClick(DialogInterface dialog, int which){
-                            switch (which){
-                                case DialogInterface.BUTTON_POSITIVE:{ //exit
-                                    File oldFile = new File(getFilesDir(), userInputFileName);
-                                    oldFile.delete();
-                                    File newFile = new File(getFilesDir(), userInputFileName);
-                                    try{
-                                        myOutputStream = new FileOutputStream(newFile, false);
-                                        myOutputStream.write(fileContents.getBytes());
-                                        myOutputStream.close();
-                                    } catch(FileNotFoundException e){
-                                        Log.d("SAVEAS", "FileNotFoundException");
-                                    } catch(IOException e) {
-                                        Log.d("SAVEAS", "IOException");
-                                    }
+                    if(userInputFileName.equals(fileName)){ //user trying to save as same name
+                        File oldFile = new File(getFilesDir(), fileName);
+                        oldFile.delete();
+                        File newFile = new File(getFilesDir(), fileName);
+                        try{
+                            myOutputStream = new FileOutputStream(newFile, false);
+                            myOutputStream.write(fileContents.getBytes());
+                            myOutputStream.close();
+                        } catch(FileNotFoundException e){
+                            Log.d("SAVEAS", "FileNotFoundException");
+                        } catch(IOException e) {
+                            Log.d("SAVEAS", "IOException");
+                        }
 
-                                    Intent returnIntent = new Intent();
-                                    returnIntent.putExtra("isNewFile", false);
-                                    returnIntent.putExtra("fileName", userInputFileName);
-                                    setResult(Activity.RESULT_OK, returnIntent);
-                                    finish();
-                                    break;
-                                }
-                                case DialogInterface.BUTTON_NEGATIVE:{ //cancel
-                                    Intent returnIntent = new Intent();
-                                    setResult(Activity.RESULT_CANCELED, returnIntent);
-                                    finish();
-                                    break;
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("isNewFile", false);
+                        returnIntent.putExtra("fileName", fileName);
+                        returnIntent.putExtra("changesSaved", true);
+                        setResult(Activity.RESULT_OK, returnIntent);
+                        finish();
+                    } else { //user trying to save file as another name
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case DialogInterface.BUTTON_POSITIVE: { //exit
+                                        File oldFile = new File(getFilesDir(), userInputFileName);
+                                        oldFile.delete();
+                                        File newFile = new File(getFilesDir(), userInputFileName);
+                                        try {
+                                            myOutputStream = new FileOutputStream(newFile, false);
+                                            myOutputStream.write(fileContents.getBytes());
+                                            myOutputStream.close();
+                                        } catch (FileNotFoundException e) {
+                                            Log.d("SAVEAS", "FileNotFoundException");
+                                        } catch (IOException e) {
+                                            Log.d("SAVEAS", "IOException");
+                                        }
+
+                                        Intent returnIntent = new Intent();
+                                        returnIntent.putExtra("isNewFile", false);
+                                        returnIntent.putExtra("fileName", userInputFileName);
+                                        setResult(Activity.RESULT_OK, returnIntent);
+                                        finish();
+                                        break;
+                                    }
+                                    case DialogInterface.BUTTON_NEGATIVE: { //cancel
+                                        Intent returnIntent = new Intent();
+                                        setResult(Activity.RESULT_CANCELED, returnIntent);
+                                        finish();
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                    };
+                        };
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(SaveAsActivity.this);
-                    builder.setMessage("A file named \"" + userInputFileName +
-                            "\" already exists.\nOverwrite it?")
-                            .setPositiveButton("Overwrite", dialogClickListener)
-                            .setNegativeButton("Cancel", dialogClickListener)
-                            .show();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SaveAsActivity.this);
+                        builder.setMessage("A file named \"" + userInputFileName +
+                                "\" already exists.\nOverwrite it?")
+                                .setPositiveButton("Overwrite", dialogClickListener)
+                                .setNegativeButton("Cancel", dialogClickListener)
+                                .show();
+                    }
                 } else{
                     //file name not taken. Now save it
                     File oldFile = new File(getFilesDir(), userInputFileName);
