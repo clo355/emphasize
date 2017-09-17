@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,9 +57,9 @@ public class TextEditorActivity extends AppCompatActivity {
                     saveAsIntent.putExtra("fileName", fileName);
                     saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
                     startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
-                    //on return, calls the overrided onActivityResult()
+                    //on return to Main, calls the overridden onActivityResult()
                 } else{
-                    //overwrite file with given fileName, toast here "File updated"
+                    //overwrite file with given fileName
                     File oldFile = new File(getFilesDir(), fileName);
                     oldFile.delete();
                     File newFile = new File(getFilesDir(), fileName);
@@ -72,7 +73,7 @@ public class TextEditorActivity extends AppCompatActivity {
                         Log.d("SAVEAS", "IOException");
                     }
                     originalFileContents = textEditor.getText().toString();
-                    //Toast here "Saved changes"
+                    showAsShortToast("Saved");
                 }
             }
         });
@@ -86,7 +87,7 @@ public class TextEditorActivity extends AppCompatActivity {
                 saveAsIntent.putExtra("fileName", fileName);
                 saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
                 startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
-                //on return, calls the overrided onActivityResult()
+                //on return to Main, calls the overridden onActivityResult()
             }
         });
     }
@@ -95,12 +96,12 @@ public class TextEditorActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent){
         if(requestCode == NEW_FILE_REQUEST_CODE){
             if(resultCode == Activity.RESULT_OK){
-                //user pressed ok and saved file. incoming isNewFile should be false
-                //should toast here "Saved"
+                //user pressed ok and saved file
                 isNewFile = returnedIntent.getExtras().getBoolean("isNewFile");
                 fileName = returnedIntent.getExtras().getString("fileName");
                 originalFileContents = textEditor.getText().toString();
                 textPrint.setText("fileName=" + fileName);
+                showAsShortToast("Saved as " + fileName);
             }
             if(resultCode == Activity.RESULT_CANCELED){
                 //user pressed cancel or hardware back in SaveAsActivity
@@ -136,5 +137,12 @@ public class TextEditorActivity extends AppCompatActivity {
                     .setNegativeButton("Cancel", dialogClickListener)
                     .show();
         }
+    }
+
+    public void showAsShortToast(String text){
+        CharSequence toastText = text;
+        int duration = Toast.LENGTH_SHORT; //2 seconds
+        Toast toast = Toast.makeText(getApplicationContext(), toastText, duration);
+        toast.show();
     }
 }

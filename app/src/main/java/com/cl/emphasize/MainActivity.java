@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -196,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
                                                 File oldFile = new File(getFilesDir(), longClickedFileName);
                                                 oldFile.delete();
                                                 updateListView();
+                                                showAsShortToast("Renamed as " + newFile.getName());
                                                 break;
                                             }
                                             case DialogInterface.BUTTON_NEGATIVE:{ //Cancel
@@ -222,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                                                 File fileToDelete = new File(getFilesDir(), longClickedFileName);
                                                 fileToDelete.delete();
                                                 updateListView();
+                                                showAsShortToast(fileToDelete.getName() + " deleted");
                                                 break;
                                             }
                                             case DialogInterface.BUTTON_NEGATIVE: {
@@ -239,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             }
                             case 3: { //Properties: show create date, last edit date, file size
+                                //Uses pop up box with Close button
                             }
                         }
                     }
@@ -268,6 +272,13 @@ public class MainActivity extends AppCompatActivity {
         } else{
             textPrint.setText("");
         }
+    }
+
+    public void showAsShortToast(String text){
+        CharSequence toastText = text;
+        int duration = Toast.LENGTH_SHORT; //2 seconds
+        Toast toast = Toast.makeText(getApplicationContext(), toastText, duration);
+        toast.show();
     }
 
     @Override
