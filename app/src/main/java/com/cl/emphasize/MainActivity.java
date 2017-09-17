@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         textPrint = (TextView) findViewById(R.id.textPrint);
         Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
@@ -79,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
-                newFileIntent.putExtra("fileName", "NewFile");
+                newFileIntent.putExtra("fileName", "New File");
                 newFileIntent.putExtra("fileContents", "");
                 newFileIntent.putExtra("isNewFile", true);
                 startActivity(newFileIntent);

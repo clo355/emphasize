@@ -1,6 +1,7 @@
 package com.cl.emphasize;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_file_for_widget);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         ListView listView = (ListView) findViewById(R.id.listViewCFFW);
         final TextView blinkRateInput = (TextView)findViewById(R.id.blinkRateInputCFFW);
