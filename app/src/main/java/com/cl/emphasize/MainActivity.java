@@ -33,8 +33,6 @@ import java.util.ArrayList;
  *   This app allows you post notes onto your home screen, and emphasize them with
  *   blinking or jiggling. Your notes are saved as actual text files.
  *
- *   Core features modeled after ColorNote and Microsoft Word.
- *
  *   CL
  **********************************************************************************/
 
