@@ -7,10 +7,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class FileContentsWidget extends AppWidgetProvider {
@@ -18,10 +24,14 @@ public class FileContentsWidget extends AppWidgetProvider {
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForFileContentsWidget";
     protected static String receivedFileContents = "Select file";
     protected static int receivedBlinkDelay = 0;
+    static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
+    protected static HashMap<Integer, Boolean> widgetIdStopRunnable = new HashMap<Integer, Boolean>();
+    protected static HashMap<Integer, Boolean> widgetIdIsRunning = new HashMap<Integer, Boolean>();
+    protected static List<Integer> hasRunnableBeforeMe = new ArrayList<Integer>();
+    protected static List<Integer> widgetIdWait = new ArrayList<Integer>();
 
     static void updateAppWidget(Context context, final AppWidgetManager appWidgetManager,
                                 final int appWidgetId){
-        Log.d("updateAppWidget called", "appWidgetId is " + Integer.toString(appWidgetId));
         //Clicked widget, bring up CFFWactivity
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
@@ -37,32 +47,77 @@ public class FileContentsWidget extends AppWidgetProvider {
         CharSequence fileContents = receivedFileContents;
         views.setTextViewText(R.id.appwidget_text, fileContents);
 
-        //loop switch between 2 colors, only if blinkDelay valid
-        final Handler myHandler = new Handler(); //for postDelayed()
+        //loop switch between 2 colors
         if(blinkDelay > 0){
             final Runnable runnable = new Runnable(){
                 boolean lightOn = true;
-
+                @Override
                 public void run() { //Do not update UI from anywhere except main thread
-                    if (lightOn) {
-                        lightOn = false;
+                    if(widgetIdStopRunnable.get(appWidgetId).equals(false)){
+                        if (lightOn) {
+                            lightOn = false;
+                            views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                                    Color.argb(150, 255, 248, 231)); //turn light off
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            myHandler.postDelayed(this, blinkDelay);
+                        } else {
+                            lightOn = true;
+                            views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                                    Color.argb(220, 255, 248, 231)); //turn light on
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            myHandler.postDelayed(this, blinkDelay);
+                        }
+                    } else{
+                        //StopRunnable was true
                         views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
                                 Color.argb(150, 255, 248, 231)); //turn light off
                         appWidgetManager.updateAppWidget(appWidgetId, views);
+                        widgetIdIsRunning.put(appWidgetId, false);
+                        Log.d("updateAppWidget", "called removeCallbacksAndMessages(this)");
+                        Log.d("updateAppWidget", "Dealing with " + appWidgetId);
+                        Log.d("updateAppWidget", "widgetIdWait.contains(appWidgetId) is " + widgetIdWait.contains(new Integer(appWidgetId)));
+                        if(widgetIdWait.contains(new Integer(appWidgetId))) { //is some runnable waiting for this to end?
+                            try {
+                                widgetIdWait.remove(new Integer(appWidgetId)); //before or after removeCallbacks?
+                            } catch(IndexOutOfBoundsException e){
+                                Log.d("EXCEPTION", "Why would this happen!!!");
+                            }
+                        }
 
-                        myHandler.postDelayed(this, blinkDelay);
-                    } else {
-                        lightOn = true;
-                        views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
-                                Color.argb(220, 255, 248, 231)); //turn light on
-                        appWidgetManager.updateAppWidget(appWidgetId, views);
-                        myHandler.postDelayed(this, blinkDelay);
+                        myHandler.removeCallbacksAndMessages(this);
                     }
                 }
             };
 
-            //start the blink loop
-            myHandler.post(runnable);
+            //This checks widgetIdIsRunning in the background so it doesn't block old runnable's check loop
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if(hasRunnableBeforeMe.contains(appWidgetId)){ //widgetId runnable exists in messageQueue?
+                        //wait for old runnable to stop
+                        while(widgetIdIsRunning.get(appWidgetId) == true){
+                            widgetIdStopRunnable.put(appWidgetId, true);
+                        }
+                    } else{
+                        hasRunnableBeforeMe.add(appWidgetId);
+                    }
+
+                    Log.d("AsyncTask", "Starting widgetIdWait loop");
+                    while (widgetIdWait.contains(appWidgetId)) {
+                        //waiting for old runnable to end and remove widgetId from wait list
+                        if (!widgetIdWait.contains(appWidgetId)) {
+                            break;
+                        }
+                    }
+
+                    Log.d("AsyncTask", "widgetIdWait loop ended");
+                    //old runnable stopped. start new runnable
+                    widgetIdStopRunnable.put(appWidgetId, false);
+                    widgetIdIsRunning.put(appWidgetId, true);
+                    myHandler.post(runnable);
+                    widgetIdWait.add(new Integer(appWidgetId));
+                }
+            });
         } else{
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
@@ -91,10 +146,9 @@ public class FileContentsWidget extends AppWidgetProvider {
                     return;
                 } else{
                     int id = b.getInt("widgetId");
-                    Log.d("onReceive", "widgetId is " + Integer.toString(id));
                     updateAppWidget(context, mgr, id);
                     Log.d("onReceive", "got here 4");
-                    super.onReceive(context, intent); //added
+                    super.onReceive(context, intent);
                 }
                 Log.d("onReceive", "got here 3");
             }
@@ -126,6 +180,5 @@ public class FileContentsWidget extends AppWidgetProvider {
         Log.d("onDisabled called", "once");
         // Enter relevant functionality for when the last widget is disabled
         //might need to do handler.removeCallbacksAndMessages(null); to stop runnables
-
     }
 }

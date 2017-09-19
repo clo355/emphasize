@@ -24,7 +24,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("onCreate", "widgetId is " + getIntent().getExtras().getInt("widgetId"));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_file_for_widget);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -77,7 +76,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 intent.putExtra("blinkDelay", blinkDelay);
                 int widgetId = getIntent().getExtras().getInt("widgetId");
                 //Send widget ID back so onReceive() sees which widget to update
-                Log.d("onCreate", "got here...");
                 intent.putExtra("widgetId", widgetId);
                 sendBroadcast(intent);
                 finish();
