@@ -9,4 +9,5 @@
     <string name="widget_name_blink">Emphasize Blink</string>
     <string name="widget_name_jiggle">Emphasize Jiggle</string>
     <string name="widget_name_normal">Emphasize Normal</string>
+    <string name="appwidget_text">EXAMPLE</string>
 </resources>

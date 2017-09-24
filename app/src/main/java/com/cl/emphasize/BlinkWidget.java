@@ -19,11 +19,17 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class FileContentsWidget extends AppWidgetProvider {
+public class BlinkWidget extends AppWidgetProvider {
 
-    public static String CHOOSE_FILE_ACTION = "ActionChooseFileForFileContentsWidget";
+    //Widget is initially updated with my default values. Pressing button will open
+    //ChooseFileForWidgetActivity, which broadcasts intent extras to BlinkWidget's onReceive().
+
+    public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
     protected static String receivedFileContents = "Select file";
     protected static int receivedBlinkDelay = 0;
+    //protected static String receivedBackgroundColor;
+    //protected static String receivedTextColor;
+    //protected static int receivedTextSize;
     static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
     protected static HashMap<Integer, Boolean> widgetIdStopRunnable = new HashMap<Integer, Boolean>();
     protected static HashMap<Integer, Boolean> widgetIdIsRunning = new HashMap<Integer, Boolean>();
@@ -35,9 +41,10 @@ public class FileContentsWidget extends AppWidgetProvider {
         //Clicked widget, bring up CFFWactivity
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
-        //PendingIntent is appWidgetId to let CFFWactivity know it's a unique intent
+        intent.putExtra("widgetType", "blink");
+        //PendingIntent param appWidgetId to let CFFWactivity know it's a unique intent
         PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, 0);
-        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.file_contents_widget);
+        final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.blink_widget);
         views.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
         views.setTextViewText(R.id.appwidget_text, receivedFileContents);
         appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -129,6 +136,7 @@ public class FileContentsWidget extends AppWidgetProvider {
         receivedFileContents = "Select file";
         receivedBlinkDelay = 0;
         if(intent.getExtras() == null){
+            //probably pressed cancel
             Log.d("onReceive", "getExtras() was null");
         } else{
             Log.d("onReceive", "getExtras() was not null");
@@ -138,7 +146,7 @@ public class FileContentsWidget extends AppWidgetProvider {
                 receivedFileContents = b.getString("fileContents");
                 receivedBlinkDelay = b.getInt("blinkDelay");
                 final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-                ComponentName name = new ComponentName(context, FileContentsWidget.class);
+                ComponentName name = new ComponentName(context, BlinkWidget.class);
                 int[] appWidgetId = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
                 final int appWidgetIdLength = appWidgetId.length;
                 if(appWidgetIdLength < 1){

@@ -21,9 +21,10 @@
         <activity android:name=".TextEditorActivity" />
         <activity android:name=".SaveAsActivity" />
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".ChooseFileForWidgetActivity" />
 
         <receiver
-            android:name=".FileContentsWidget"
+            android:name=".BlinkWidget"
             android:label="@string/widget_name_blink">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -32,10 +33,34 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/file_contents_widget_info" />
+                android:resource="@xml/blink_widget_info" />
         </receiver>
 
-        <activity android:name=".ChooseFileForWidgetActivity"></activity>
+        <receiver
+            android:name=".JiggleWidget"
+            android:label="@string/widget_name_jiggle">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/jiggle_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".NormalWidget"
+            android:label="@string/widget_name_normal">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/normal_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

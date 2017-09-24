@@ -31,7 +31,7 @@ import java.util.ArrayList;
  *   Emphasize
  *
  *   This app allows you post notes onto your home screen, and emphasize them with
- *   blinking or jiggling. Your notes are saved as actual text files.
+ *   blinking or jiggling.
  *
  *   CL
  **********************************************************************************/
