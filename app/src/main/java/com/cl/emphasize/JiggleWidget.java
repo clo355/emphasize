@@ -32,29 +32,102 @@ public class JiggleWidget extends AppWidgetProvider {
     protected static List<Integer> hasRunnableBeforeMe = new ArrayList<Integer>();
     protected static List<Integer> widgetIdWait = new ArrayList<Integer>();
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+    static void updateAppWidget(Context context, final AppWidgetManager appWidgetManager,
+                                final int appWidgetId) {
         //Clicked widget, bring up CFFWactivity
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
         intent.putExtra("widgetType", "jiggle");
-        //PendingIntent param appWidgetId to let CFFWactivity know it's a unique intent
         PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, 0);
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.jiggle_widget);
         views.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
         views.setTextViewText(R.id.appwidget_text, receivedFileContents);
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
-        //fileContents and jiggleDelay received in onReceive(), for use in 3 positions loop below
         final int jiggleDelay = receivedJiggleDelay;
         CharSequence fileContents = receivedFileContents;
         views.setTextViewText(R.id.appwidget_text, fileContents);
 
-        //loop switch between 3 positions
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+        if(jiggleDelay > 0){
+            final Runnable runnable = new Runnable(){
+                int jigglePosition = 1; //center1, right2, center3, left4, repeat.
+                @Override
+                public void run() { //Do not update UI from anywhere except main thread
+                    if(widgetIdStopRunnable.get(appWidgetId).equals(false)){
+                        if (jigglePosition == 1) {
+                            jigglePosition = 2;
+                            //Change padding on API 16+: id, left, top, right, bottom
+                            //Only this first setViewPadding works. The others reset padding to 0
+                            views.setViewPadding(R.id.RelativeLayoutJiggle, 0, 0, 150, 0);
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            Log.d("JiggleWidget", "right2");
+                            myHandler.postDelayed(this, jiggleDelay);
+                        }else if(jigglePosition == 2){
+                            jigglePosition = 3;
+                            views.setViewPadding(R.id.RelativeLayoutJiggle, 100, 0, 100, 0);
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            Log.d("JiggleWidget", "center3");
+                            myHandler.postDelayed(this, jiggleDelay);
+                        } else if(jigglePosition == 3){
+                            jigglePosition = 4;
+                            views.setViewPadding(R.layout.jiggle_widget, 150, 0, 0, 0);
+                            //views.setInt(R.layout.jiggle_widget, "setPadding", 30);
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            Log.d("JiggleWidget", "left4");
+                            myHandler.postDelayed(this, jiggleDelay);
+                        } else{ //jigglePosition is "left4"
+                            jigglePosition = 1;
+                            views.setViewPadding(R.layout.jiggle_widget, 100, 0, 100, 0);
+                            appWidgetManager.updateAppWidget(appWidgetId, views);
+                            Log.d("JiggleWidget", "center1");
+                            myHandler.postDelayed(this, jiggleDelay);
+                        }
+                    } else{
+                        appWidgetManager.updateAppWidget(appWidgetId, views);
+                        widgetIdIsRunning.put(appWidgetId, false);
+                        Log.d("updateAppWidget", "called removeCallbacksAndMessages(this)");
+                        Log.d("updateAppWidget", "Dealing with " + appWidgetId);
+                        Log.d("updateAppWidget", "widgetIdWait.contains(appWidgetId) is " + widgetIdWait.contains(new Integer(appWidgetId)));
+                        if(widgetIdWait.contains(new Integer(appWidgetId))) {
+                            try {
+                                widgetIdWait.remove(new Integer(appWidgetId));
+                            } catch(IndexOutOfBoundsException e){
+                                Log.d("JiggleWidget", "IndexOutOfBoundsException");
+                            }
+                        }
+                        myHandler.removeCallbacksAndMessages(this);
+                    }
+                }
+            };
 
-        //Change padding on API 16+ for RemoteView:
-        //remoteView.setViewPadding(R.id.widget_item, 30, 0, 0, 0);
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if(hasRunnableBeforeMe.contains(appWidgetId)){
+                        while(widgetIdIsRunning.get(appWidgetId) == true){
+                            widgetIdStopRunnable.put(appWidgetId, true);
+                        }
+                    } else{
+                        hasRunnableBeforeMe.add(appWidgetId);
+                    }
+
+                    Log.d("AsyncTask", "Starting widgetIdWait loop");
+                    while (widgetIdWait.contains(appWidgetId)) {
+                        if (!widgetIdWait.contains(appWidgetId)) {
+                            break;
+                        }
+                    }
+
+                    Log.d("AsyncTask", "widgetIdWait loop ended");
+                    widgetIdStopRunnable.put(appWidgetId, false);
+                    widgetIdIsRunning.put(appWidgetId, true);
+                    myHandler.post(runnable);
+                    widgetIdWait.add(new Integer(appWidgetId));
+                }
+            });
+        } else{
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        }
     }
 
     @Override

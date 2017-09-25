@@ -30,8 +30,7 @@ import java.util.ArrayList;
 /**********************************************************************************
  *   Emphasize
  *
- *   This app allows you post notes onto your home screen, and emphasize them with
- *   blinking or jiggling.
+ *   This app allows you post blinking notes to your home screen.
  *
  *   CL
  **********************************************************************************/

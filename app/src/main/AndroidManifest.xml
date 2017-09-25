@@ -36,6 +36,7 @@
                 android:resource="@xml/blink_widget_info" />
         </receiver>
 
+        <!--
         <receiver
             android:name=".JiggleWidget"
             android:label="@string/widget_name_jiggle">
@@ -48,6 +49,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/jiggle_widget_info" />
         </receiver>
+        -->
 
         <receiver
             android:name=".NormalWidget"

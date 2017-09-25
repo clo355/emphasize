@@ -63,20 +63,20 @@ public class BlinkWidget extends AppWidgetProvider {
                     if(widgetIdStopRunnable.get(appWidgetId).equals(false)){
                         if (lightOn) {
                             lightOn = false;
-                            views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                            views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                                     Color.argb(150, 255, 248, 231)); //turn light off
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         } else {
                             lightOn = true;
-                            views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                            views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                                     Color.argb(220, 255, 248, 231)); //turn light on
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         }
                     } else{
                         //StopRunnable was true
-                        views.setInt(R.id.RelativeLayout1, "setBackgroundColor",
+                        views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                                 Color.argb(150, 255, 248, 231)); //turn light off
                         appWidgetManager.updateAppWidget(appWidgetId, views);
                         widgetIdIsRunning.put(appWidgetId, false);
@@ -87,10 +87,9 @@ public class BlinkWidget extends AppWidgetProvider {
                             try {
                                 widgetIdWait.remove(new Integer(appWidgetId)); //before or after removeCallbacks?
                             } catch(IndexOutOfBoundsException e){
-                                Log.d("EXCEPTION", "Why would this happen!!!");
+                                Log.d("BlinkWidget", "IndexOutOfBounds"); //happens if int used. HashMap looks for Integer
                             }
                         }
-
                         myHandler.removeCallbacksAndMessages(this);
                     }
                 }
