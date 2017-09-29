@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -39,6 +40,9 @@ public class SaveAsActivity extends AppCompatActivity {
         saveAsOkButton = (Button)findViewById(R.id.saveAsOkButton);
         saveAsCancelButton = (Button)findViewById(R.id.saveAsCancelButton);
         saveAsFileName = (EditText)findViewById(R.id.saveAsFileName);
+
+        //Automatically show keyboard
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         saveAsOkButton.setOnClickListener(new View.OnClickListener(){
             @Override

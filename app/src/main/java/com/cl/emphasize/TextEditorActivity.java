@@ -27,7 +27,7 @@ public class TextEditorActivity extends AppCompatActivity {
     boolean changesSaved = false;
     public static final int NEW_FILE_REQUEST_CODE = 1;
 
-    TextView textPrint;
+    TextView fileNameDisplay;
     EditText textEditor;
 
     @Override
@@ -36,7 +36,7 @@ public class TextEditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_text_editor);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        textPrint = (TextView)findViewById(R.id.textPrint);
+        fileNameDisplay = (TextView)findViewById(R.id.fileNameDisplay);
         textEditor = (EditText)findViewById(R.id.textEditor);
 
         fileName = getIntent().getExtras().getString("fileName");
@@ -44,7 +44,11 @@ public class TextEditorActivity extends AppCompatActivity {
         originalFileContents = getIntent().getExtras().getString("fileContents");
         textEditor.setText(originalFileContents);
 
-        textPrint.setText("fileName=" + fileName);
+        if(fileName.length() <= 13) {
+            fileNameDisplay.setText(fileName);
+        } else{
+            fileNameDisplay.setText(fileName.substring(0, 13) + "...");
+        }
 
         Button saveButton = (Button)findViewById(R.id.textEditorSaveButton);
         saveButton.setOnClickListener(new View.OnClickListener(){
@@ -100,7 +104,11 @@ public class TextEditorActivity extends AppCompatActivity {
                 isNewFile = returnedIntent.getExtras().getBoolean("isNewFile");
                 fileName = returnedIntent.getExtras().getString("fileName");
                 originalFileContents = textEditor.getText().toString();
-                textPrint.setText("fileName=" + fileName);
+                if(fileName.length() <= 13) {
+                    fileNameDisplay.setText(fileName);
+                } else{
+                    fileNameDisplay.setText(fileName.substring(0, 13) + "...");
+                }
                 showAsShortToast("Saved as " + fileName);
             }
             if(resultCode == Activity.RESULT_CANCELED){

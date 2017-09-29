@@ -7,29 +7,24 @@
     tools:context="com.cl.emphasize.TextEditorActivity">
 
     <TextView
-        android:id="@+id/textPrint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/testprint_border"/>
-
-    <TextView
         android:id="@+id/fileNameDisplay"
-        android:layout_width="374dp"
-        android:layout_height="28dp"
-        android:ems="12"
+        android:layout_width="166dp"
+        android:layout_height="32dp"
+        android:ems="16"
         android:text=""
+        android:textSize="16dp"
         android:textStyle="bold"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.001"
-        tools:layout_editor_absoluteX="4dp" />
+        app:layout_constraintVertical_bias="0.97"
+        app:layout_constraintHorizontal_bias="0.073" />
 
     <EditText
         android:id="@+id/textEditor"
         android:layout_width="369dp"
-        android:layout_height="470dp"
+        android:layout_height="492dp"
         android:ems="10"
         android:gravity="top|start"
         android:inputType="textMultiLine"
@@ -37,8 +32,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.381"
-        app:layout_constraintHorizontal_bias="0.533" />
+        app:layout_constraintVertical_bias="0.188" />
 
     <Button
         android:id="@+id/textEditorSaveButton"

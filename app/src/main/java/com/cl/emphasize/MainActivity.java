@@ -2,14 +2,18 @@ package com.cl.emphasize;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -26,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**********************************************************************************
  *   Emphasize
@@ -37,10 +43,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+
     protected ListView listView;
     protected ArrayAdapter<String> listViewAdapter;
     protected ArrayList<String> myFileNameArray;
     protected TextView textPrint = null;
+    public static final String PREFS_NAME = "PreferenceFile";
 
     @TargetApi(21)
     @Override
@@ -60,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
             String foundFileName = foundFile.getName();
             myFileNameArray.add(foundFileName);
         }
-
         listView = (ListView) findViewById(R.id.listView);
         listViewAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
@@ -257,6 +264,12 @@ public class MainActivity extends AppCompatActivity {
             String foundFileName = foundFile.getName();
             myFileNameArray.add(foundFileName);
         }
+
+        //Sort arraylist with user preference before putting into adapter
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String sortPreference = settings.getString("sortPreference", "alphabetical_highest");
+        sortMyFileArrayByPreference(myFileNameArray, sortPreference);
+
         listView.setAdapter(null);
         listViewAdapter.clear();
         listViewAdapter.addAll(new ArrayList(myFileNameArray));
@@ -268,6 +281,37 @@ public class MainActivity extends AppCompatActivity {
             textPrint.setText("No files found");
         } else{
             textPrint.setText("");
+        }
+    }
+
+    public void sortMyFileArrayByPreference(ArrayList<String> whichArray, String whichSort){
+        //whichArray should have been passed in by reference
+        switch(whichSort){
+            case "alphabetical_lowest":{
+                Collections.sort(whichArray, new Comparator<String>() {
+                    @Override
+                    public int compare(String s1, String s2) {
+                        return s1.compareToIgnoreCase(s2);
+                    }
+                });
+                break;
+            }
+            case "alphabetical_highest":{
+                Collections.sort(whichArray, new Comparator<String>() {
+                    @Override
+                    public int compare(String s1, String s2) {
+                        return s1.compareToIgnoreCase(s2);
+                    }
+                });
+                Collections.reverse(whichArray);
+                break;
+            }
+            case "recent_newest":{
+                break;
+            }
+            case "recent_oldest":{
+                break;
+            }
         }
     }
 
