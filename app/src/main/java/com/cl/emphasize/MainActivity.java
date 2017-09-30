@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected ArrayAdapter<String> listViewAdapter;
     protected ArrayList<String> myFileNameArray;
     protected TextView textPrint = null;
-    public static final String PREFS_NAME = "PreferenceFile";
+    public static final String PREFS_NAME = "PreferenceFile"; //for sort preference
 
     @TargetApi(21)
     @Override
@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         textPrint = (TextView) findViewById(R.id.textPrint);
+        Button mainSortButton = (Button)findViewById(R.id.mainSortButton);
         Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
         Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
 
@@ -81,6 +82,60 @@ public class MainActivity extends AppCompatActivity {
         } else{
             textPrint.setText("");
         }
+
+        //Press sort
+        mainSortButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Sort notes by:");
+                CharSequence[] sortChoices = {"Alphanumeric 0-9, A-Z", "Alphanumeric Z-A, 9-0",
+                        "Newest", "Oldest"};
+                final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                int savedSort = settings.getInt("savedSort", 3);
+                builder.setSingleChoiceItems(sortChoices, savedSort, new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int whichRadio){
+                        switch(whichRadio){
+                            case 0:{ //Alphanumeric 0-9, A-Z
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putInt("savedSort", 0);
+                                editor.commit();
+                                updateListView();
+                                dialog.cancel();
+
+                                break;
+                            }
+                            case 1:{ //Alphanumeric Z-A, 9-0
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putInt("savedSort", 1);
+                                editor.commit();
+                                updateListView();
+                                dialog.cancel();
+                                break;
+                            }
+                            case 2:{ //Newest
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putInt("savedSort", 2);
+                                editor.commit();
+                                updateListView();
+                                dialog.cancel();
+                                break;
+                            }
+                            case 3:{ //Oldest
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putInt("savedSort", 3);
+                                editor.commit();
+                                updateListView();
+                                dialog.cancel();
+                                break;
+                            }
+                        }
+                    }
+                });
+                builder.create().show();
+            }
+        });
 
         //Press new
         mainNewTextFileButton.setOnClickListener(new View.OnClickListener(){
@@ -268,8 +323,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Sort arraylist with user preference before putting into adapter
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        String sortPreference = settings.getString("sortPreference", "recent_oldest");
-        if(sortPreference.equals("alphabetical_lowest") || sortPreference.equals("alphabetical_highest")){
+        int sortPreference = settings.getInt("savedSort", 2);
+        /* 0 is Alphanumeric 0-9, A-Z
+         * 1 is Alphanumeric Z-A, 9-0
+         * 2 is Newest
+         * 3 is Oldest
+         */
+        if((sortPreference == 0) || (sortPreference == 1)){
             //pass myFileNameArray by reference. Will be sorted by method
             sortByAlphabetical(myFileNameArray, sortPreference);
         } else{
@@ -299,10 +359,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sortByAlphabetical(ArrayList<String> whichArray, String whichSort){
+    public void sortByAlphabetical(ArrayList<String> whichArray, int whichSort){
         //whichArray should have been passed in by reference
         switch(whichSort){
-            case "alphabetical_lowest":{
+            case 0:{ //Alphanumeric 0-9, A-Z
                 Collections.sort(whichArray, new Comparator<String>() {
                     @Override
                     public int compare(String s1, String s2) {
@@ -311,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
                 });
                 break;
             }
-            case "alphabetical_highest":{
+            case 1:{ //Alphanumeric Z-A, 9-0
                 Collections.sort(whichArray, new Comparator<String>(){
                     @Override
                     public int compare(String s1, String s2) {
@@ -324,25 +384,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sortByRecent(ArrayList<File> whichArray, String whichSort){
-        switch(whichSort) {
-            case "recent_newest": {
-                Collections.sort(whichArray, new Comparator<File>() {
+    public void sortByRecent(ArrayList<File> whichArray, int whichSort){
+        switch(whichSort){
+            case 2:{
+                Collections.sort(whichArray, new Comparator<File>(){
                     @Override
-                    public int compare(File f1, File f2) {
-                        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
-                    }
-                });
-                break;
-            }
-            case "recent_oldest": {
-                Collections.sort(whichArray, new Comparator<File>() {
-                    @Override
-                    public int compare(File f1, File f2) {
-                        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+                    public int compare(File file1, File file2){
+                        return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
                     }
                 });
                 Collections.reverse(whichArray);
+                break;
+            }
+            case 3:{
+                Collections.sort(whichArray, new Comparator<File>(){
+                    @Override
+                    public int compare(File file1, File file2){
+                        return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
+                    }
+                });
                 break;
             }
         }
