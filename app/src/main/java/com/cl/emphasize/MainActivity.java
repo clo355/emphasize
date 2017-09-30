@@ -7,11 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -33,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 /**********************************************************************************
  *   Emphasize
@@ -88,46 +92,62 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Sort notes by:");
+                builder.setTitle("Sort by:");
                 CharSequence[] sortChoices = {"Alphanumeric 0-9, A-Z", "Alphanumeric Z-A, 9-0",
                         "Newest", "Oldest"};
                 final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                 int savedSort = settings.getInt("savedSort", 3);
                 builder.setSingleChoiceItems(sortChoices, savedSort, new DialogInterface.OnClickListener(){
+                    Handler myHandler = new Handler();
                     @Override
-                    public void onClick(DialogInterface dialog, int whichRadio){
+                    public void onClick(final DialogInterface dialog, int whichRadio){
                         switch(whichRadio){
                             case 0:{ //Alphanumeric 0-9, A-Z
-                                SharedPreferences.Editor editor = settings.edit();
-                                editor.putInt("savedSort", 0);
-                                editor.commit();
-                                updateListView();
-                                dialog.cancel();
-
+                                myHandler.postDelayed(new Runnable() {
+                                    public void run(){
+                                        SharedPreferences.Editor editor = settings.edit();
+                                        editor.putInt("savedSort", 0);
+                                        editor.commit();
+                                        updateListView();
+                                        dialog.cancel();
+                                    }
+                                }, 200);
                                 break;
                             }
                             case 1:{ //Alphanumeric Z-A, 9-0
-                                SharedPreferences.Editor editor = settings.edit();
-                                editor.putInt("savedSort", 1);
-                                editor.commit();
-                                updateListView();
-                                dialog.cancel();
+                                myHandler.postDelayed(new Runnable() {
+                                    public void run(){
+                                        SharedPreferences.Editor editor = settings.edit();
+                                        editor.putInt("savedSort", 1);
+                                        editor.commit();
+                                        updateListView();
+                                        dialog.cancel();
+                                    }
+                                }, 200);
                                 break;
                             }
                             case 2:{ //Newest
-                                SharedPreferences.Editor editor = settings.edit();
-                                editor.putInt("savedSort", 2);
-                                editor.commit();
-                                updateListView();
-                                dialog.cancel();
+                                myHandler.postDelayed(new Runnable() {
+                                    public void run(){
+                                        SharedPreferences.Editor editor = settings.edit();
+                                        editor.putInt("savedSort", 2);
+                                        editor.commit();
+                                        updateListView();
+                                        dialog.cancel();
+                                    }
+                                }, 200);
                                 break;
                             }
                             case 3:{ //Oldest
-                                SharedPreferences.Editor editor = settings.edit();
-                                editor.putInt("savedSort", 3);
-                                editor.commit();
-                                updateListView();
-                                dialog.cancel();
+                                myHandler.postDelayed(new Runnable() {
+                                    public void run(){
+                                        SharedPreferences.Editor editor = settings.edit();
+                                        editor.putInt("savedSort", 3);
+                                        editor.commit();
+                                        updateListView();
+                                        dialog.cancel();
+                                    }
+                                }, 200);
                                 break;
                             }
                         }
@@ -301,8 +321,24 @@ public class MainActivity extends AppCompatActivity {
                                         .show();
                                 break;
                             }
-                            case 3: { //Properties: show create date, last edit date, file size
-                                //Uses pop up box with Close button
+                            case 3: { //Properties: show create date, last edit date, file byte size
+                                Date modDate = new Date(longClickedFile.lastModified());
+                                String lastEditDate = modDate.toString();
+                                long fileByteSize = longClickedFile.length();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setTitle("Properties");
+                                builder.setMessage("\n• File name:\n     " + longClickedFileName + "\n\n" +
+                                "• Last modification:\n     " + lastEditDate + "\n\n" +
+                                "• File size:\n     " + fileByteSize + " bytes\n");
+                                builder.setCancelable(true);
+                                builder.setPositiveButton("Close", new DialogInterface.OnClickListener(){
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                                AlertDialog alert = builder.create();
+                                builder.show();
                             }
                         }
                     }
