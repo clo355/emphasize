@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -267,8 +268,22 @@ public class MainActivity extends AppCompatActivity {
 
         //Sort arraylist with user preference before putting into adapter
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        String sortPreference = settings.getString("sortPreference", "alphabetical_highest");
-        sortMyFileArrayByPreference(myFileNameArray, sortPreference);
+        String sortPreference = settings.getString("sortPreference", "recent_oldest");
+        if(sortPreference.equals("alphabetical_lowest") || sortPreference.equals("alphabetical_highest")){
+            //pass myFileNameArray by reference. Will be sorted by method
+            sortByAlphabetical(myFileNameArray, sortPreference);
+        } else{
+            //create an arraylist of all the files
+            ArrayList<File> myFileArray = new ArrayList<File>(Arrays.asList(fileListUpdateListView));
+            //Sort myFileArray by mod date, then clear myFileNameArray.
+            sortByRecent(myFileArray, sortPreference);
+            myFileNameArray.clear();
+            //Loop through myFileArray and add all the .getName()s to myFileNameArray.
+            for(File sortedFile : myFileArray){
+                myFileNameArray.add(sortedFile.getName());
+            }
+            //Complete. Now myFileNameArray is sorted by recent.
+        }
 
         listView.setAdapter(null);
         listViewAdapter.clear();
@@ -284,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sortMyFileArrayByPreference(ArrayList<String> whichArray, String whichSort){
+    public void sortByAlphabetical(ArrayList<String> whichArray, String whichSort){
         //whichArray should have been passed in by reference
         switch(whichSort){
             case "alphabetical_lowest":{
@@ -297,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
             case "alphabetical_highest":{
-                Collections.sort(whichArray, new Comparator<String>() {
+                Collections.sort(whichArray, new Comparator<String>(){
                     @Override
                     public int compare(String s1, String s2) {
                         return s1.compareToIgnoreCase(s2);
@@ -306,10 +321,28 @@ public class MainActivity extends AppCompatActivity {
                 Collections.reverse(whichArray);
                 break;
             }
-            case "recent_newest":{
+        }
+    }
+
+    public void sortByRecent(ArrayList<File> whichArray, String whichSort){
+        switch(whichSort) {
+            case "recent_newest": {
+                Collections.sort(whichArray, new Comparator<File>() {
+                    @Override
+                    public int compare(File f1, File f2) {
+                        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+                    }
+                });
                 break;
             }
-            case "recent_oldest":{
+            case "recent_oldest": {
+                Collections.sort(whichArray, new Comparator<File>() {
+                    @Override
+                    public int compare(File f1, File f2) {
+                        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+                    }
+                });
+                Collections.reverse(whichArray);
                 break;
             }
         }
