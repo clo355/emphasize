@@ -4,12 +4,15 @@ import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -147,48 +150,144 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         widgetSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                final TextView sampleDisplay = new TextView(ChooseFileForWidgetActivity.this);
-                final TextView delayDisplay = new TextView(ChooseFileForWidgetActivity.this);
 
-                sampleDisplay.setGravity(Gravity.CENTER);
-                sampleDisplay.setText("Display");
+                final TextView speedLabelDisplay = new TextView(ChooseFileForWidgetActivity.this);
+                speedLabelDisplay.setGravity(Gravity.CENTER);
+                speedLabelDisplay.setText("\n\nSpeed");
+                speedLabelDisplay.setTypeface(Typeface.DEFAULT_BOLD);
 
-                delayDisplay.setGravity(Gravity.CENTER);
-                delayDisplay.setText("\n\nNormal");
+                final TextView speedDisplay = new TextView(ChooseFileForWidgetActivity.this);
+                speedDisplay.setGravity(Gravity.CENTER);
+
+                final TextView emptySpace1 = new TextView(ChooseFileForWidgetActivity.this);
+                emptySpace1.setGravity(Gravity.CENTER);
+                emptySpace1.setText("");
 
                 SeekBar delaySeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 delaySeekBar.setMax(100);
-                delaySeekBar.setProgress(50);
+
+                //Start off as:
+                if(blinkDelay <= 50){
+                    speedDisplay.setText("Faster");
+                    delaySeekBar.setProgress(100);
+                } else if(blinkDelay <= 120) {
+                    speedDisplay.setText("Fast");
+                    delaySeekBar.setProgress(75);
+                } else if(blinkDelay <= 333){
+                    speedDisplay.setText("Normal");
+                    delaySeekBar.setProgress(50);
+                } else if(blinkDelay <= 666){
+                    speedDisplay.setText("Slow");
+                    delaySeekBar.setProgress(25);
+                } else{
+                    speedDisplay.setText("Slower");
+                    delaySeekBar.setProgress(0);
+                }
 
                 //SeekBar textColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 //SeekBar textSizeSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
-                //SeekBar backgroundColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
+                final TextView backgroundColorLabelDisplay = new TextView(ChooseFileForWidgetActivity.this);
+                backgroundColorLabelDisplay.setGravity(Gravity.CENTER);
+                backgroundColorLabelDisplay.setText("\n\nBackground Color");
+                backgroundColorLabelDisplay.setTypeface(Typeface.DEFAULT_BOLD);
 
+                final TextView backgroundColorDisplay = new TextView(ChooseFileForWidgetActivity.this);
+                backgroundColorDisplay.setGravity(Gravity.CENTER);
+                LinearLayout.LayoutParams bgParams = new LinearLayout.LayoutParams( //width and height
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                bgParams.gravity = Gravity.CENTER;
+                backgroundColorDisplay.setLayoutParams(bgParams);
+                backgroundColorDisplay.setText("      ");
+                backgroundColorDisplay.setBackgroundColor(Color.WHITE);
+
+                final TextView emptySpace2 = new TextView(ChooseFileForWidgetActivity.this);
+                emptySpace2.setGravity(Gravity.CENTER);
+                emptySpace2.setText("");
+
+                SeekBar backgroundColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
+                backgroundColorSeekBar.setMax(7);
+                backgroundColorSeekBar.setProgress(7);
+
+                //Blink speed seekbar, int 0 to 100
                 delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int speed, boolean fromUser) {
                         if(speed > 80){
                             blinkDelay = 50;
-                            delayDisplay.setText("\n\nFaster");
+                            speedDisplay.setText("Faster");
                         } else if(speed > 60) {
                             blinkDelay = 120;
-                            delayDisplay.setText("\n\nFast");
+                            speedDisplay.setText("Fast");
                         } else if(speed > 40){
                             blinkDelay = 333;
-                            delayDisplay.setText("\n\nNormal");
+                            speedDisplay.setText("Normal");
                         } else if(speed > 20){
                             blinkDelay = 666;
-                            delayDisplay.setText("\n\nSlow");
+                            speedDisplay.setText("Slow");
                         } else{
                             blinkDelay = 999;
-                            delayDisplay.setText("\n\nSlower");
+                            speedDisplay.setText("Slower");
                         }
                     }
-
                     @Override
                     public void onStartTrackingTouch(SeekBar seekBar){
                     }
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar){
+                    }
+                });
 
+                //Background color seekbar
+                backgroundColorSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int color, boolean fromUser) {
+                        switch(color){
+                            case 0:{
+                                backgroundColor = "red";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 37, 37));
+                                break;
+                            }
+                            case 1:{
+                                backgroundColor = "orange";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(225, 179, 37));
+                                break;
+                            }
+                            case 2:{
+                                backgroundColor = "yellow";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(234, 236, 14));
+                                break;
+                            }
+                            case 3:{
+                                backgroundColor = "green";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(111, 236, 14));
+                                break;
+                            }
+                            case 4:{
+                                backgroundColor = "blue";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(14, 197, 236));
+                                break;
+                            }
+                            case 5:{
+                                backgroundColor = "purple";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(189, 14, 236));
+                                break;
+                            }
+                            case 6:{
+                                backgroundColor = "gray";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(163, 163, 163));
+                                break;
+                            }
+                            case 7:{
+                                backgroundColor = "white";
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 255, 255));
+                                break;
+                            }
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar){
+                    }
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar){
                     }
@@ -196,11 +295,16 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 LinearLayout widgetSettingsLayout = new LinearLayout(ChooseFileForWidgetActivity.this);
                 widgetSettingsLayout.setOrientation(LinearLayout.VERTICAL);
-                widgetSettingsLayout.addView(delayDisplay);
+                widgetSettingsLayout.addView(speedLabelDisplay);
+                widgetSettingsLayout.addView(speedDisplay);
+                widgetSettingsLayout.addView(emptySpace1);
                 widgetSettingsLayout.addView(delaySeekBar);
                 //widgetSettingsLayout.addView(textColorSeekBar);
                 //widgetSettingsLayout.addView(textSizeSeekBar);
-                //widgetSettingsLayout.addView(backgroundColorSeekBar);
+                widgetSettingsLayout.addView(backgroundColorLabelDisplay);
+                widgetSettingsLayout.addView(backgroundColorDisplay);
+                widgetSettingsLayout.addView(emptySpace2);
+                widgetSettingsLayout.addView(backgroundColorSeekBar);
 
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override

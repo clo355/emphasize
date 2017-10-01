@@ -27,7 +27,7 @@ public class BlinkWidget extends AppWidgetProvider {
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
     protected static String receivedFileContents = "Select file";
     protected static int receivedBlinkDelay = 0;
-    //protected static String receivedBackgroundColor;
+    protected static String receivedBackgroundColor;
     //protected static String receivedTextColor;
     //protected static int receivedTextSize;
     static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
