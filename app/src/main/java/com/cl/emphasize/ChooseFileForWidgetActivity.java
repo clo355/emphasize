@@ -35,6 +35,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     protected int blinkDelay = 333;
     protected int jiggleDelay = 200;
     protected String backgroundColor = "white";
+    protected int backgroundTransparency;
     protected String textColor = "black";
     protected String textSize = "medium"; //Large, medium, small
 
@@ -165,7 +166,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 SeekBar delaySeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 delaySeekBar.setMax(100);
-
                 //Start off as:
                 if(blinkDelay <= 50){
                     speedDisplay.setText("Faster");
@@ -199,7 +199,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 bgParams.gravity = Gravity.CENTER;
                 backgroundColorDisplay.setLayoutParams(bgParams);
                 backgroundColorDisplay.setText("      ");
-                backgroundColorDisplay.setBackgroundColor(Color.WHITE);
 
                 final TextView emptySpace2 = new TextView(ChooseFileForWidgetActivity.this);
                 emptySpace2.setGravity(Gravity.CENTER);
@@ -207,7 +206,49 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 SeekBar backgroundColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 backgroundColorSeekBar.setMax(7);
-                backgroundColorSeekBar.setProgress(7);
+                //start off as:
+                switch(backgroundColor){
+                    case "red":{
+                        backgroundColorSeekBar.setProgress(0);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 37, 37));
+                        break;
+                    }
+                    case "orange":{
+                        backgroundColorSeekBar.setProgress(1);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(225, 179, 37));
+                        break;
+                    }
+                    case "yellow":{
+                        backgroundColorSeekBar.setProgress(2);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(234, 236, 14));
+                        break;
+                    }
+                    case "green":{
+                        backgroundColorSeekBar.setProgress(3);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(111, 236, 14));
+                        break;
+                    }
+                    case "blue":{
+                        backgroundColorSeekBar.setProgress(4);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(14, 197, 236));
+                        break;
+                    }
+                    case "purple":{
+                        backgroundColorSeekBar.setProgress(5);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(189, 14, 236));
+                        break;
+                    }
+                    case "gray":{
+                        backgroundColorSeekBar.setProgress(6);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(163, 163, 163));
+                        break;
+                    }
+                    case "white":{
+                        backgroundColorSeekBar.setProgress(7);
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(238, 238, 238));
+                        break;
+                    }
+                }
 
                 //Blink speed seekbar, int 0 to 100
                 delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -280,7 +321,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                             }
                             case 7:{
                                 backgroundColor = "white";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 255, 255));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(238, 238, 238));
                                 break;
                             }
                         }
@@ -295,10 +336,12 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 LinearLayout widgetSettingsLayout = new LinearLayout(ChooseFileForWidgetActivity.this);
                 widgetSettingsLayout.setOrientation(LinearLayout.VERTICAL);
-                widgetSettingsLayout.addView(speedLabelDisplay);
-                widgetSettingsLayout.addView(speedDisplay);
-                widgetSettingsLayout.addView(emptySpace1);
-                widgetSettingsLayout.addView(delaySeekBar);
+                if(widgetType.equals("blink")) {
+                    widgetSettingsLayout.addView(speedLabelDisplay);
+                    widgetSettingsLayout.addView(speedDisplay);
+                    widgetSettingsLayout.addView(emptySpace1);
+                    widgetSettingsLayout.addView(delaySeekBar);
+                }
                 //widgetSettingsLayout.addView(textColorSeekBar);
                 //widgetSettingsLayout.addView(textSizeSeekBar);
                 widgetSettingsLayout.addView(backgroundColorLabelDisplay);

@@ -27,7 +27,7 @@ public class BlinkWidget extends AppWidgetProvider {
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
     protected static String receivedFileContents = "Select file";
     protected static int receivedBlinkDelay = 0;
-    protected static String receivedBackgroundColor;
+    protected static String receivedBackgroundColor = "white";
     //protected static String receivedTextColor;
     //protected static int receivedTextSize;
     static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
@@ -54,6 +54,66 @@ public class BlinkWidget extends AppWidgetProvider {
         CharSequence fileContents = receivedFileContents;
         views.setTextViewText(R.id.appwidget_text, fileContents);
 
+        //background color argb values
+        int argbAlpha;
+        int argbRed = 255;
+        int argbGreen = 255;
+        int argbBlue = 255;
+        switch(receivedBackgroundColor){
+            case "red":{
+                argbRed = 255;
+                argbGreen = 37;
+                argbBlue = 37;
+                break;
+            }
+            case "orange":{
+                argbRed = 225;
+                argbGreen = 179;
+                argbBlue = 37;
+                break;
+            }
+            case "yellow":{
+                argbRed = 234;
+                argbGreen = 236;
+                argbBlue = 14;
+                break;
+            }
+            case "green":{
+                argbRed = 111;
+                argbGreen = 236;
+                argbBlue = 14;
+                break;
+            }
+            case "blue":{
+                argbRed = 14;
+                argbGreen = 197;
+                argbBlue = 236;
+                break;
+            }
+            case "purple":{
+                argbRed = 189;
+                argbGreen = 14;
+                argbBlue = 236;
+                break;
+            }
+            case "gray":{
+                argbRed = 163;
+                argbGreen = 163;
+                argbBlue = 163;
+                break;
+            }
+            case "white":{
+                argbRed = 255;
+                argbGreen = 255;
+                argbBlue = 255;
+                break;
+            }
+        }
+
+        final int runArgbRed = argbRed;
+        final int runArgbGreen = argbGreen;
+        final int runArgbBlue = argbBlue;
+
         //loop switch between 2 colors
         if(blinkDelay > 0){
             final Runnable runnable = new Runnable(){
@@ -64,13 +124,13 @@ public class BlinkWidget extends AppWidgetProvider {
                         if (lightOn) {
                             lightOn = false;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
-                                    Color.argb(150, 255, 248, 231)); //turn light off
+                                    Color.argb(150, new Integer(runArgbRed), runArgbGreen, runArgbBlue)); //turn light off
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         } else {
                             lightOn = true;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
-                                    Color.argb(220, 255, 248, 231)); //turn light on
+                                    Color.argb(220, runArgbRed, runArgbGreen, runArgbBlue)); //turn light on
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         }
@@ -134,6 +194,7 @@ public class BlinkWidget extends AppWidgetProvider {
         Log.d("onReceive called", "once");
         receivedFileContents = "Select file";
         receivedBlinkDelay = 0;
+        receivedBackgroundColor = "white";
         if(intent.getExtras() == null){
             //probably pressed cancel
             Log.d("onReceive", "getExtras() was null");
@@ -144,6 +205,7 @@ public class BlinkWidget extends AppWidgetProvider {
             if(action != null && action.equals(CHOOSE_FILE_ACTION)){
                 receivedFileContents = b.getString("fileContents");
                 receivedBlinkDelay = b.getInt("blinkDelay");
+                receivedBackgroundColor = b.getString("backgroundColor");
                 final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
                 ComponentName name = new ComponentName(context, BlinkWidget.class);
                 int[] appWidgetId = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
