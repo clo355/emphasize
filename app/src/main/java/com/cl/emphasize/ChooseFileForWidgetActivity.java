@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -146,12 +147,18 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         widgetSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
+                final TextView sampleDisplay = new TextView(ChooseFileForWidgetActivity.this);
                 final TextView delayDisplay = new TextView(ChooseFileForWidgetActivity.this);
-                delayDisplay.setText(blinkDelay + " ms");
+
+                sampleDisplay.setGravity(Gravity.CENTER);
+                sampleDisplay.setText("Display");
+
+                delayDisplay.setGravity(Gravity.CENTER);
+                delayDisplay.setText("\n\nNormal");
+
                 SeekBar delaySeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
-                //delaySeekBar.setMin(100);
-                delaySeekBar.setMax(3000);
-                delaySeekBar.setProgress(blinkDelay);
+                delaySeekBar.setMax(100);
+                delaySeekBar.setProgress(50);
 
                 //SeekBar textColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 //SeekBar textSizeSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
@@ -159,9 +166,23 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
-                    public void onProgressChanged(SeekBar seekBar, int msDelay, boolean fromUser) {
-                        blinkDelay = msDelay;
-                        delayDisplay.setText(Integer.toString(msDelay) + " ms");
+                    public void onProgressChanged(SeekBar seekBar, int speed, boolean fromUser) {
+                        if(speed > 80){
+                            blinkDelay = 50;
+                            delayDisplay.setText("\n\nFaster");
+                        } else if(speed > 60) {
+                            blinkDelay = 120;
+                            delayDisplay.setText("\n\nFast");
+                        } else if(speed > 40){
+                            blinkDelay = 333;
+                            delayDisplay.setText("\n\nNormal");
+                        } else if(speed > 20){
+                            blinkDelay = 666;
+                            delayDisplay.setText("\n\nSlow");
+                        } else{
+                            blinkDelay = 999;
+                            delayDisplay.setText("\n\nSlower");
+                        }
                     }
 
                     @Override
