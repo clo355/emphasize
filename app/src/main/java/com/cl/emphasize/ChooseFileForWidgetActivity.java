@@ -1,7 +1,10 @@
 package com.cl.emphasize;
 
+import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +12,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -29,6 +34,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     protected String textColor = "black";
     protected String textSize = "medium"; //Large, medium, small
 
+    @TargetApi(26)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,9 +43,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
         ListView listView = (ListView) findViewById(R.id.listViewCFFW);
         TextView noFilesView = (TextView) findViewById(R.id.noFilesLabelCFFW);
-        Button delaySettingsButton = (Button)findViewById(R.id.delaySettingsButtonCFFW);
-        Button textSettingsButton = (Button)findViewById(R.id.textSettingsButtonCFFW);
-        Button backgroundSettingsButton = (Button)findViewById(R.id.backgroundSettingsButtonCFFW);
+        final Button widgetSettingsButton = (Button)findViewById(R.id.widgetSettingsButtonCFFW);
         Button cancelButton = (Button)findViewById(R.id.cancelButtonCFFW);
         final Intent intent;
 
@@ -136,24 +140,63 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
             }
         }
 
-        //Press delay settings button: dialog with slider
-        delaySettingsButton.setOnClickListener(new View.OnClickListener() {
+        //delay: slider for ms delay
+        //text: size slider, color slider
+        //background: color slider
+        widgetSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-            }
-        });
+            public void onClick(View view){
+                final TextView delayDisplay = new TextView(ChooseFileForWidgetActivity.this);
+                delayDisplay.setText(blinkDelay + " ms");
+                SeekBar delaySeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
+                //delaySeekBar.setMin(100);
+                delaySeekBar.setMax(3000);
+                delaySeekBar.setProgress(blinkDelay);
 
-        //Press text settings button: dialog with size slider and color slider
-        textSettingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
+                //SeekBar textColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
+                //SeekBar textSizeSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
+                //SeekBar backgroundColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
 
-        //Press background settings button: dialog with color slider
-        backgroundSettingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int msDelay, boolean fromUser) {
+                        blinkDelay = msDelay;
+                        delayDisplay.setText(Integer.toString(msDelay) + " ms");
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar){
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar){
+                    }
+                });
+
+                LinearLayout widgetSettingsLayout = new LinearLayout(ChooseFileForWidgetActivity.this);
+                widgetSettingsLayout.setOrientation(LinearLayout.VERTICAL);
+                widgetSettingsLayout.addView(delayDisplay);
+                widgetSettingsLayout.addView(delaySeekBar);
+                //widgetSettingsLayout.addView(textColorSeekBar);
+                //widgetSettingsLayout.addView(textSizeSeekBar);
+                //widgetSettingsLayout.addView(backgroundColorSeekBar);
+
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which){
+                        if(which == DialogInterface.BUTTON_POSITIVE){
+                            //Pressed OK in widget settings dialog
+                            dialog.dismiss();
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChooseFileForWidgetActivity.this);
+                builder.setTitle("Widget Settings")
+                        .setView(widgetSettingsLayout)
+                        .setCancelable(true)
+                        .setPositiveButton("OK", dialogClickListener)
+                        .show();
             }
         });
 

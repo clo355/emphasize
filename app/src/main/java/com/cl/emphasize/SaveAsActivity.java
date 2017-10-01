@@ -40,6 +40,7 @@ public class SaveAsActivity extends AppCompatActivity {
         saveAsOkButton = (Button)findViewById(R.id.saveAsOkButton);
         saveAsCancelButton = (Button)findViewById(R.id.saveAsCancelButton);
         saveAsFileName = (EditText)findViewById(R.id.saveAsFileName);
+        saveAsFileName.setHint(fileName);
 
         //Automatically show keyboard
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
