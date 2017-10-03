@@ -5,8 +5,7 @@
     android:id="@+id/activity_choose_file_for_widget"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/beige1">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textLabelCFFW"
@@ -23,7 +22,6 @@
         android:id="@+id/listViewCFFW"
         android:layout_width="330dp"
         android:layout_height="379dp"
-        android:background="@color/lighter_beige1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

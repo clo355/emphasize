@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="blue1">#3F51B5</color>
-    <color name="blue2">#303F9F</color>
-    <color name="pink1">#FF4081</color>
-    <color name="neon_green1">#00FF00</color>
+    <color name="blue1">#5868bf</color>
+    <color name="blue2">#3e4ba7</color>
+    <color name="blue3">#8890c2</color>
     <color name="lighter_beige1">#FFFCF6</color>
     <color name="beige1">#FFF8E7</color>
     <color name="dark_beige1">#B29E6C</color>

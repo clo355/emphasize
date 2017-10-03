@@ -34,7 +34,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     protected String fileContents = "";
     protected int blinkDelay = 333;
     protected int jiggleDelay = 200;
-    protected String backgroundColor = "white";
+    protected String backgroundColor = "overwritten";
     protected int backgroundTransparency;
     protected String textColor = "black";
     protected String textSize = "medium"; //Large, medium, small
@@ -68,19 +68,25 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
         //"No files found" label
         if(fileListOnCreate.length == 0){
-            noFilesView.setText("No files found");
+            noFilesView.setText("No notes found");
         } else{
             noFilesView.setText("");
         }
 
         //Press listView object, send contents to widget
         //Widget type: "blink", "jiggle", or "normal"
+        backgroundColor = getIntent().getExtras().getString("currentBackgroundColor");
+        //bgColor always white. widget not sending correct color.
         widgetType = getIntent().getExtras().getString("widgetType");
         if(widgetType.equals("blink")){
+            blinkDelay = getIntent().getExtras().getInt("currentBlinkDelay");
+            if(blinkDelay <= 0){ //catch 0 from BlinkWidget default
+                blinkDelay = 333;
+            }
             intent = new Intent(getApplicationContext(), BlinkWidget.class);
         } else if(widgetType.equals("jiggle")){
             intent = new Intent(getApplicationContext(), JiggleWidget.class);
-        } else{
+        } else{ //"normal"
             intent = new Intent(getApplicationContext(), NormalWidget.class);
         }
 

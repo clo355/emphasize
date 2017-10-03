@@ -25,9 +25,9 @@ public class BlinkWidget extends AppWidgetProvider {
     //ChooseFileForWidgetActivity, which broadcasts intent extras to BlinkWidget's onReceive().
 
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
-    protected static String receivedFileContents = "Select file";
+    protected static String receivedFileContents = "overwritten";
     protected static int receivedBlinkDelay = 0;
-    protected static String receivedBackgroundColor = "white";
+    protected static String receivedBackgroundColor = "overwritten";
     //protected static String receivedTextColor;
     //protected static int receivedTextSize;
     static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
@@ -42,6 +42,9 @@ public class BlinkWidget extends AppWidgetProvider {
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
         intent.putExtra("widgetType", "blink");
+        //currentBlink/Background always sent as white and 0?
+        intent.putExtra("currentBlinkDelay", receivedBlinkDelay);
+        intent.putExtra("currentBackgroundColor", receivedBackgroundColor);
         //PendingIntent param appWidgetId to let CFFWactivity know it's a unique intent
         PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, 0);
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.blink_widget);
@@ -62,44 +65,44 @@ public class BlinkWidget extends AppWidgetProvider {
         switch(receivedBackgroundColor){
             case "red":{
                 argbRed = 255;
-                argbGreen = 37;
-                argbBlue = 37;
+                argbGreen = 158;
+                argbBlue = 158;
                 break;
             }
             case "orange":{
-                argbRed = 225;
-                argbGreen = 179;
-                argbBlue = 37;
+                argbRed = 255;
+                argbGreen = 231;
+                argbBlue = 175;
                 break;
             }
             case "yellow":{
-                argbRed = 234;
-                argbGreen = 236;
-                argbBlue = 14;
+                argbRed = 255;
+                argbGreen = 253;
+                argbBlue = 193;
                 break;
             }
             case "green":{
-                argbRed = 111;
-                argbGreen = 236;
-                argbBlue = 14;
+                argbRed = 197;
+                argbGreen = 255;
+                argbBlue = 195;
                 break;
             }
             case "blue":{
-                argbRed = 14;
-                argbGreen = 197;
-                argbBlue = 236;
+                argbRed = 163;
+                argbGreen = 220;
+                argbBlue = 255;
                 break;
             }
             case "purple":{
-                argbRed = 189;
-                argbGreen = 14;
-                argbBlue = 236;
+                argbRed = 232;
+                argbGreen = 167;
+                argbBlue = 255;
                 break;
             }
             case "gray":{
-                argbRed = 163;
-                argbGreen = 163;
-                argbBlue = 163;
+                argbRed = 219;
+                argbGreen = 219;
+                argbBlue = 219;
                 break;
             }
             case "white":{
@@ -124,13 +127,13 @@ public class BlinkWidget extends AppWidgetProvider {
                         if (lightOn) {
                             lightOn = false;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
-                                    Color.argb(150, new Integer(runArgbRed), runArgbGreen, runArgbBlue)); //turn light off
+                                    Color.argb(160, new Integer(runArgbRed), runArgbGreen, runArgbBlue)); //turn light off
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         } else {
                             lightOn = true;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
-                                    Color.argb(220, runArgbRed, runArgbGreen, runArgbBlue)); //turn light on
+                                    Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue)); //turn light on
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         }
@@ -192,11 +195,12 @@ public class BlinkWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d("onReceive called", "once");
-        receivedFileContents = "Select file";
-        receivedBlinkDelay = 0;
+        receivedFileContents = "Select note";
+        //These 2 are defaults for the first time
+        receivedBlinkDelay = 0; //don't initially blink on "Select note"
         receivedBackgroundColor = "white";
         if(intent.getExtras() == null){
-            //probably pressed cancel
+            //user pressed cancel or back
             Log.d("onReceive", "getExtras() was null");
         } else{
             Log.d("onReceive", "getExtras() was not null");

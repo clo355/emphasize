@@ -16,10 +16,9 @@ public class SettingsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         CharSequence testPrintText = "ListView Settings: UI light medium dark\n" +
-                "UI text size\n" +
-                "editor display size\n" +
-                "Help\n" +
-                "maybe feedback\n";
+                "notes display size\n" +
+                "editor text size\n" +
+                "Help\n";
 
         TextView testPrint = (TextView)findViewById(R.id.testPrint);
         testPrint.setText(testPrintText);

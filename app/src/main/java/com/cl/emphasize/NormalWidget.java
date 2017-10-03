@@ -14,8 +14,8 @@ import android.widget.RemoteViews;
 public class NormalWidget extends AppWidgetProvider {
 
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForNormalWidget";
-    protected static String receivedFileContents = "Select file";
-    protected static String receivedBackgroundColor = "white";
+    protected static String receivedFileContents = "overwritten";
+    protected static String receivedBackgroundColor = "overwritten";
     //protected static String receivedTextColor;
     //protected static int receivedTextSize;
 
@@ -25,6 +25,8 @@ public class NormalWidget extends AppWidgetProvider {
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
         intent.putExtra("widgetType", "normal");
+        //backgroundColor may not be correctly sent after first time
+        intent.putExtra("currentBackgroundColor", receivedBackgroundColor);
         //PendingIntent param appWidgetId to let CFFWactivity know it's a unique intent
         PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, 0);
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.normal_widget);
@@ -77,7 +79,7 @@ public class NormalWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        receivedFileContents = "Select file";
+        receivedFileContents = "Select note";
         if(intent.getExtras() == null){
             //pressed cancel on CFFWactivity
         } else{
