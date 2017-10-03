@@ -38,12 +38,13 @@ import java.util.Date;
  *
  *   This app allows you to post blinking note widgets to your home screen.
  *
- *   CL
+ *   @author Chris Lo
  **********************************************************************************/
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int ACCESSED_SETTINGS_REQUEST_CODE = 1;
+    public static final int ACCESSED_FILE_REQUEST_CODE = 2;
     protected ListView listView;
     protected ArrayAdapter<String> listViewAdapter;
     protected ArrayList<String> myFileNameArray;
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Sort by:");
                 CharSequence[] sortChoices = {"Alphanumeric 0-9, A-Z", "Alphanumeric Z-A, 9-0",
-                        "Newest", "Oldest"};
+                        "Newest - Oldest", "Oldest - Newest"};
                 final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
                 int savedSort = settings.getInt("savedSort", 3);
                 builder.setSingleChoiceItems(sortChoices, savedSort, new DialogInterface.OnClickListener(){
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 newFileIntent.putExtra("fileName", "New File");
                 newFileIntent.putExtra("fileContents", "");
                 newFileIntent.putExtra("isNewFile", true);
-                startActivity(newFileIntent);
+                startActivityForResult(newFileIntent, ACCESSED_FILE_REQUEST_CODE);
             }
         });
 
@@ -174,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
         mainSettingsButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Intent newFileIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivityForResult(newFileIntent, ACCESSED_SETTINGS_REQUEST_CODE);
+                Intent accessSettingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivityForResult(accessSettingsIntent, ACCESSED_SETTINGS_REQUEST_CODE);
             }
         });
 
@@ -185,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
                 File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
                 String fileContents = "";
-                Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
+                Intent fileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
                 try {
                     BufferedReader fileReader = new BufferedReader(new FileReader(fileClicked));
                     String line;
@@ -196,10 +197,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MAIN", "IOException");
                 }
 
-                newFileIntent.putExtra("fileName", fileClicked.getName());
-                newFileIntent.putExtra("fileContents", fileContents);
-                newFileIntent.putExtra("isNewFile", false);
-                startActivity(newFileIntent);
+                fileIntent.putExtra("fileName", fileClicked.getName());
+                fileIntent.putExtra("fileContents", fileContents);
+                fileIntent.putExtra("isNewFile", false);
+                startActivityForResult(fileIntent, ACCESSED_FILE_REQUEST_CODE);
             }
         });
 
@@ -219,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                         switch(clickedOption){
                             case 0: { //Edit: open in TextEditorActivity
                                 String fileContents = "";
-                                Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
+                                Intent fileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
                                 try {
                                     BufferedReader fileReader = new BufferedReader(new FileReader(longClickedFile));
                                     String line;
@@ -230,10 +231,10 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d("MAIN", "IOException");
                                 }
 
-                                newFileIntent.putExtra("fileName", longClickedFile.getName());
-                                newFileIntent.putExtra("fileContents", fileContents);
-                                newFileIntent.putExtra("isNewFile", false);
-                                startActivity(newFileIntent);
+                                fileIntent.putExtra("fileName", longClickedFile.getName());
+                                fileIntent.putExtra("fileContents", fileContents);
+                                fileIntent.putExtra("isNewFile", false);
+                                startActivity(fileIntent);
                                 break;
                             }
                             case 1: { //Rename
@@ -401,6 +402,8 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == ACCESSED_SETTINGS_REQUEST_CODE){
             //user might have changed theme
             recreate();
+        } else if(requestCode == ACCESSED_FILE_REQUEST_CODE){
+            updateListView();
         }
     }
 

@@ -20,6 +20,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * @author Chris Lo
+ */
+
 public class TextEditorActivity extends AppCompatActivity {
 
     String fileName;

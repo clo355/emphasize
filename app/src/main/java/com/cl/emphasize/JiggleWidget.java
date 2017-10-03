@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @author Chris Lo
+ */
+
 public class JiggleWidget extends AppWidgetProvider {
 
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForJiggleWidget";

@@ -11,6 +11,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+/**
+ * @author Chris Lo
+ */
+
 public class NormalWidget extends AppWidgetProvider {
 
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForNormalWidget";

@@ -27,6 +27,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * @author Chris Lo
+ */
+
 public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "PreferenceFile";

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Environment;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * @author Chris Lo
+ */
+
 public class SaveAsActivity extends AppCompatActivity {
     protected String fileContents;
     protected String fileName;
@@ -27,10 +32,16 @@ public class SaveAsActivity extends AppCompatActivity {
     protected Button saveAsCancelButton;
     protected EditText saveAsFileName;
     protected FileOutputStream myOutputStream;
+    public static final String PREFS_NAME = "PreferenceFile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        int globalTheme = settings.getInt("globalTheme", R.style.lightTheme);
+        setTheme(globalTheme);
+
         setContentView(R.layout.activity_save_as);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 

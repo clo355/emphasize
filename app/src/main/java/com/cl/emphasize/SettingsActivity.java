@@ -12,6 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+/**
+ * @author Chris Lo
+ */
+
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "PreferenceFile";

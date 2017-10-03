@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @author Chris Lo
+ */
 
 public class BlinkWidget extends AppWidgetProvider {
 
