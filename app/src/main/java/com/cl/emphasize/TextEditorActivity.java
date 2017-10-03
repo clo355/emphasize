@@ -3,6 +3,7 @@ package com.cl.emphasize;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -24,8 +25,8 @@ public class TextEditorActivity extends AppCompatActivity {
     String fileName;
     String originalFileContents;
     boolean isNewFile;
-    boolean changesSaved = false;
     public static final int NEW_FILE_REQUEST_CODE = 1;
+    public static final String PREFS_NAME = "PreferenceFile";
 
     TextView fileNameDisplay;
     EditText textEditor;
@@ -33,6 +34,11 @@ public class TextEditorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        int globalTheme = settings.getInt("globalTheme", R.style.lightTheme);
+        setTheme(globalTheme);
+
         setContentView(R.layout.activity_text_editor);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -112,7 +118,7 @@ public class TextEditorActivity extends AppCompatActivity {
                 showAsShortToast("Saved as " + fileName);
             }
             if(resultCode == Activity.RESULT_CANCELED){
-                //user pressed cancel or hardware back in SaveAsActivity
+                //user pressed cancel or system back in SaveAsActivity
             }
         }
     }
@@ -140,7 +146,7 @@ public class TextEditorActivity extends AppCompatActivity {
             };
 
             AlertDialog.Builder builder = new AlertDialog.Builder(TextEditorActivity.this);
-            builder.setMessage("You have unsaved changes.\nExit without saving?")
+            builder.setMessage("You have unsaved changes.")
                     .setPositiveButton("Exit", dialogClickListener)
                     .setNegativeButton("Cancel", dialogClickListener)
                     .show();

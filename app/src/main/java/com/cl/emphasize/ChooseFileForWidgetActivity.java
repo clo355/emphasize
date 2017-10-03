@@ -3,6 +3,7 @@ package com.cl.emphasize;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -12,7 +13,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 
 public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
+    public static final String PREFS_NAME = "PreferenceFile";
     protected ArrayList<String> myFileNameArray;
     protected String widgetType;
     protected String fileContents = "";
@@ -43,6 +44,11 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        int globalTheme = settings.getInt("globalTheme", R.style.lightTheme);
+        setTheme(globalTheme);
+
         setContentView(R.layout.activity_choose_file_for_widget);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -105,7 +111,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         intent.putExtra("textSize", textSize);
                         //Send widget ID back so onReceive() sees which widget to update
                         intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
-                        Log.d("CFFWactivity", "put extras, sent intent back to BlinkWidget");
                         sendBroadcast(intent); //broadcasted to widget's onReceive()
                         finish();
                     }

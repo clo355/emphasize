@@ -2,7 +2,6 @@ package com.cl.emphasize;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,11 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -41,24 +36,30 @@ import java.util.Date;
 /**********************************************************************************
  *   Emphasize
  *
- *   This app allows you post blinking notes to your home screen.
+ *   This app allows you to post blinking note widgets to your home screen.
  *
  *   CL
  **********************************************************************************/
 
 public class MainActivity extends AppCompatActivity {
 
-
+    public static final int ACCESSED_SETTINGS_REQUEST_CODE = 1;
     protected ListView listView;
     protected ArrayAdapter<String> listViewAdapter;
     protected ArrayList<String> myFileNameArray;
     protected TextView textPrint = null;
-    public static final String PREFS_NAME = "PreferenceFile"; //for sort preference
+    public static final String PREFS_NAME = "PreferenceFile";
 
     @TargetApi(21)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //manually setting theme like this may give black background on certain devices
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        int globalTheme = settings.getInt("globalTheme", R.style.lightTheme);
+        setTheme(globalTheme);
+
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listViewAdapter);
 
         if(fileListOnCreate.length == 0){
-            textPrint.setText("No files found");
+            textPrint.setText("No notes found");
         } else{
             textPrint.setText("");
         }
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                                         updateListView();
                                         dialog.cancel();
                                     }
-                                }, 200);
+                                }, 200); //delay to let user see radio changed
                                 break;
                             }
                             case 1:{ //Alphanumeric Z-A, 9-0
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 Intent newFileIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivity(newFileIntent);
+                startActivityForResult(newFileIntent, ACCESSED_SETTINGS_REQUEST_CODE);
             }
         });
 
@@ -389,9 +390,17 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listViewAdapter);
 
         if(fileListUpdateListView.length == 0){
-            textPrint.setText("No files found");
+            textPrint.setText("No notes found");
         } else{
             textPrint.setText("");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent){
+        if(requestCode == ACCESSED_SETTINGS_REQUEST_CODE){
+            //user might have changed theme
+            recreate();
         }
     }
 
@@ -449,11 +458,5 @@ public class MainActivity extends AppCompatActivity {
         int duration = Toast.LENGTH_SHORT; //2 seconds
         Toast toast = Toast.makeText(getApplicationContext(), toastText, duration);
         toast.show();
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        updateListView();
     }
 }

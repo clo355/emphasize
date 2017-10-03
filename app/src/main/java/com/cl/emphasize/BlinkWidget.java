@@ -25,9 +25,9 @@ public class BlinkWidget extends AppWidgetProvider {
     //ChooseFileForWidgetActivity, which broadcasts intent extras to BlinkWidget's onReceive().
 
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
-    protected static String receivedFileContents = "overwritten";
+    protected static String receivedFileContents = "Select note";
     protected static int receivedBlinkDelay = 0;
-    protected static String receivedBackgroundColor = "overwritten";
+    protected static String receivedBackgroundColor = "white";
     //protected static String receivedTextColor;
     //protected static int receivedTextSize;
     static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
@@ -143,9 +143,6 @@ public class BlinkWidget extends AppWidgetProvider {
                                 Color.argb(150, 255, 248, 231)); //turn light off
                         appWidgetManager.updateAppWidget(appWidgetId, views);
                         widgetIdIsRunning.put(appWidgetId, false);
-                        Log.d("updateAppWidget", "called removeCallbacksAndMessages(this)");
-                        Log.d("updateAppWidget", "Dealing with " + appWidgetId);
-                        Log.d("updateAppWidget", "widgetIdWait.contains(appWidgetId) is " + widgetIdWait.contains(new Integer(appWidgetId)));
                         if(widgetIdWait.contains(new Integer(appWidgetId))) { //is some runnable waiting for this to end?
                             try {
                                 widgetIdWait.remove(new Integer(appWidgetId)); //before or after removeCallbacks?
@@ -171,7 +168,6 @@ public class BlinkWidget extends AppWidgetProvider {
                         hasRunnableBeforeMe.add(appWidgetId);
                     }
 
-                    Log.d("AsyncTask", "Starting widgetIdWait loop");
                     while (widgetIdWait.contains(appWidgetId)) {
                         //waiting for old runnable to end and remove widgetId from wait list
                         if (!widgetIdWait.contains(appWidgetId)) {
@@ -179,7 +175,6 @@ public class BlinkWidget extends AppWidgetProvider {
                         }
                     }
 
-                    Log.d("AsyncTask", "widgetIdWait loop ended");
                     //old runnable stopped. start new runnable
                     widgetIdStopRunnable.put(appWidgetId, false);
                     widgetIdIsRunning.put(appWidgetId, true);
@@ -194,16 +189,9 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("onReceive called", "once");
-        receivedFileContents = "Select note";
-        //These 2 are defaults for the first time
-        receivedBlinkDelay = 0; //don't initially blink on "Select note"
-        receivedBackgroundColor = "white";
         if(intent.getExtras() == null){
             //user pressed cancel or back
-            Log.d("onReceive", "getExtras() was null");
         } else{
-            Log.d("onReceive", "getExtras() was not null");
             String action = intent.getAction();
             Bundle b = intent.getExtras();
             if(action != null && action.equals(CHOOSE_FILE_ACTION)){
@@ -215,25 +203,19 @@ public class BlinkWidget extends AppWidgetProvider {
                 int[] appWidgetId = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
                 final int appWidgetIdLength = appWidgetId.length;
                 if(appWidgetIdLength < 1){
-                    Log.d("onReceive", "got here 5");
                     return;
                 } else{
                     int id = b.getInt("widgetId");
                     updateAppWidget(context, mgr, id);
-                    Log.d("onReceive", "got here 4");
                     super.onReceive(context, intent);
                 }
-                Log.d("onReceive", "got here 3");
             }
-            Log.d("onReceive", "got here 2 (expected)");
             super.onReceive(context, intent);
         }
-        Log.d("onReceive", "got here 1 (expected)");
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.d("onUpdate called", "once");
         // There may be multiple widgets active, so update all of them
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
@@ -242,7 +224,6 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) { //might need to override onReceive() to prevent reboot problem
-        Log.d("onEnabled called", "once");
         // Enter relevant functionality for when the first widget is created (includes device reboot)
         //Display ListView of files, same as
 
@@ -250,7 +231,6 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
-        Log.d("onDisabled called", "once");
         // Enter relevant functionality for when the last widget is disabled
         //might need to do handler.removeCallbacksAndMessages(null); to stop runnables
     }
