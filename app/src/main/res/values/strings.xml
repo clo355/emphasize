@@ -1,86 +1,24 @@
 <resources>
     <string name="add_widget">Add widget</string>
     <string name="app_name">Emphasize</string>
+    <string name="appwidget_text">emphasize example</string>
+    <string name="help0_title">Save As</string>
+    <string name="help0_text">\nYou can tap the Save As icon to save a copy of your current note under a different name.</string>
+    <string name="help1_title">Rename and delete</string>
+    <string name="help1_text">\nIn your notes list, press and hold a note to show options.</string>
+    <string name="help2_title">Pinning notes</string>
+    <string name="help2_text">\nPress and hold your home screen to access the widget menu. Choose "Blink" or "Normal". Tap the new widget to choose which note to display.</string>
+    <string name="help3_title">Blink rate and color</string>
+    <string name="help3_text">\nTap a note pinned on your home screen. Tap the widget settings icon to adjust blink rate and color.</string>
+    <string name="help4_title">Adjusting size of pinned notes</string>
+    <string name="help4_text">\nOn your home screen, press and hold your pinned note. Release to enable widget border control. Drag a border to stretch, enlarge, or shrink the widget.</string>
     <string name="main_new_text_file_button_label">New</string>
     <string name="main_settings_button_label">Settings</string>
     <string name="main_sort_button_label">Sort</string>
     <string name="text_editor_save_button">Save</string>
     <string name="text_editor_save_as_button">Save As</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="widget_name_blink">Emphasize Blink</string>
     <string name="widget_name_jiggle">Emphasize Jiggle</string>
     <string name="widget_name_normal">Emphasize Normal</string>
-    <string name="appwidget_text">EXAMPLE</string>
-    <string name="title_activity_settings">Settings</string>
-
-    <!-- Strings related to Settings -->
-
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
-
-    <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
-
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array name="multi_select_list_preference_default_value" />
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
-
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
 </resources>

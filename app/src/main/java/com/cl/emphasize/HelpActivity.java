@@ -32,10 +32,11 @@ public class HelpActivity extends AppCompatActivity {
 
         //help topic list
         ArrayList<String> helpQueryArray = new ArrayList<String>();
-        helpQueryArray.add("❔    Creating notes"); //0
-        helpQueryArray.add("❔    Renaming and deleting"); //1
+        helpQueryArray.add("❔    Save As"); //0
+        helpQueryArray.add("❔    Renaming and deleting notes"); //1
         helpQueryArray.add("❔    Pinning notes on your home screen"); //2
-        helpQueryArray.add("❔    Pinned notes: blink rate and color"); //3
+        helpQueryArray.add("❔    Blink rate and color of pinned notes"); //3
+        helpQueryArray.add("❔    Adjusting size of pinned notes");
 
         ListView helpList = (ListView)findViewById(R.id.helpList);
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this,
@@ -51,20 +52,33 @@ public class HelpActivity extends AppCompatActivity {
                 ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
                 switch(helpPosition){
                     case 0:{
-                        builder.setMessage("info about creating notes");
-                        helpImage.setImageResource(R.mipmap.settings_focused);
+                        builder.setTitle(R.string.help0_title);
+                        builder.setMessage(R.string.help0_text);
+                        helpImage.setImageResource(R.mipmap.help0);
                         break;
                     }
                     case 1:{
-                        builder.setMessage("info about rename and delete");
+                        builder.setTitle(R.string.help1_title);
+                        builder.setMessage(R.string.help1_text);
+                        helpImage.setImageResource(R.mipmap.help0);
                         break;
                     }
                     case 2:{
-                        builder.setMessage("info about pinning notes. This one is so long... so so so so so so long. But it's all one line.");
+                        builder.setTitle(R.string.help2_title);
+                        builder.setMessage(R.string.help2_text);
+                        helpImage.setImageResource(R.mipmap.help0);
                         break;
                     }
                     case 3:{
-                        builder.setMessage("info about blink rate and color.\nThis one uses newlines.\nAnd more newlines.");
+                        builder.setTitle(R.string.help3_title);
+                        builder.setMessage(R.string.help3_text);
+                        helpImage.setImageResource(R.mipmap.help0);
+                        break;
+                    }
+                    case 4:{
+                        builder.setTitle(R.string.help4_title);
+                        builder.setMessage(R.string.help4_text);
+                        helpImage.setImageResource(R.mipmap.help0);
                         break;
                     }
                 }
@@ -79,10 +93,6 @@ public class HelpActivity extends AppCompatActivity {
                 builder.show();
             }
         });
-
-
-
-
     }
 
     @Override

@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Sort by:");
+                builder.setTitle("Sort:");
                 CharSequence[] sortChoices = {"Alphanumeric 0-9, A-Z", "Alphanumeric Z-A, 9-0",
                         "Newest - Oldest", "Oldest - Newest"};
                 final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);

@@ -38,7 +38,13 @@ public class SettingsActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 builder.setTitle("Set theme");
                 CharSequence[] themeChoices = {"Light", "Dark"};
-                builder.setSingleChoiceItems(themeChoices, globalTheme, new DialogInterface.OnClickListener(){
+                int currentlySelected;
+                if(globalTheme == R.style.lightTheme){
+                    currentlySelected = 0;
+                } else{
+                    currentlySelected = 1;
+                }
+                builder.setSingleChoiceItems(themeChoices, currentlySelected, new DialogInterface.OnClickListener(){
                     Handler myHandler = new Handler();
                     @Override
                     public void onClick(final DialogInterface dialog, int whichRadio){
