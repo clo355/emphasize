@@ -20,7 +20,8 @@
         </activity>
         <activity android:name=".TextEditorActivity" />
         <activity android:name=".SaveAsActivity" />
-        <activity android:name=".SettingsActivity"
+        <activity
+            android:name=".SettingsActivity"
             android:label="Settings" />
         <activity android:name=".ChooseFileForWidgetActivity" />
 
@@ -64,6 +65,8 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/normal_widget_info" />
         </receiver>
+
+        <activity android:name=".HelpActivity"></activity>
     </application>
 
 </manifest>

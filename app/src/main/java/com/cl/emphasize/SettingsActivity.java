@@ -78,17 +78,8 @@ public class SettingsActivity extends AppCompatActivity {
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-            }
-        });
-
-        Button settingsBackButton = (Button)findViewById(R.id.backButton);
-        settingsBackButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Intent returnIntent = new Intent(getApplicationContext(), MainActivity.class);
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
+                Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
+                startActivity(helpIntent);
             }
         });
     }

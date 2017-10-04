@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     @TargetApi(21)
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         //manually setting theme like this may give black background on certain devices
@@ -339,14 +339,13 @@ public class MainActivity extends AppCompatActivity {
                                         dialog.cancel();
                                     }
                                 });
-                                AlertDialog alert = builder.create();
                                 builder.show();
                             }
                         }
                     }
                 });
                 builder.show();
-                return true; //prevents onItemClick() from also firing after doing onItemLongClick()
+                return true; //prevents onItemClick() from also firing after onItemLongClick()
             }
         });
     }
