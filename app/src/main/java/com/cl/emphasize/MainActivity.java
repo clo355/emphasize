@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -63,6 +64,11 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        ConstraintLayout mainLayout = (ConstraintLayout)findViewById(R.id.activity_main);
+        if(globalTheme == R.style.darkTheme){
+            mainLayout.setBackgroundResource(R.mipmap.background_dark);
+        }
 
         textPrint = (TextView) findViewById(R.id.textPrint);
         Button mainSortButton = (Button)findViewById(R.id.mainSortButton);
@@ -164,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
-                newFileIntent.putExtra("fileName", "New File");
+                newFileIntent.putExtra("fileName", "Note");
                 newFileIntent.putExtra("fileContents", "");
                 newFileIntent.putExtra("isNewFile", true);
                 startActivityForResult(newFileIntent, ACCESSED_FILE_REQUEST_CODE);
