@@ -1,7 +1,6 @@
 package com.cl.emphasize;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -65,15 +64,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        textPrint = (TextView) findViewById(R.id.textPrint);
+        final Button mainSortButton = (Button)findViewById(R.id.mainSortButton);
+        Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
+        Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
+
+        //Load theme
         ConstraintLayout mainLayout = (ConstraintLayout)findViewById(R.id.activity_main);
         if(globalTheme == R.style.darkTheme){
             mainLayout.setBackgroundResource(R.mipmap.background_dark);
         }
 
-        textPrint = (TextView) findViewById(R.id.textPrint);
-        Button mainSortButton = (Button)findViewById(R.id.mainSortButton);
-        Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
-        Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
+        loadSortIcon(mainSortButton);
 
         //Initially populate ListView
         myFileNameArray = new ArrayList<String>();
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 CharSequence[] sortChoices = {"Alphanumeric 0-9, A-Z", "Alphanumeric Z-A, 9-0",
                         "Newest - Oldest", "Oldest - Newest"};
                 final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-                int savedSort = settings.getInt("savedSort", 3);
+                int savedSort = settings.getInt("savedSort", 2);
                 builder.setSingleChoiceItems(sortChoices, savedSort, new DialogInterface.OnClickListener(){
                     Handler myHandler = new Handler();
                     @Override
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putInt("savedSort", 0);
                                         editor.commit();
                                         updateListView();
+                                        loadSortIcon(mainSortButton);
                                         dialog.cancel();
                                     }
                                 }, 200); //delay to let user see radio changed
@@ -129,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putInt("savedSort", 1);
                                         editor.commit();
                                         updateListView();
+                                        loadSortIcon(mainSortButton);
                                         dialog.cancel();
                                     }
                                 }, 200);
@@ -141,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putInt("savedSort", 2);
                                         editor.commit();
                                         updateListView();
+                                        loadSortIcon(mainSortButton);
                                         dialog.cancel();
                                     }
                                 }, 200);
@@ -153,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putInt("savedSort", 3);
                                         editor.commit();
                                         updateListView();
+                                        loadSortIcon(mainSortButton);
                                         dialog.cancel();
                                     }
                                 }, 200);
@@ -369,8 +375,8 @@ public class MainActivity extends AppCompatActivity {
         int sortPreference = settings.getInt("savedSort", 2);
         /* 0 is Alphanumeric 0-9, A-Z
          * 1 is Alphanumeric Z-A, 9-0
-         * 2 is Newest
-         * 3 is Oldest
+         * 2 is Newest - Oldest
+         * 3 is Oldest - Newest
          */
         if((sortPreference == 0) || (sortPreference == 1)){
             //pass myFileNameArray by reference. Will be sorted by method
@@ -458,6 +464,21 @@ public class MainActivity extends AppCompatActivity {
                 });
                 break;
             }
+        }
+    }
+
+    public void loadSortIcon(Button sortButton){
+        //Set's the sort icon accordingly
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        int whichSortIcon = settings.getInt("savedSort", 2);
+        if(whichSortIcon == 0) {
+            sortButton.setBackgroundResource(R.mipmap.sort_abc_down_icon_normal);
+        } else if(whichSortIcon == 1){
+            sortButton.setBackgroundResource(R.mipmap.sort_abc_up_icon_normal);
+        } else if(whichSortIcon == 2){
+            sortButton.setBackgroundResource(R.mipmap.sort_recent_down_icon_normal);
+        } else{ //3
+            sortButton.setBackgroundResource(R.mipmap.sort_recent_up_icon_normal);
         }
     }
 

@@ -35,7 +35,7 @@
         android:id="@+id/mainSortButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:background="@mipmap/sort_abc_down_icon_normal"
+        android:background="@drawable/sort_custombutton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
