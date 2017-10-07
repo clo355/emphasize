@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,14 +35,9 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "PreferenceFile";
     protected ArrayList<String> myFileNameArray;
-    protected String widgetType;
     protected String fileContents = "";
     protected int blinkDelay = 333;
-    protected int jiggleDelay = 200;
     protected String backgroundColor = "overwritten";
-    protected int backgroundTransparency;
-    protected String textColor = "black";
-    protected String textSize = "medium"; //Large, medium, small
 
     @TargetApi(26)
     @Override
@@ -85,81 +79,26 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         }
 
         //Press listView object, send contents to widget
-        //Widget type: "blink", "jiggle", or "normal"
         backgroundColor = getIntent().getExtras().getString("currentBackgroundColor");
-        //bgColor always white. widget not sending correct color.
-        widgetType = getIntent().getExtras().getString("widgetType");
-        if(widgetType.equals("blink")){
-            blinkDelay = getIntent().getExtras().getInt("currentBlinkDelay");
-            if(blinkDelay <= 0){ //catch 0 from BlinkWidget default
-                blinkDelay = 333;
-            }
-            intent = new Intent(getApplicationContext(), BlinkWidget.class);
-        } else if(widgetType.equals("jiggle")){
-            intent = new Intent(getApplicationContext(), JiggleWidget.class);
-        } else{ //"normal"
-            intent = new Intent(getApplicationContext(), NormalWidget.class);
-        }
+        blinkDelay = getIntent().getExtras().getInt("currentBlinkDelay");
 
-        switch(widgetType) {
-            case "blink":{
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                        fileContents = getEmphasizeFileContents(fileClicked);
-                        intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
-                        intent.putExtra("fileContents", fileContents);
-                        intent.putExtra("blinkDelay", blinkDelay);
-                        intent.putExtra("backgroundColor", backgroundColor);
-                        intent.putExtra("textColor", textColor);
-                        intent.putExtra("textSize", textSize);
-                        //Send widget ID back so onReceive() sees which widget to update
-                        intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
-                        sendBroadcast(intent); //broadcasted to widget's onReceive()
-                        finish();
-                    }
-                });
-                break;
+        intent = new Intent(getApplicationContext(), BlinkWidget.class);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                fileContents = getEmphasizeFileContents(fileClicked);
+                intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
+                intent.putExtra("fileContents", fileContents);
+                intent.putExtra("blinkDelay", blinkDelay);
+                intent.putExtra("backgroundColor", backgroundColor);
+                //Send widget ID back so onReceive() sees which widget to update
+                intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
+                sendBroadcast(intent); //broadcasted to widget's onReceive()
+                finish();
             }
-            case "jiggle":{
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                        fileContents = getEmphasizeFileContents(fileClicked);
-                        intent.setAction(JiggleWidget.CHOOSE_FILE_ACTION);
-                        intent.putExtra("fileContents", fileContents);
-                        intent.putExtra("jiggleDelay", jiggleDelay);
-                        intent.putExtra("backgroundColor", backgroundColor);
-                        intent.putExtra("textColor", textColor);
-                        intent.putExtra("textSize", textSize);
-                        intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
-                        sendBroadcast(intent);
-                        finish();
-                    }
-                });
-                break;
-            }
-            case "normal":{
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                        File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                        fileContents = getEmphasizeFileContents(fileClicked);
-                        intent.setAction(NormalWidget.CHOOSE_FILE_ACTION);
-                        intent.putExtra("fileContents", fileContents);
-                        intent.putExtra("backgroundColor", backgroundColor);
-                        intent.putExtra("textColor", textColor);
-                        intent.putExtra("textSize", textSize);
-                        intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
-                        sendBroadcast(intent);
-                        finish();
-                    }
-                });
-                break;
-            }
-        }
+        });
+
 
         //delay: slider for ms delay
         //text: size slider, color slider
@@ -170,7 +109,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 final TextView speedLabelDisplay = new TextView(ChooseFileForWidgetActivity.this);
                 speedLabelDisplay.setGravity(Gravity.CENTER);
-                speedLabelDisplay.setText("\n\nSpeed");
+                speedLabelDisplay.setText("\n\nBlink Speed");
                 speedLabelDisplay.setTypeface(Typeface.DEFAULT_BOLD);
 
                 final TextView speedDisplay = new TextView(ChooseFileForWidgetActivity.this);
@@ -183,20 +122,26 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 SeekBar delaySeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 delaySeekBar.setMax(100);
                 //Start off as:
-                if(blinkDelay <= 50){
+                if(blinkDelay == 0){
+                    speedDisplay.setText("No Blink");
+                    delaySeekBar.setProgress(0);
+                } else if(blinkDelay <= 166){
                     speedDisplay.setText("Faster");
                     delaySeekBar.setProgress(100);
-                } else if(blinkDelay <= 120) {
+                } else if(blinkDelay <= 332) {
                     speedDisplay.setText("Fast");
-                    delaySeekBar.setProgress(75);
-                } else if(blinkDelay <= 333){
+                    delaySeekBar.setProgress(80);
+                } else if(blinkDelay <= 498){
                     speedDisplay.setText("Normal");
-                    delaySeekBar.setProgress(50);
-                } else if(blinkDelay <= 666){
+                    delaySeekBar.setProgress(60);
+                } else if(blinkDelay <= 664){
                     speedDisplay.setText("Slow");
-                    delaySeekBar.setProgress(25);
-                } else{
+                    delaySeekBar.setProgress(40);
+                } else if(blinkDelay <= 830){
                     speedDisplay.setText("Slower");
+                    delaySeekBar.setProgress(20);
+                } else{
+                    speedDisplay.setText("No Blink");
                     delaySeekBar.setProgress(0);
                 }
 
@@ -226,37 +171,37 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 switch(backgroundColor){
                     case "red":{
                         backgroundColorSeekBar.setProgress(0);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 37, 37));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 158, 158));
                         break;
                     }
                     case "orange":{
                         backgroundColorSeekBar.setProgress(1);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(225, 179, 37));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(225, 231, 175));
                         break;
                     }
                     case "yellow":{
                         backgroundColorSeekBar.setProgress(2);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(234, 236, 14));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 253, 193));
                         break;
                     }
                     case "green":{
                         backgroundColorSeekBar.setProgress(3);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(111, 236, 14));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(197, 255, 195));
                         break;
                     }
                     case "blue":{
                         backgroundColorSeekBar.setProgress(4);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(14, 197, 236));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(163, 220, 255));
                         break;
                     }
                     case "purple":{
                         backgroundColorSeekBar.setProgress(5);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(189, 14, 236));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(232, 167, 255));
                         break;
                     }
                     case "gray":{
                         backgroundColorSeekBar.setProgress(6);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(163, 163, 163));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(200, 200, 200));
                         break;
                     }
                     case "white":{
@@ -271,20 +216,23 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int speed, boolean fromUser) {
                         if(speed > 80){
-                            blinkDelay = 50;
+                            blinkDelay = 166;
                             speedDisplay.setText("Faster");
                         } else if(speed > 60) {
-                            blinkDelay = 120;
+                            blinkDelay = 332;
                             speedDisplay.setText("Fast");
                         } else if(speed > 40){
-                            blinkDelay = 333;
+                            blinkDelay = 498;
                             speedDisplay.setText("Normal");
                         } else if(speed > 20){
-                            blinkDelay = 666;
+                            blinkDelay = 664;
                             speedDisplay.setText("Slow");
-                        } else{
-                            blinkDelay = 999;
+                        } else if(speed > 1){
+                            blinkDelay = 830;
                             speedDisplay.setText("Slower");
+                        } else{
+                            blinkDelay = 0;
+                            speedDisplay.setText("No Blink");
                         }
                     }
                     @Override
@@ -302,37 +250,37 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         switch(color){
                             case 0:{
                                 backgroundColor = "red";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 37, 37));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 158, 158));
                                 break;
                             }
                             case 1:{
                                 backgroundColor = "orange";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(225, 179, 37));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 231, 175));
                                 break;
                             }
                             case 2:{
                                 backgroundColor = "yellow";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(234, 236, 14));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 253, 193));
                                 break;
                             }
                             case 3:{
                                 backgroundColor = "green";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(111, 236, 14));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(197, 255, 195));
                                 break;
                             }
                             case 4:{
                                 backgroundColor = "blue";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(14, 197, 236));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(163, 220, 255));
                                 break;
                             }
                             case 5:{
                                 backgroundColor = "purple";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(189, 14, 236));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(232, 167, 255));
                                 break;
                             }
                             case 6:{
                                 backgroundColor = "gray";
-                                backgroundColorDisplay.setBackgroundColor(Color.rgb(163, 163, 163));
+                                backgroundColorDisplay.setBackgroundColor(Color.rgb(200, 200, 200));
                                 break;
                             }
                             case 7:{
@@ -352,14 +300,10 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
                 LinearLayout widgetSettingsLayout = new LinearLayout(ChooseFileForWidgetActivity.this);
                 widgetSettingsLayout.setOrientation(LinearLayout.VERTICAL);
-                if(widgetType.equals("blink")) {
-                    widgetSettingsLayout.addView(speedLabelDisplay);
-                    widgetSettingsLayout.addView(speedDisplay);
-                    widgetSettingsLayout.addView(emptySpace1);
-                    widgetSettingsLayout.addView(delaySeekBar);
-                }
-                //widgetSettingsLayout.addView(textColorSeekBar);
-                //widgetSettingsLayout.addView(textSizeSeekBar);
+                widgetSettingsLayout.addView(speedLabelDisplay);
+                widgetSettingsLayout.addView(speedDisplay);
+                widgetSettingsLayout.addView(emptySpace1);
+                widgetSettingsLayout.addView(delaySeekBar);
                 widgetSettingsLayout.addView(backgroundColorLabelDisplay);
                 widgetSettingsLayout.addView(backgroundColorDisplay);
                 widgetSettingsLayout.addView(emptySpace2);

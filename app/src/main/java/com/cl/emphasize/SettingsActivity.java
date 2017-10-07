@@ -36,7 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-                builder.setTitle("Set theme");
+                builder.setTitle("Theme");
                 CharSequence[] themeChoices = {"Light", "Dark"};
                 int currentlySelected;
                 if(globalTheme == R.style.lightTheme){

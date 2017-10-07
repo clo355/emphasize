@@ -44,7 +44,6 @@ public class BlinkWidget extends AppWidgetProvider {
         //Clicked widget, bring up CFFWactivity
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
-        intent.putExtra("widgetType", "blink");
         //currentBlink/Background always sent as white and 0?
         intent.putExtra("currentBlinkDelay", receivedBlinkDelay);
         intent.putExtra("currentBackgroundColor", receivedBackgroundColor);
@@ -103,9 +102,9 @@ public class BlinkWidget extends AppWidgetProvider {
                 break;
             }
             case "gray":{
-                argbRed = 219;
-                argbGreen = 219;
-                argbBlue = 219;
+                argbRed = 200;
+                argbGreen = 200;
+                argbBlue = 200;
                 break;
             }
             case "white":{
@@ -185,8 +184,42 @@ public class BlinkWidget extends AppWidgetProvider {
                     widgetIdWait.add(new Integer(appWidgetId));
                 }
             });
-        } else{
-            appWidgetManager.updateAppWidget(appWidgetId, views);
+        } else{ //User selected No Blink
+            if(hasRunnableBeforeMe.contains(appWidgetId)){
+                //there's a runnable on this widget. stop it
+                AsyncTask.execute(new Runnable(){
+                    @Override
+                    public void run(){
+                        if(hasRunnableBeforeMe.contains(appWidgetId)){ //widgetId runnable exists in messageQueue?
+                            //wait for old runnable to stop
+                            while(widgetIdIsRunning.get(appWidgetId) == true){
+                                widgetIdStopRunnable.put(appWidgetId, true);
+                            }
+                        } else{
+                            hasRunnableBeforeMe.add(appWidgetId);
+                        }
+
+                        while (widgetIdWait.contains(appWidgetId)){
+                            //waiting for old runnable to end and remove widgetId from wait list
+                            if (!widgetIdWait.contains(appWidgetId)){
+                                break;
+                            }
+                        }
+                        //old runnable stopped. show note
+                        //widgetIdStopRunnable.put(appWidgetId, false);
+                        //widgetIdIsRunning.put(appWidgetId, true);
+                        //myHandler.post(runnable);
+                        //widgetIdWait.add(new Integer(appWidgetId));
+                        views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
+                                Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue));
+                        appWidgetManager.updateAppWidget(appWidgetId, views);
+                    }
+                });
+            } else{ //no runnable on this widget. just update it to show note
+                views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
+                        Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue));
+                appWidgetManager.updateAppWidget(appWidgetId, views);
+            }
         }
     }
 
@@ -223,6 +256,15 @@ public class BlinkWidget extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
+    }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds){
+        //stop these widgets' runnables
+        for(int appWidgetId : appWidgetIds){
+            widgetIdStopRunnable.put(appWidgetId, true);
+        }
+        super.onDeleted(context, appWidgetIds);
     }
 
     @Override

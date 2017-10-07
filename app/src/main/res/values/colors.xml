@@ -9,4 +9,5 @@
     <color name="dark_beige1">#B29E6C</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="primary_text_default_material_light">#de3a3a3a</color>
 </resources>

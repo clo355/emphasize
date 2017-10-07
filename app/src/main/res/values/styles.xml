@@ -1,17 +1,27 @@
 <resources>
 
-    <!-- Light theme (Base) -->
+    <!-- Light Theme (Default) -->
     <style name="lightTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/blue1</item>
         <item name="colorPrimaryDark">@color/blue2</item>
         <item name="colorAccent">@color/blue3</item>
     </style>
 
-    <!-- Dark theme -->
+    <!-- Dark Theme -->
     <style name="darkTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/blue1</item>
         <item name="colorPrimaryDark">@color/blue2</item>
         <item name="colorAccent">@color/blue3</item>
+    </style>
+
+    <!-- Transparent Theme-->
+    <style name="transparentTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 
 </resources>
