@@ -68,9 +68,9 @@ public class TextEditorActivity extends AppCompatActivity {
                 if(isNewFile){
                     //new file, go to save as
                     Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
-                    saveAsIntent.putExtra("isNewFile", isNewFile);
                     saveAsIntent.putExtra("fileName", fileName);
                     saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
+                    saveAsIntent.putExtra("isNewFile", isNewFile);
                     startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
                     //on return to Main, calls the overridden onActivityResult()
                 } else{
@@ -101,6 +101,7 @@ public class TextEditorActivity extends AppCompatActivity {
                 //saveAsIntent.putExtra("isNewFile", isNewFile);
                 saveAsIntent.putExtra("fileName", fileName);
                 saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
+                saveAsIntent.putExtra("isNewFile", isNewFile);
                 startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
                 //on return to Main, calls the overridden onActivityResult()
             }

@@ -29,6 +29,7 @@ import java.io.IOException;
 public class SaveAsActivity extends AppCompatActivity {
     protected String fileContents;
     protected String fileName;
+    protected boolean isNewFile;
     protected Button saveAsOkButton;
     protected Button saveAsCancelButton;
     protected EditText saveAsFileName;
@@ -48,31 +49,40 @@ public class SaveAsActivity extends AppCompatActivity {
 
         fileContents = getIntent().getExtras().getString("fileContents");
         fileName = getIntent().getExtras().getString("fileName");
+        isNewFile = getIntent().getExtras().getBoolean("isNewFile");
 
         saveAsOkButton = (Button)findViewById(R.id.saveAsOkButton);
         saveAsCancelButton = (Button)findViewById(R.id.saveAsCancelButton);
         saveAsFileName = (EditText)findViewById(R.id.saveAsFileName);
-        saveAsFileName.setHint(fileName);
+        //Existing file "New Note", keep hint. New "New Note", search for available "New Note #"
+        String freeFileName = "";
+        if(isNewFile == true) {
+            String newFilePrefix = "New Note";
+            if(fileNameAlreadyExists(newFilePrefix)) { //"New Note" already taken
+                int newFileSuffix = 1;
+                while(fileNameAlreadyExists(newFilePrefix + " " + newFileSuffix)){
+                    newFileSuffix++;
+                }
+                freeFileName = newFilePrefix + " " + newFileSuffix;
+                saveAsFileName.setHint(freeFileName);
+            } else{ //"Note" not taken
+                freeFileName = "New Note";
+                saveAsFileName.setHint(freeFileName);
+            }
+        } else{
+            saveAsFileName.setHint(fileName);
+        }
 
         //Automatically show keyboard
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
+        final String defaultFileName = freeFileName;
         saveAsOkButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 final String userInputFileName = saveAsFileName.getText().toString();
-                if(userInputFileName.equals("")){ //user left file name empty, name as "NewFile#"
-                    String newFilePrefix = "NewFile";
-                    if(fileNameAlreadyExists(newFilePrefix)){ //"NewFile" already taken
-                        int newFileSuffix = 1;
-                        while(fileNameAlreadyExists(newFilePrefix + newFileSuffix)){
-                            newFileSuffix++;
-                        }
-                        //save as defaultFileName
-                        String defaultFileName = newFilePrefix + newFileSuffix;
-                        Log.d("newFilePrefixIs", newFilePrefix);
-                        Log.d("newFileSuffixIs", Integer.toString(newFileSuffix));
-                        Log.d("defaultFileNameIs", defaultFileName);
+                if(userInputFileName.equals("")){ //user left file name empty, name as "New Note #"
+                    if(isNewFile){ //Use free default name
                         File newDefaultFile = new File(getFilesDir(), defaultFileName);
                         try {
                             myOutputStream = new FileOutputStream(newDefaultFile, false);
@@ -83,16 +93,14 @@ public class SaveAsActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             Log.d("SAVEAS", "IOException");
                         }
-
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("isNewFile", false);
                         returnIntent.putExtra("fileName", defaultFileName);
                         returnIntent.putExtra("changesSaved", true);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
-                    } else{ //"NewFile" not taken
-                        String defaultFileName = newFilePrefix;
-                        File newDefaultFile = new File(getFilesDir(), defaultFileName);
+                    } else{ //save as fileName
+                        File newDefaultFile = new File(getFilesDir(), fileName);
                         try {
                             myOutputStream = new FileOutputStream(newDefaultFile, false);
                             myOutputStream.write(fileContents.getBytes());
@@ -102,10 +110,9 @@ public class SaveAsActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             Log.d("SAVEAS", "IOException");
                         }
-
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("isNewFile", false);
-                        returnIntent.putExtra("fileName", defaultFileName);
+                        returnIntent.putExtra("fileName", fileName);
                         returnIntent.putExtra("changesSaved", true);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
@@ -169,7 +176,7 @@ public class SaveAsActivity extends AppCompatActivity {
                             };
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(SaveAsActivity.this);
-                            builder.setMessage("A file named \"" + userInputFileName +
+                            builder.setMessage("A note named \"" + userInputFileName +
                                     "\" already exists.\nOverwrite it?")
                                     .setPositiveButton("Overwrite", dialogClickListener)
                                     .setNegativeButton("Cancel", dialogClickListener)

@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 Intent newFileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
-                newFileIntent.putExtra("fileName", "Note");
+                newFileIntent.putExtra("fileName", "New Note");
                 newFileIntent.putExtra("fileContents", "");
                 newFileIntent.putExtra("isNewFile", true);
                 startActivityForResult(newFileIntent, ACCESSED_FILE_REQUEST_CODE);
