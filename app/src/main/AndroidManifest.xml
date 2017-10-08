@@ -23,6 +23,7 @@
         <activity
             android:name=".SettingsActivity"
             android:label="Settings" />
+        <activity android:name=".HelpActivity"></activity>
         <activity android:name=".ChooseFileForWidgetActivity" />
 
         <receiver
@@ -52,21 +53,6 @@
                 android:resource="@xml/jiggle_widget_info" />
         </receiver>
         -->
-
-        <receiver
-            android:name=".NormalWidget"
-            android:label="@string/widget_name_normal">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/normal_widget_info" />
-        </receiver>
-
-        <activity android:name=".HelpActivity"></activity>
     </application>
 
 </manifest>

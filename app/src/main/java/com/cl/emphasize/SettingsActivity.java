@@ -32,6 +32,7 @@ public class SettingsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Button themeButton = (Button)findViewById(R.id.themeButton);
+        themeButton.setBackgroundResource(R.mipmap.theme_icon_normal);
         themeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,11 +82,21 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         Button helpButton = (Button)findViewById(R.id.helpButton);
+        helpButton.setBackgroundResource(R.mipmap.help_icon_normal);
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
+            }
+        });
+
+        Button backButton = (Button)findViewById(R.id.backButton);
+        backButton.setBackgroundResource(R.mipmap.left_chevron_icon_normal);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }

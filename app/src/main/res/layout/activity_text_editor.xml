@@ -8,8 +8,8 @@
 
     <TextView
         android:id="@+id/fileNameDisplay"
-        android:layout_width="166dp"
-        android:layout_height="32dp"
+        android:layout_width="137dp"
+        android:layout_height="27dp"
         android:ems="16"
         android:text=""
         android:textSize="16dp"
@@ -18,13 +18,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.97"
-        app:layout_constraintHorizontal_bias="0.073" />
+        app:layout_constraintVertical_bias="0.953"
+        app:layout_constraintHorizontal_bias="0.382"
+        tools:layout_editor_absoluteY="515dp"
+        tools:layout_editor_absoluteX="86dp" />
 
     <EditText
         android:id="@+id/textEditor"
-        android:layout_width="369dp"
-        android:layout_height="492dp"
+        android:layout_width="318dp"
+        android:layout_height="477dp"
         android:ems="10"
         android:gravity="top|start"
         android:inputType="textMultiLine"
@@ -32,30 +34,44 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.188" />
+        app:layout_constraintVertical_bias="0.188"
+        tools:layout_editor_absoluteY="29dp"
+        tools:layout_editor_absoluteX="48dp" />
 
     <Button
         android:id="@+id/textEditorSaveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_editor_save_button"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/static_icon"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.774"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.652"
-        app:layout_constraintVertical_bias="0.99" />
+        app:layout_constraintVertical_bias="0.969" />
 
     <Button
         android:id="@+id/textEditorSaveAsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_editor_save_as_button"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/static_icon"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.949"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.979"
-        app:layout_constraintVertical_bias="0.99" />
+        app:layout_constraintVertical_bias="0.969" />
+
+    <Button
+        android:id="@+id/textEditorBackButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/static_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.969" />
 
 </android.support.constraint.ConstraintLayout>

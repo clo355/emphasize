@@ -24,15 +24,14 @@ import java.util.List;
 
 public class BlinkWidget extends AppWidgetProvider {
 
-    //Widget is initially updated with my default values. Pressing button will open
+    //Widget is initially updated with my default values. Pressing widget edit button will open
     //ChooseFileForWidgetActivity, which broadcasts intent extras to BlinkWidget's onReceive().
 
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
+    //Following 3 are overwritten by defaults in onReceive()
     protected static String receivedFileContents = "Select note";
     protected static int receivedBlinkDelay = 0;
     protected static String receivedBackgroundColor = "white";
-    //protected static String receivedTextColor;
-    //protected static int receivedTextSize;
     static final Handler myHandler = new Handler(Looper.getMainLooper()); //for postDelayed()
     protected static HashMap<Integer, Boolean> widgetIdStopRunnable = new HashMap<Integer, Boolean>();
     protected static HashMap<Integer, Boolean> widgetIdIsRunning = new HashMap<Integer, Boolean>();
@@ -205,17 +204,12 @@ public class BlinkWidget extends AppWidgetProvider {
                                 break;
                             }
                         }
-                        //old runnable stopped. show note
-                        //widgetIdStopRunnable.put(appWidgetId, false);
-                        //widgetIdIsRunning.put(appWidgetId, true);
-                        //myHandler.post(runnable);
-                        //widgetIdWait.add(new Integer(appWidgetId));
                         views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                                 Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue));
                         appWidgetManager.updateAppWidget(appWidgetId, views);
                     }
                 });
-            } else{ //no runnable on this widget. just update it to show note
+            } else{ //no runnable found on this widget. just update it to show note
                 views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                         Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue));
                 appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -224,7 +218,11 @@ public class BlinkWidget extends AppWidgetProvider {
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, Intent intent){
+        //These 3 are defaults for new widget instances
+        receivedFileContents = "Select note";
+        receivedBlinkDelay = 0;
+        receivedBackgroundColor = "white";
         if(intent.getExtras() == null){
             //user pressed cancel or back
         } else{
@@ -269,14 +267,10 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) { //might need to override onReceive() to prevent reboot problem
-        // Enter relevant functionality for when the first widget is created (includes device reboot)
-        //Display ListView of files, same as
-
     }
 
     @Override
     public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
-        //might need to do handler.removeCallbacksAndMessages(null); to stop runnables
+        //might need to do handler.removeCallbacksAndMessages(null); to stop all runnables
     }
 }

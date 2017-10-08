@@ -18,7 +18,5 @@
     <string name="text_editor_save_button">Save</string>
     <string name="text_editor_save_as_button">Save As</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="widget_name_blink">Emphasize Blink</string>
-    <string name="widget_name_jiggle">Emphasize Jiggle</string>
-    <string name="widget_name_normal">Emphasize Normal</string>
+    <string name="widget_name_blink">Blink Note</string>
 </resources>

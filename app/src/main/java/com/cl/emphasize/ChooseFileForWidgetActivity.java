@@ -53,7 +53,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
         ListView listView = (ListView) findViewById(R.id.listViewCFFW);
         TextView noFilesView = (TextView) findViewById(R.id.noFilesLabelCFFW);
-        final Button widgetSettingsButton = (Button)findViewById(R.id.widgetSettingsButtonCFFW);
         Button cancelButton = (Button)findViewById(R.id.cancelButtonCFFW);
         final Intent intent;
 
@@ -85,28 +84,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         intent = new Intent(getApplicationContext(), BlinkWidget.class);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                fileContents = getEmphasizeFileContents(fileClicked);
-                intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
-                intent.putExtra("fileContents", fileContents);
-                intent.putExtra("blinkDelay", blinkDelay);
-                intent.putExtra("backgroundColor", backgroundColor);
-                //Send widget ID back so onReceive() sees which widget to update
-                intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
-                sendBroadcast(intent); //broadcasted to widget's onReceive()
-                finish();
-            }
-        });
-
-
-        //delay: slider for ms delay
-        //text: size slider, color slider
-        //background: color slider
-        widgetSettingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view){
-
+            public void onItemClick(AdapterView<?> adapterView, View view, final int position, long l) {
                 final TextView speedLabelDisplay = new TextView(ChooseFileForWidgetActivity.this);
                 speedLabelDisplay.setGravity(Gravity.CENTER);
                 speedLabelDisplay.setText("\n\nBlink Speed");
@@ -315,6 +293,18 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         if(which == DialogInterface.BUTTON_POSITIVE){
                             //Pressed OK in widget settings dialog
                             dialog.dismiss();
+                            File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                            fileContents = getEmphasizeFileContents(fileClicked);
+                            intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
+                            intent.putExtra("fileContents", fileContents);
+                            intent.putExtra("blinkDelay", blinkDelay);
+                            intent.putExtra("backgroundColor", backgroundColor);
+                            //Send widget ID back so onReceive() sees which widget to update
+                            intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
+                            sendBroadcast(intent); //broadcasted to widget's onReceive()
+                            finish();
+                        } else{ //BUTTON_NEGATIVE
+                            dialog.dismiss();
                         }
                     }
                 };
@@ -324,9 +314,11 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         .setView(widgetSettingsLayout)
                         .setCancelable(true)
                         .setPositiveButton("OK", dialogClickListener)
+                        .setNegativeButton("CANCEL", dialogClickListener)
                         .show();
             }
         });
+
 
         //Press cancel
         cancelButton.setOnClickListener(new View.OnClickListener() {

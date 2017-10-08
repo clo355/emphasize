@@ -53,6 +53,7 @@ public class TextEditorActivity extends AppCompatActivity {
         isNewFile = getIntent().getExtras().getBoolean("isNewFile");
         originalFileContents = getIntent().getExtras().getString("fileContents");
         textEditor.setText(originalFileContents);
+        textEditor.setSelection(textEditor.getText().length());
 
         if(fileName.length() <= 13) {
             fileNameDisplay.setText(fileName);
@@ -102,6 +103,15 @@ public class TextEditorActivity extends AppCompatActivity {
                 saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
                 startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
                 //on return to Main, calls the overridden onActivityResult()
+            }
+        });
+
+        Button backButton = (Button)findViewById(R.id.textEditorBackButton);
+        backButton.setBackgroundResource(R.mipmap.left_chevron_icon_normal);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
             }
         });
     }

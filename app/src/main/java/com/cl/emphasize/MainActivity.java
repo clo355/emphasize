@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
         textPrint = (TextView) findViewById(R.id.textPrint);
         final Button mainSortButton = (Button)findViewById(R.id.mainSortButton);
         Button mainNewTextFileButton = (Button)findViewById(R.id.mainNewTextFileButton);
+        mainNewTextFileButton.setBackgroundResource(R.mipmap.new_file_icon_normal);
         Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
+        mainSettingsButton.setBackgroundResource(R.mipmap.settings_icon_normal);
 
         //Load theme
         ConstraintLayout mainLayout = (ConstraintLayout)findViewById(R.id.activity_main);
@@ -204,6 +206,10 @@ public class MainActivity extends AppCompatActivity {
                     String line;
                     while((line = fileReader.readLine()) != null) {
                         fileContents = fileContents + line + "\n";
+                    }
+                    //remove last newline if file isn't empty string
+                    if(!fileContents.equals("")){
+                        fileContents = fileContents.substring(0, fileContents.length() - 1);
                     }
                 } catch(IOException e){
                     Log.d("MAIN", "IOException");
