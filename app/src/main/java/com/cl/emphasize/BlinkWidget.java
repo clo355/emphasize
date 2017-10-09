@@ -6,17 +6,21 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED;
 
 /**
  * @author Chris Lo
@@ -27,6 +31,7 @@ public class BlinkWidget extends AppWidgetProvider {
     //Widget is initially updated with my default values. Pressing widget edit button will open
     //ChooseFileForWidgetActivity, which broadcasts intent extras to BlinkWidget's onReceive().
 
+    public static final String PREFS_NAME = "PreferenceFile";
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
     //Following 3 are overwritten by defaults in onReceive()
     protected static String receivedFileContents = "Select note";
@@ -40,23 +45,28 @@ public class BlinkWidget extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, final AppWidgetManager appWidgetManager,
                                 final int appWidgetId){
+        Log.d("BlinkWidget", "called updateAppWidget(). Working with widget " + appWidgetId);
         //Clicked widget, bring up CFFWactivity
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
         intent.putExtra("widgetId", appWidgetId);
         //currentBlink/Background always sent as white and 0?
         intent.putExtra("currentBlinkDelay", receivedBlinkDelay);
         intent.putExtra("currentBackgroundColor", receivedBackgroundColor);
-        //PendingIntent param appWidgetId to let CFFWactivity know it's a unique intent
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, intent, 0);
+        intent.putExtra("isConfig", false);
+        //PendingIntent param 2, is appWidgetId to let CFFWactivity differentiate between intent
+        //PendingIntent param 4, reuses old appWidgetId intent but updates extras
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.blink_widget);
-        views.setOnClickPendingIntent(R.id.widget_button, pendingIntent);
-        views.setTextViewText(R.id.appwidget_text, receivedFileContents);
+        views.setOnClickPendingIntent(R.id.selectFileButton, pendingIntent);
+        views.setTextViewText(R.id.appwidgetText, receivedFileContents);
         appWidgetManager.updateAppWidget(appWidgetId, views);
+
 
         //fileContents and blinkDelay received in onReceive()
         final int blinkDelay = receivedBlinkDelay;
         CharSequence fileContents = receivedFileContents;
-        views.setTextViewText(R.id.appwidget_text, fileContents);
+        views.setTextViewText(R.id.appwidgetText, fileContents);
 
         //background color argb values
         int argbAlpha;
@@ -219,31 +229,53 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onReceive(Context context, Intent intent){
-        //These 3 are defaults for new widget instances
+        //Update, delete, disabled, and enabled all caught here
         receivedFileContents = "Select note";
         receivedBlinkDelay = 0;
         receivedBackgroundColor = "white";
         if(intent.getExtras() == null){
-            //user pressed cancel or back
+            //user put down new widget or removed a widget. Let super handle it.
+            super.onReceive(context, intent);
         } else{
             String action = intent.getAction();
-            Bundle b = intent.getExtras();
-            if(action != null && action.equals(CHOOSE_FILE_ACTION)){
-                receivedFileContents = b.getString("fileContents");
-                receivedBlinkDelay = b.getInt("blinkDelay");
-                receivedBackgroundColor = b.getString("backgroundColor");
-                final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-                ComponentName name = new ComponentName(context, BlinkWidget.class);
-                int[] appWidgetId = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
-                final int appWidgetIdLength = appWidgetId.length;
+            Bundle extras = intent.getExtras();
+            Log.d("BlinkWidget", "in onReceive()");
+            Log.d("BlinkWidget", "action is " + action);
+            final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+            ComponentName name = new ComponentName(context, BlinkWidget.class);
+            int[] appWidgetId = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
+            final int appWidgetIdLength = appWidgetId.length;
+            if(action != null && (action.equals(CHOOSE_FILE_ACTION))){
+                Log.d("BlinkWidget", "action is was CHOOSE_FILE_ACTION");
+                receivedFileContents = extras.getString("fileContents");
+                receivedBlinkDelay = extras.getInt("blinkDelay");
+                receivedBackgroundColor = extras.getString("backgroundColor");
                 if(appWidgetIdLength < 1){
                     return;
                 } else{
-                    int id = b.getInt("widgetId");
+                    int id = extras.getInt("widgetId");
+                    Log.d("BlinkWidget", "id is " + String.valueOf(id));
+                    updateAppWidget(context, mgr, id);
+                    super.onReceive(context, intent);
+                }
+            } else if(action.equals(ACTION_APPWIDGET_OPTIONS_CHANGED)){
+                Log.d("BlinkWidget", "action was APPWIDGET_OPTIONS_CHANGED");
+                //came here from config. Get the SharedPreference values and start the runnable
+                if(appWidgetIdLength < 1){
+                    return;
+                } else {
+                    SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
+                    //2nd params are defaults for new widget instances
+                    receivedFileContents = settings.getString("configFileContents", "Select note");
+                    receivedBlinkDelay = settings.getInt("configBlinkDelay", 0);
+                    receivedBackgroundColor = settings.getString("configBackgroundColor", "white");
+                    int id = settings.getInt("configWidgetId", 0);
+                    Log.d("BlinkWidget", "id is " + String.valueOf(id));
                     updateAppWidget(context, mgr, id);
                     super.onReceive(context, intent);
                 }
             }
+            Log.d("BlinkWidget", "action was NULL or some other action");
             super.onReceive(context, intent);
         }
     }
@@ -258,6 +290,7 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds){
+        Log.d("CFFWactivity", "Called onDeleted()");
         //stop these widgets' runnables
         for(int appWidgetId : appWidgetIds){
             widgetIdStopRunnable.put(appWidgetId, true);
@@ -267,10 +300,12 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) { //might need to override onReceive() to prevent reboot problem
+        Log.d("CFFWactivity", "Called onEnabled()");
     }
 
     @Override
     public void onDisabled(Context context) {
         //might need to do handler.removeCallbacksAndMessages(null); to stop all runnables
+        Log.d("CFFWactivity", "Called onDisabled()");
     }
 }

@@ -14,7 +14,6 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -24,13 +23,20 @@
             android:name=".SettingsActivity"
             android:label="Settings" />
         <activity android:name=".HelpActivity"></activity>
-        <activity android:name=".ChooseFileForWidgetActivity" />
+        <activity android:name=".ChooseFileForWidgetActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".BlinkWidget"
             android:label="@string/widget_name_blink">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
+                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
                 <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
             </intent-filter>
 
@@ -38,21 +44,5 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/blink_widget_info" />
         </receiver>
-
-        <!--
-        <receiver
-            android:name=".JiggleWidget"
-            android:label="@string/widget_name_jiggle">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/jiggle_widget_info" />
-        </receiver>
-        -->
     </application>
-
 </manifest>

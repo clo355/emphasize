@@ -7,7 +7,7 @@
     android:padding="@dimen/widget_margin">
 
     <TextView
-        android:id="@+id/appwidget_text"
+        android:id="@+id/appwidgetText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -18,12 +18,21 @@
         android:textSize="10sp" />
 
     <Button
-        android:id="@+id/widget_button"
+        android:id="@+id/displayFileButton"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="Choose file"
         android:alpha="0"/>
+
+    <Button
+        android:id="@+id/selectFileButton"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/static_icon" />
 
 </RelativeLayout>

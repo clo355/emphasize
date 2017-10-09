@@ -1,6 +1,8 @@
 package com.cl.emphasize;
 
 import android.annotation.TargetApi;
+import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -36,15 +39,16 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "PreferenceFile";
     protected ArrayList<String> myFileNameArray;
     protected String fileContents = "";
+    protected boolean globalIsConfig; //differentiate between configuration and user pressing widget button
     protected int blinkDelay = 333;
     protected String backgroundColor = "overwritten";
 
     @TargetApi(26)
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         int globalTheme = settings.getInt("globalTheme", R.style.lightTheme);
         setTheme(globalTheme);
 
@@ -54,7 +58,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.listViewCFFW);
         TextView noFilesView = (TextView) findViewById(R.id.noFilesLabelCFFW);
         Button cancelButton = (Button)findViewById(R.id.cancelButtonCFFW);
-        final Intent intent;
 
         //Initially populate ListView
         myFileNameArray = new ArrayList<String>();
@@ -77,11 +80,34 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
             noFilesView.setText("");
         }
 
-        //Press listView object, send contents to widget
-        backgroundColor = getIntent().getExtras().getString("currentBackgroundColor");
-        blinkDelay = getIntent().getExtras().getInt("currentBlinkDelay");
+        //check if this is for widget configuration
+        Intent maybeConfigIntent = getIntent();
+        Bundle extras = maybeConfigIntent.getExtras();
+        int configWidgetId = 0;
+        if(extras != null){ //should always contain extras
+            boolean isConfig = extras.getBoolean("isConfig", true);
+            if(isConfig){
+                Log.d("CFFWactivity", "isConfig was true");
+                globalIsConfig = true;
+                configWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        AppWidgetManager.INVALID_APPWIDGET_ID);
+                Log.d("CFFWactivity", "configWidgetId is " + configWidgetId);
+                backgroundColor = "white";
+                blinkDelay = 0;
+            } else{
+                Log.d("CFFWactivity", "isConfig was false");
+                globalIsConfig = false;
+                backgroundColor = getIntent().getExtras().getString("currentBackgroundColor");
+                blinkDelay = getIntent().getExtras().getInt("currentBlinkDelay");
+            }
+        } else{
+            //extras shouldn't be null
+            Log.d("CFFWactivity", "Extras were null");
+        }
+        final int returnConfigId = configWidgetId; //not used if it's not config
 
-        intent = new Intent(getApplicationContext(), BlinkWidget.class);
+        //Press listView object, send contents to widget
+        final Intent intent = new Intent(getApplicationContext(), BlinkWidget.class);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long l) {
@@ -123,8 +149,6 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                     delaySeekBar.setProgress(0);
                 }
 
-                //SeekBar textColorSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
-                //SeekBar textSizeSeekBar = new SeekBar(ChooseFileForWidgetActivity.this);
                 final TextView backgroundColorLabelDisplay = new TextView(ChooseFileForWidgetActivity.this);
                 backgroundColorLabelDisplay.setGravity(Gravity.CENTER);
                 backgroundColorLabelDisplay.setText("\n\nBackground Color");
@@ -293,16 +317,36 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         if(which == DialogInterface.BUTTON_POSITIVE){
                             //Pressed OK in widget settings dialog
                             dialog.dismiss();
-                            File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                            fileContents = getEmphasizeFileContents(fileClicked);
-                            intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
-                            intent.putExtra("fileContents", fileContents);
-                            intent.putExtra("blinkDelay", blinkDelay);
-                            intent.putExtra("backgroundColor", backgroundColor);
-                            //Send widget ID back so onReceive() sees which widget to update
-                            intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
-                            sendBroadcast(intent); //broadcasted to widget's onReceive()
-                            finish();
+                            if(globalIsConfig){ //is widget configuration
+                                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                                fileContents = getEmphasizeFileContents(fileClicked);
+
+                                //store everything in SharedPreferences. onReceive() will
+                                //get them only after config, then update to start runnable
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putString("configFileContents", fileContents);
+                                editor.putInt("configBlinkDelay", blinkDelay);
+                                editor.putString("configBackgroundColor", backgroundColor);
+                                editor.putInt("configWidgetId", returnConfigId);
+                                editor.commit();
+
+                                Intent configIntent = new Intent(getBaseContext(), ChooseFileForWidgetActivity.class);
+                                configIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, returnConfigId);
+                                setResult(RESULT_OK, configIntent);
+                                Log.d("CFFWactivity", "CFFWactivity config RESULT_OK, doing finish()");
+                                finish();
+                            } else{ //CFFWactivity was started by widget corner button
+                                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                                fileContents = getEmphasizeFileContents(fileClicked);
+                                intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
+                                intent.putExtra("fileContents", fileContents);
+                                intent.putExtra("blinkDelay", blinkDelay);
+                                intent.putExtra("backgroundColor", backgroundColor);
+                                //Send widget ID back so onReceive() sees which widget to update
+                                intent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
+                                sendBroadcast(intent); //broadcasted to widget's onReceive()
+                                finish();
+                            }
                         } else{ //BUTTON_NEGATIVE
                             dialog.dismiss();
                         }
