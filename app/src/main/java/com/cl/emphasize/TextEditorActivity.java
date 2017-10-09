@@ -26,11 +26,14 @@ import java.io.IOException;
 
 public class TextEditorActivity extends AppCompatActivity {
 
+    public static String EDIT_FILE_ACTION = "ActionEditFileForBlinkWidget";
+    public static final int NEW_FILE_REQUEST_CODE = 1;
+    public static final String PREFS_NAME = "PreferenceFile";
+
     String fileName;
     String originalFileContents;
     boolean isNewFile;
-    public static final int NEW_FILE_REQUEST_CODE = 1;
-    public static final String PREFS_NAME = "PreferenceFile";
+    boolean fromWidget;
 
     TextView fileNameDisplay;
     EditText textEditor;
@@ -49,6 +52,7 @@ public class TextEditorActivity extends AppCompatActivity {
         fileNameDisplay = (TextView)findViewById(R.id.fileNameDisplay);
         textEditor = (EditText)findViewById(R.id.textEditor);
 
+        fromWidget = getIntent().getExtras().getBoolean("fromWidget", false);
         fileName = getIntent().getExtras().getString("fileName");
         isNewFile = getIntent().getExtras().getBoolean("isNewFile");
         originalFileContents = getIntent().getExtras().getString("fileContents");
@@ -72,7 +76,7 @@ public class TextEditorActivity extends AppCompatActivity {
                     saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
                     saveAsIntent.putExtra("isNewFile", isNewFile);
                     startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
-                    //on return to Main, calls the overridden onActivityResult()
+                    //on return to Main, goes to the overridden onActivityResult()
                 } else{
                     //overwrite file with given fileName
                     File oldFile = new File(getFilesDir(), fileName);
@@ -98,12 +102,11 @@ public class TextEditorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
-                //saveAsIntent.putExtra("isNewFile", isNewFile);
                 saveAsIntent.putExtra("fileName", fileName);
                 saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
                 saveAsIntent.putExtra("isNewFile", isNewFile);
                 startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
-                //on return to Main, calls the overridden onActivityResult()
+                //on return to Main, goes to the overridden onActivityResult()
             }
         });
 
@@ -141,8 +144,25 @@ public class TextEditorActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         if(textEditor.getText().toString().equals(originalFileContents)){
-            //no changes. exit
-            finish();
+            //saved, or no changes. exit
+            if(fromWidget){ //TextEditor was opened by widget. Send extras back
+                Log.d("TextEditor", "fileName is " + fileName);
+                Log.d("TextEditor", "fileContents is " + originalFileContents);
+                Log.d("TextEditor", "widgetId is " + getIntent().getExtras().getInt("widgetId"));
+                Log.d("TextEditor", "blinkDelay is " + getIntent().getExtras().getInt("currentBlinkDelay"));
+                Log.d("TextEditor", "backgroundColor is " + getIntent().getExtras().getInt("currentBackgroundColor"));
+                Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                returnIntent.setAction(EDIT_FILE_ACTION);
+                returnIntent.putExtra("fileName", fileName);
+                returnIntent.putExtra("fileContents", originalFileContents);
+                returnIntent.putExtra("blinkDelay", getIntent().getExtras().getInt("currentBlinkDelay"));
+                returnIntent.putExtra("backgroundColor", getIntent().getExtras().getString("currentBackgroundColor"));
+                returnIntent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
+                sendBroadcast(returnIntent);
+                finish();
+            } else {
+                finish();
+            }
         } else{
             //changes were made. ask "You have unsaved changes. Exit without saving?" Cancel Exit
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -161,7 +181,7 @@ public class TextEditorActivity extends AppCompatActivity {
             };
 
             AlertDialog.Builder builder = new AlertDialog.Builder(TextEditorActivity.this);
-            builder.setMessage("You have unsaved changes.")
+            builder.setMessage("Changes unsaved. Exit anyway?")
                     .setPositiveButton("Exit", dialogClickListener)
                     .setNegativeButton("Cancel", dialogClickListener)
                     .show();

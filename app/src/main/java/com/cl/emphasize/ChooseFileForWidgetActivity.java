@@ -39,6 +39,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "PreferenceFile";
     protected ArrayList<String> myFileNameArray;
     protected String fileContents = "";
+    protected String fileName = "";
     protected boolean globalIsConfig; //differentiate between configuration and user pressing widget button
     protected int blinkDelay = 333;
     protected String backgroundColor = "overwritten";
@@ -106,7 +107,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         }
         final int returnConfigId = configWidgetId; //not used if it's not config
 
-        //Press listView object, send contents to widget
+        //Press listView object, show options, send contents to widget
         final Intent intent = new Intent(getApplicationContext(), BlinkWidget.class);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -317,13 +318,14 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         if(which == DialogInterface.BUTTON_POSITIVE){
                             //Pressed OK in widget settings dialog
                             dialog.dismiss();
+                            File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                            fileContents = getEmphasizeFileContents(fileClicked);
+                            fileName = fileClicked.getName();
                             if(globalIsConfig){ //is widget configuration
-                                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                                fileContents = getEmphasizeFileContents(fileClicked);
-
                                 //store everything in SharedPreferences. onReceive() will
                                 //get them only after config, then update to start runnable
                                 SharedPreferences.Editor editor = settings.edit();
+                                editor.putString("configFileName", fileName);
                                 editor.putString("configFileContents", fileContents);
                                 editor.putInt("configBlinkDelay", blinkDelay);
                                 editor.putString("configBackgroundColor", backgroundColor);
@@ -336,9 +338,8 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                                 Log.d("CFFWactivity", "CFFWactivity config RESULT_OK, doing finish()");
                                 finish();
                             } else{ //CFFWactivity was started by widget corner button
-                                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
-                                fileContents = getEmphasizeFileContents(fileClicked);
                                 intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);
+                                intent.putExtra("fileName", fileName);
                                 intent.putExtra("fileContents", fileContents);
                                 intent.putExtra("blinkDelay", blinkDelay);
                                 intent.putExtra("backgroundColor", backgroundColor);
@@ -374,17 +375,21 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     }
 
     private String getEmphasizeFileContents(File whichFile){
-        String emphasizeFileContents = "";
+        String fileContents = "";
         try{
             BufferedReader fileReader = new BufferedReader(new FileReader(whichFile));
             String line;
             while((line = fileReader.readLine()) != null){
-                emphasizeFileContents = emphasizeFileContents + line + "\n";
+                fileContents = fileContents + line + "\n";
+            }
+            //remove last newline if file isn't empty string
+            if(!fileContents.equals("")){
+                fileContents = fileContents.substring(0, fileContents.length() - 1);
             }
         } catch(IOException e){
             Log.d("CFFWactivity", "IOException");
         }
-        return emphasizeFileContents;
+        return fileContents;
     }
 
     @Override

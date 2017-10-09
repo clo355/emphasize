@@ -37,7 +37,6 @@
                 <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
                 <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
                 <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
-                <action android:name="com.cl.emphasize.F_AND_D_CHOSEN" />
             </intent-filter>
 
             <meta-data
