@@ -20,7 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -29,6 +28,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * @author Chris Lo
@@ -68,6 +70,19 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
             myFileNameArray.add(foundFileName);
         }
 
+        //use saved sort. Copied from MainActivity
+        int sortPreference = settings.getInt("savedSort", 2);
+        if((sortPreference == 0) || (sortPreference == 1)){
+            sortByAlphabetical(myFileNameArray, sortPreference);
+        } else{ //sort by recent
+            ArrayList<File> myFileArray = new ArrayList<File>(Arrays.asList(fileListOnCreate));
+            sortByRecent(myFileArray, sortPreference);
+            myFileNameArray.clear();
+            for(File sortedFile : myFileArray){
+                myFileNameArray.add(sortedFile.getName());
+            }
+        }
+
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
                 new ArrayList(myFileNameArray));
@@ -92,6 +107,12 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 globalIsConfig = true;
                 configWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
                         AppWidgetManager.INVALID_APPWIDGET_ID);
+
+                //If started improperly, cancel immediately
+                if (configWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    finish();
+                }
+
                 Log.d("CFFWactivity", "configWidgetId is " + configWidgetId);
                 backgroundColor = "white";
                 blinkDelay = 0;
@@ -321,6 +342,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                             File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
                             fileContents = getEmphasizeFileContents(fileClicked);
                             fileName = fileClicked.getName();
+
                             if(globalIsConfig){ //is widget configuration
                                 //store everything in SharedPreferences. onReceive() will
                                 //get them only after config, then update to start runnable
@@ -369,7 +391,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                onBackPressed();
             }
         });
     }
@@ -392,8 +414,66 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
         return fileContents;
     }
 
+    public void sortByAlphabetical(ArrayList<String> whichArray, int whichSort){
+        //whichArray should have been passed in by reference
+        switch(whichSort){
+            case 0:{ //Alphanumeric 0-9, A-Z
+                Collections.sort(whichArray, new Comparator<String>() {
+                    @Override
+                    public int compare(String s1, String s2) {
+                        return s1.compareToIgnoreCase(s2);
+                    }
+                });
+                break;
+            }
+            case 1:{ //Alphanumeric Z-A, 9-0
+                Collections.sort(whichArray, new Comparator<String>(){
+                    @Override
+                    public int compare(String s1, String s2) {
+                        return s1.compareToIgnoreCase(s2);
+                    }
+                });
+                Collections.reverse(whichArray);
+                break;
+            }
+        }
+    }
+
+    public void sortByRecent(ArrayList<File> whichArray, int whichSort){
+        switch(whichSort){
+            case 2:{
+                Collections.sort(whichArray, new Comparator<File>(){
+                    @Override
+                    public int compare(File file1, File file2){
+                        return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
+                    }
+                });
+                Collections.reverse(whichArray);
+                break;
+            }
+            case 3:{
+                Collections.sort(whichArray, new Comparator<File>(){
+                    @Override
+                    public int compare(File file1, File file2){
+                        return Long.valueOf(file1.lastModified()).compareTo(file2.lastModified());
+                    }
+                });
+                break;
+            }
+        }
+    }
+
     @Override
     public void onBackPressed(){ //Same as cancel
+        if(globalIsConfig == true){ //canceling from config, don't place widget
+            Intent configIntent = getIntent();
+            Bundle extras = configIntent.getExtras();
+            Intent cancelIntent = new Intent();
+            int cancelWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID);
+            cancelIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, cancelWidgetId);
+            setResult(RESULT_CANCELED, cancelIntent);
+        }
         finish();
     }
 }

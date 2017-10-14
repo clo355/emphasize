@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         mainNewTextFileButton.setBackgroundResource(R.mipmap.new_file_icon_normal);
         Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
         mainSettingsButton.setBackgroundResource(R.mipmap.settings_icon_normal);
+        Button mainBackButton = (Button)findViewById(R.id.mainBackButton);
+        mainBackButton.setBackgroundResource(R.mipmap.left_chevron_icon_normal);
 
         //Load theme
         ConstraintLayout mainLayout = (ConstraintLayout)findViewById(R.id.activity_main);
@@ -191,6 +193,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent accessSettingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivityForResult(accessSettingsIntent, ACCESSED_SETTINGS_REQUEST_CODE);
+            }
+        });
+
+        //Press left arrow
+        mainBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
             }
         });
 
@@ -471,6 +481,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
+    }
+
+    @Override
+    public void onResume(){
+        updateListView();
+        super.onResume();
     }
 
     public void loadSortIcon(Button sortButton){

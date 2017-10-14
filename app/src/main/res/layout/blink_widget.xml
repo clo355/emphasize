@@ -33,6 +33,6 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@drawable/static_icon" />
+        android:background="@mipmap/reset_icon_normal" />
 
 </RelativeLayout>

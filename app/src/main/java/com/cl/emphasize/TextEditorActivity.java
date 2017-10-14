@@ -27,6 +27,7 @@ import java.io.IOException;
 public class TextEditorActivity extends AppCompatActivity {
 
     public static String EDIT_FILE_ACTION = "ActionEditFileForBlinkWidget";
+    public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
     public static final int NEW_FILE_REQUEST_CODE = 1;
     public static final String PREFS_NAME = "PreferenceFile";
 
@@ -145,12 +146,12 @@ public class TextEditorActivity extends AppCompatActivity {
     public void onBackPressed(){
         if(textEditor.getText().toString().equals(originalFileContents)){
             //saved, or no changes. exit
-            if(fromWidget){ //TextEditor was opened by widget. Send extras back
+            if(fromWidget){ //TextEditor was opened by widget
                 Log.d("TextEditor", "fileName is " + fileName);
                 Log.d("TextEditor", "fileContents is " + originalFileContents);
                 Log.d("TextEditor", "widgetId is " + getIntent().getExtras().getInt("widgetId"));
                 Log.d("TextEditor", "blinkDelay is " + getIntent().getExtras().getInt("currentBlinkDelay"));
-                Log.d("TextEditor", "backgroundColor is " + getIntent().getExtras().getInt("currentBackgroundColor"));
+                Log.d("TextEditor", "backgroundColor is " + getIntent().getExtras().getString("currentBackgroundColor"));
                 Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
                 returnIntent.setAction(EDIT_FILE_ACTION);
                 returnIntent.putExtra("fileName", fileName);
@@ -160,7 +161,14 @@ public class TextEditorActivity extends AppCompatActivity {
                 returnIntent.putExtra("widgetId", getIntent().getExtras().getInt("widgetId"));
                 sendBroadcast(returnIntent);
                 finish();
-            } else {
+            } else{ //TextEditor opened from Main
+                Log.d("TextEditor", "Closed from main. Broadcasted FILE_FROM_OUTSIDE_ACTION");
+                Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                //widget seems to only receive broadcast if there's extras in it
+                returnIntent.putExtra("fileName", fileName);
+                returnIntent.putExtra("fileContents", originalFileContents);
+                sendBroadcast(returnIntent);
                 finish();
             }
         } else{

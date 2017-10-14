@@ -15,6 +15,14 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +41,9 @@ public class BlinkWidget extends AppWidgetProvider {
     public static final String PREFS_NAME = "PreferenceFile";
     public static String CHOOSE_FILE_ACTION = "ActionChooseFileForBlinkWidget";
     public static String EDIT_FILE_ACTION = "ActionEditFileForBlinkWidget";
+    public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
+    public static final String widgetDataFileName = "widget_data.dat";
+    protected static boolean updateAllWidgets = false;
     //Following 3 are overwritten by defaults in onReceive()
     protected static String receivedFileName = "file";
     protected static String receivedFileContents = "Select note";
@@ -45,8 +56,36 @@ public class BlinkWidget extends AppWidgetProvider {
     protected static List<Integer> widgetIdWait = new ArrayList<Integer>();
 
     static void updateAppWidget(Context context, final AppWidgetManager appWidgetManager,
-                                final int appWidgetId){
+                                final int appWidgetId) {
         Log.d("BlinkWidget", "called updateAppWidget(). Working with widget " + appWidgetId);
+
+        if(updateAllWidgets){
+            Log.d("BlinkWidget", "updateAllWidgets was true");
+            //a note was edited in Main's TextEditor. if this widget was displaying that note,
+            //get the updated text.
+            try{
+                File myFile = new File(context.getFilesDir(), widgetDataFileName);
+                FileInputStream fiStream = new FileInputStream(myFile);
+                ObjectInputStream oiStream = new ObjectInputStream(fiStream);
+                HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) oiStream.readObject();
+                oiStream.close();
+
+                WidgetData widgetData = widgetIdValues.get(appWidgetId);
+                receivedFileName = widgetData.getFileName();
+                receivedFileContents = getLatestFileContents(receivedFileName, context);
+                receivedBlinkDelay = widgetData.getBlinkDelay();
+                receivedBackgroundColor = widgetData.getBackgroundColor();
+                Log.d("got widgetData file", "fileWidgetId is " + widgetData.getWidgetId());
+                Log.d("got widgetData file", "fileName is" + receivedFileName);
+                Log.d("widget contents", "fileContents updated: " + receivedFileContents);
+                Log.d("got widgetData file", "blinkDelay is" + receivedBlinkDelay);
+                Log.d("got widgetData file", "backgroundColor is" + receivedBackgroundColor);
+            } catch(IOException e){
+                Log.d("BlinkWidget", "IOEXCEPTION when updating all widgets");
+            } catch(ClassNotFoundException e){
+                Log.d("BlinkWidget", "CLASSNOTFOUNDEXCEPTION when updating all widgets");
+            }
+        }
 
         //Click corner button, bring up CFFWactivity
         Intent intent = new Intent(context, ChooseFileForWidgetActivity.class);
@@ -63,7 +102,6 @@ public class BlinkWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.appwidgetText, receivedFileContents);
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
-        Log.d("BlinkWidget", "got here 1");
         //Click main body, bring up TextEditor
         Intent textEditorIntent = new Intent(context, TextEditorActivity.class);
         textEditorIntent.putExtra("fromWidget", true);
@@ -79,13 +117,11 @@ public class BlinkWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.appwidgetText, receivedFileContents);
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
-        Log.d("BlinkWidget", "got here 2");
         //fileContents and blinkDelay received in onReceive()
         final int blinkDelay = receivedBlinkDelay;
         CharSequence fileContents = receivedFileContents;
         views.setTextViewText(R.id.appwidgetText, fileContents);
 
-        Log.d("BlinkWidget", "got here 3");
         //background color argb values
         int argbAlpha;
         int argbRed = 255;
@@ -95,50 +131,50 @@ public class BlinkWidget extends AppWidgetProvider {
         Log.d("BlinkWidget", "receivedBlinkDelay is " + receivedBlinkDelay);
         Log.d("BlinkWidget", "receivedFileContents is " + receivedFileContents);
         Log.d("BlinkWidget", "receivedFileName is " + receivedFileName);
-        switch(receivedBackgroundColor){
-            case "red":{
+        switch (receivedBackgroundColor) {
+            case "red": {
                 argbRed = 255;
                 argbGreen = 158;
                 argbBlue = 158;
                 break;
             }
-            case "orange":{
+            case "orange": {
                 argbRed = 255;
                 argbGreen = 231;
                 argbBlue = 175;
                 break;
             }
-            case "yellow":{
+            case "yellow": {
                 argbRed = 255;
                 argbGreen = 253;
                 argbBlue = 193;
                 break;
             }
-            case "green":{
+            case "green": {
                 argbRed = 197;
                 argbGreen = 255;
                 argbBlue = 195;
                 break;
             }
-            case "blue":{
+            case "blue": {
                 argbRed = 163;
                 argbGreen = 220;
                 argbBlue = 255;
                 break;
             }
-            case "purple":{
+            case "purple": {
                 argbRed = 232;
                 argbGreen = 167;
                 argbBlue = 255;
                 break;
             }
-            case "gray":{
+            case "gray": {
                 argbRed = 200;
                 argbGreen = 200;
                 argbBlue = 200;
                 break;
             }
-            case "white":{
+            case "white": {
                 argbRed = 255;
                 argbGreen = 255;
                 argbBlue = 255;
@@ -150,14 +186,14 @@ public class BlinkWidget extends AppWidgetProvider {
         final int runArgbGreen = argbGreen;
         final int runArgbBlue = argbBlue;
 
-        Log.d("BlinkWidget", "got here 4");
         //loop switch between 2 colors
-        if(blinkDelay > 0){
-            final Runnable runnable = new Runnable(){
+        if (blinkDelay > 0) {
+            final Runnable runnable = new Runnable() {
                 boolean lightOn = true;
+
                 @Override
                 public void run() { //Do not update UI from anywhere except main thread
-                    if(widgetIdStopRunnable.get(appWidgetId).equals(false)){
+                    if (widgetIdStopRunnable.get(appWidgetId).equals(false)) {
                         if (lightOn) {
                             lightOn = false;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
@@ -171,16 +207,16 @@ public class BlinkWidget extends AppWidgetProvider {
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         }
-                    } else{
+                    } else {
                         //StopRunnable was true
                         views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                                 Color.argb(150, 255, 248, 231)); //turn light off
                         appWidgetManager.updateAppWidget(appWidgetId, views);
                         widgetIdIsRunning.put(appWidgetId, false);
-                        if(widgetIdWait.contains(new Integer(appWidgetId))) { //is some runnable waiting for this to end?
+                        if (widgetIdWait.contains(new Integer(appWidgetId))) { //is some runnable waiting for this to end?
                             try {
                                 widgetIdWait.remove(new Integer(appWidgetId)); //before or after removeCallbacks?
-                            } catch(IndexOutOfBoundsException e){
+                            } catch (IndexOutOfBoundsException e) {
                                 Log.d("BlinkWidget", "IndexOutOfBounds"); //happens if int used. HashMap looks for Integer
                             }
                         }
@@ -189,17 +225,16 @@ public class BlinkWidget extends AppWidgetProvider {
                 }
             };
 
-            Log.d("BlinkWidget", "got here 5");
             //This checks widgetIdIsRunning in the background so it doesn't block old runnable's check loop
             AsyncTask.execute(new Runnable() {
                 @Override
                 public void run() {
-                    if(hasRunnableBeforeMe.contains(appWidgetId)){ //widgetId runnable exists in messageQueue?
+                    if (hasRunnableBeforeMe.contains(appWidgetId)) { //widgetId runnable exists in messageQueue?
                         //wait for old runnable to stop
-                        while(widgetIdIsRunning.get(appWidgetId) == true){
+                        while (widgetIdIsRunning.get(appWidgetId) == true) {
                             widgetIdStopRunnable.put(appWidgetId, true);
                         }
-                    } else{
+                    } else {
                         hasRunnableBeforeMe.add(appWidgetId);
                     }
 
@@ -217,24 +252,24 @@ public class BlinkWidget extends AppWidgetProvider {
                     widgetIdWait.add(new Integer(appWidgetId));
                 }
             });
-        } else{ //User selected No Blink
-            if(hasRunnableBeforeMe.contains(appWidgetId)){
+        } else { //User selected No Blink
+            if (hasRunnableBeforeMe.contains(appWidgetId)) {
                 //there's a runnable on this widget. stop it
-                AsyncTask.execute(new Runnable(){
+                AsyncTask.execute(new Runnable() {
                     @Override
-                    public void run(){
-                        if(hasRunnableBeforeMe.contains(appWidgetId)){ //widgetId runnable exists in messageQueue?
+                    public void run() {
+                        if (hasRunnableBeforeMe.contains(appWidgetId)) { //widgetId runnable exists in messageQueue?
                             //wait for old runnable to stop
-                            while(widgetIdIsRunning.get(appWidgetId) == true){
+                            while (widgetIdIsRunning.get(appWidgetId) == true) {
                                 widgetIdStopRunnable.put(appWidgetId, true);
                             }
-                        } else{
+                        } else {
                             hasRunnableBeforeMe.add(appWidgetId);
                         }
 
-                        while (widgetIdWait.contains(appWidgetId)){
+                        while (widgetIdWait.contains(appWidgetId)) {
                             //waiting for old runnable to end and remove widgetId from wait list
-                            if (!widgetIdWait.contains(appWidgetId)){
+                            if (!widgetIdWait.contains(appWidgetId)) {
                                 break;
                             }
                         }
@@ -243,32 +278,33 @@ public class BlinkWidget extends AppWidgetProvider {
                         appWidgetManager.updateAppWidget(appWidgetId, views);
                     }
                 });
-            } else{ //no runnable found on this widget. just update it to show note
+            } else { //no runnable found on this widget. just update it to show note
                 views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                         Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue));
                 appWidgetManager.updateAppWidget(appWidgetId, views);
             }
         }
+
+        //now save widget values to file
+
     }
 
     @Override
     public void onReceive(Context context, Intent intent){
-        //Update, delete, disabled, and enabled all caught here
-        //receivedFileContents = "Select note";
-        //receivedBlinkDelay = 0;
-        //receivedBackgroundColor = "white";
+        //onUpdate, delete, disabled, and enabled all caught here
         if(intent.getExtras() == null){
             //user put down new widget or removed a widget. Let super handle it.
             super.onReceive(context, intent);
         } else{
+            SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
             String action = intent.getAction();
             Bundle extras = intent.getExtras();
             Log.d("BlinkWidget", "in onReceive()");
             Log.d("BlinkWidget", "action is " + action);
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             ComponentName name = new ComponentName(context, BlinkWidget.class);
-            int[] appWidgetId = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
-            final int appWidgetIdLength = appWidgetId.length;
+            int[] myAppWidgetIds = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
+            final int appWidgetIdLength = myAppWidgetIds.length;
             if(action != null && (action.equals(CHOOSE_FILE_ACTION))){
                 Log.d("BlinkWidget", "action is was CHOOSE_FILE_ACTION");
                 receivedFileName = extras.getString("fileName");
@@ -284,6 +320,7 @@ public class BlinkWidget extends AppWidgetProvider {
                     super.onReceive(context, intent);
                 }
             } else if(action != null && (action.equals(EDIT_FILE_ACTION))){
+                //Text editor from widget, just update that widget
                 Log.d("BlinkWidget", "action is was EDIT_FILE_ACTION");
                 receivedFileName = extras.getString("fileName");
                 receivedFileContents = extras.getString("fileContents");
@@ -297,20 +334,65 @@ public class BlinkWidget extends AppWidgetProvider {
                     updateAppWidget(context, mgr, id);
                     super.onReceive(context, intent);
                 }
+            } else if(action != null && (action.equals(EDIT_FILE_FROM_OUTSIDE_ACTION))){
+                //Text editor from main, doesn't know what widgets are displaying this filename,
+                //so update all widgets to get contents of whichever files again.
+                updateAllWidgets = true;
+                onUpdate(context, mgr, myAppWidgetIds);
+                updateAllWidgets = false;
             } else if(action.equals(ACTION_APPWIDGET_OPTIONS_CHANGED)){
                 Log.d("BlinkWidget", "action was APPWIDGET_OPTIONS_CHANGED");
                 //came here from config. Get the SharedPreference values and start the runnable
                 if(appWidgetIdLength < 1){
                     return;
                 } else {
-                    SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
                     //2nd params are defaults for new widget instances
                     receivedFileName = settings.getString("configFileName", "file");
                     receivedFileContents = settings.getString("configFileContents", "Select note");
                     receivedBlinkDelay = settings.getInt("configBlinkDelay", 0);
                     receivedBackgroundColor = settings.getString("configBackgroundColor", "white");
+
                     int id = settings.getInt("configWidgetId", 0);
                     Log.d("BlinkWidget", "id is " + String.valueOf(id));
+
+                    //get widget info file if it exists
+                    File myFile = new File(context.getFilesDir(), widgetDataFileName);
+                    if(myFile.exists()){ //widget info file found
+                        Log.d("BlinkDelay", "onReceive() widget file found.");
+                        try{
+                            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                            HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                            inputStream.close();
+
+                            //save values of this new widget into my info file
+                            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                            WidgetData widgetData = new WidgetData(id, receivedFileName, receivedFileContents,
+                                    receivedBlinkDelay, receivedBackgroundColor);
+                            widgetIdValues.put(id, widgetData);
+                            outputStream.writeObject(widgetIdValues);
+                            outputStream.flush();
+                            outputStream.close();
+                        } catch(IOException e){
+                            Log.d("BlinkWidget", "IOEXCEPTION 1 in onReceive()");
+                        } catch(ClassNotFoundException e){
+                            Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                        }
+                    } else{ //not found, create it, add data
+                        Log.d("BlinkDelay", "onReceive() widget file not found. Creating one.");
+                        try {
+                            ObjectOutputStream ooStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                            HashMap<Integer, WidgetData> widgetIdValues = new HashMap<Integer, WidgetData>();
+                            WidgetData widgetData = new WidgetData(id, receivedFileName, receivedFileContents,
+                                    receivedBlinkDelay, receivedBackgroundColor);
+                            Log.d("BlinkDelay", "putting values for id " + id);
+                            widgetIdValues.put(id, widgetData);
+                            ooStream.writeObject(widgetIdValues);
+                            ooStream.flush();
+                            ooStream.close();
+                        } catch(IOException e){
+                            Log.d("BlinkWidget", "IOEXCEPTION 2 in onReceive()");
+                        }
+                    }
                     updateAppWidget(context, mgr, id);
                     super.onReceive(context, intent);
                 }
@@ -347,5 +429,24 @@ public class BlinkWidget extends AppWidgetProvider {
     public void onDisabled(Context context) {
         //might need to do handler.removeCallbacksAndMessages(null); to stop all runnables
         Log.d("CFFWactivity", "Called onDisabled()");
+    }
+
+    public static String getLatestFileContents(String fileName, Context context){
+        String fileContents = "";
+        try {
+            File textFile = new File(context.getFilesDir(), fileName);
+            BufferedReader fileReader = new BufferedReader(new FileReader(textFile));
+            String line;
+            while((line = fileReader.readLine()) != null) {
+                fileContents = fileContents + line + "\n";
+            }
+            //remove last newline if file isn't empty string
+            if(!fileContents.equals("")){
+                fileContents = fileContents.substring(0, fileContents.length() - 1);
+            }
+        } catch(IOException e){
+            Log.d("MAIN", "IOException");
+        }
+        return fileContents;
     }
 }
