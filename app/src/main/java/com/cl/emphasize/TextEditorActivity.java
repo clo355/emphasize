@@ -94,6 +94,14 @@ public class TextEditorActivity extends AppCompatActivity {
                     }
                     originalFileContents = textEditor.getText().toString();
                     showAsShortToast("Saved");
+
+                    //trigger widget updates
+                    Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                    returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                    //widget seems to only receive broadcast if there's extras in it
+                    returnIntent.putExtra("fileName", fileName);
+                    returnIntent.putExtra("fileContents", originalFileContents);
+                    sendBroadcast(returnIntent);
                 }
             }
         });
@@ -162,13 +170,6 @@ public class TextEditorActivity extends AppCompatActivity {
                 sendBroadcast(returnIntent);
                 finish();
             } else{ //TextEditor opened from Main
-                Log.d("TextEditor", "Closed from main. Broadcasted FILE_FROM_OUTSIDE_ACTION");
-                Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
-                returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
-                //widget seems to only receive broadcast if there's extras in it
-                returnIntent.putExtra("fileName", fileName);
-                returnIntent.putExtra("fileContents", originalFileContents);
-                sendBroadcast(returnIntent);
                 finish();
             }
         } else{

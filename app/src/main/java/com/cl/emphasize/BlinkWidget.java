@@ -61,8 +61,8 @@ public class BlinkWidget extends AppWidgetProvider {
 
         if(updateAllWidgets){
             Log.d("BlinkWidget", "updateAllWidgets was true");
-            //a note was edited in Main's TextEditor. if this widget was displaying that note,
-            //get the updated text.
+            //a note was edited in Main's TextEditor. update this widget in case it was displaying
+            //that note
             try{
                 File myFile = new File(context.getFilesDir(), widgetDataFileName);
                 FileInputStream fiStream = new FileInputStream(myFile);
@@ -72,7 +72,11 @@ public class BlinkWidget extends AppWidgetProvider {
 
                 WidgetData widgetData = widgetIdValues.get(appWidgetId);
                 receivedFileName = widgetData.getFileName();
-                receivedFileContents = getLatestFileContents(receivedFileName, context);
+                if(receivedFileName.equals("")){ //for if note was deleted from Main
+                    receivedFileContents = "Deleted";
+                } else{
+                    receivedFileContents = getLatestFileContents(receivedFileName, context);
+                }
                 receivedBlinkDelay = widgetData.getBlinkDelay();
                 receivedBackgroundColor = widgetData.getBackgroundColor();
                 Log.d("got widgetData file", "fileWidgetId is " + widgetData.getWidgetId());
@@ -102,20 +106,27 @@ public class BlinkWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.appwidgetText, receivedFileContents);
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
-        //Click main body, bring up TextEditor
-        Intent textEditorIntent = new Intent(context, TextEditorActivity.class);
-        textEditorIntent.putExtra("fromWidget", true);
-        textEditorIntent.putExtra("widgetId", appWidgetId);
-        textEditorIntent.putExtra("isNewFile", false);
-        textEditorIntent.putExtra("fileName", receivedFileName);
-        textEditorIntent.putExtra("fileContents", receivedFileContents);
-        textEditorIntent.putExtra("currentBlinkDelay", receivedBlinkDelay);
-        textEditorIntent.putExtra("currentBackgroundColor", receivedBackgroundColor);
-        PendingIntent textEditorPendingIntent = PendingIntent.getActivity(context, appWidgetId,
-                textEditorIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setOnClickPendingIntent(R.id.mainBodyButton, textEditorPendingIntent);
-        views.setTextViewText(R.id.appwidgetText, receivedFileContents);
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+        //Click main body
+        if(receivedFileName.equals("")){ //disable opening TextEditor
+            PendingIntent nullPendingIntent = null;
+            views.setOnClickPendingIntent(R.id.mainBodyButton, nullPendingIntent);
+            views.setTextViewText(R.id.appwidgetText, "Deleted");
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        } else{ //bring up TextEditor
+            Intent textEditorIntent = new Intent(context, TextEditorActivity.class);
+            textEditorIntent.putExtra("fromWidget", true);
+            textEditorIntent.putExtra("widgetId", appWidgetId);
+            textEditorIntent.putExtra("isNewFile", false);
+            textEditorIntent.putExtra("fileName", receivedFileName);
+            textEditorIntent.putExtra("fileContents", receivedFileContents);
+            textEditorIntent.putExtra("currentBlinkDelay", receivedBlinkDelay);
+            textEditorIntent.putExtra("currentBackgroundColor", receivedBackgroundColor);
+            PendingIntent textEditorPendingIntent = PendingIntent.getActivity(context, appWidgetId,
+                    textEditorIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            views.setOnClickPendingIntent(R.id.mainBodyButton, textEditorPendingIntent);
+            views.setTextViewText(R.id.appwidgetText, receivedFileContents);
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        }
 
         //fileContents and blinkDelay received in onReceive()
         final int blinkDelay = receivedBlinkDelay;
@@ -306,6 +317,7 @@ public class BlinkWidget extends AppWidgetProvider {
             int[] myAppWidgetIds = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
             final int appWidgetIdLength = myAppWidgetIds.length;
             if(action != null && (action.equals(CHOOSE_FILE_ACTION))){
+                //from widget corner button
                 Log.d("BlinkWidget", "action is was CHOOSE_FILE_ACTION");
                 receivedFileName = extras.getString("fileName");
                 receivedFileContents = extras.getString("fileContents");
@@ -316,6 +328,29 @@ public class BlinkWidget extends AppWidgetProvider {
                 } else{
                     int id = extras.getInt("widgetId");
                     Log.d("BlinkWidget", "id is " + String.valueOf(id));
+
+                    //update widget info file with these new values
+                    File myFile = new File(context.getFilesDir(), widgetDataFileName);
+                    try{
+                        //get old values
+                        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                        HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                        inputStream.close();
+
+                        //save values of this new widget into my info file
+                        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                        WidgetData widgetData = new WidgetData(id, receivedFileName, receivedFileContents,
+                                receivedBlinkDelay, receivedBackgroundColor);
+                        widgetIdValues.put(id, widgetData);
+                        outputStream.writeObject(widgetIdValues);
+                        outputStream.flush();
+                        outputStream.close();
+                    } catch(IOException e){
+                        Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+                    } catch(ClassNotFoundException e){
+                        Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                    }
+
                     updateAppWidget(context, mgr, id);
                     super.onReceive(context, intent);
                 }
@@ -373,7 +408,7 @@ public class BlinkWidget extends AppWidgetProvider {
                             outputStream.flush();
                             outputStream.close();
                         } catch(IOException e){
-                            Log.d("BlinkWidget", "IOEXCEPTION 1 in onReceive()");
+                            Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
                         } catch(ClassNotFoundException e){
                             Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
                         }
@@ -433,20 +468,24 @@ public class BlinkWidget extends AppWidgetProvider {
 
     public static String getLatestFileContents(String fileName, Context context){
         String fileContents = "";
-        try {
-            File textFile = new File(context.getFilesDir(), fileName);
-            BufferedReader fileReader = new BufferedReader(new FileReader(textFile));
-            String line;
-            while((line = fileReader.readLine()) != null) {
-                fileContents = fileContents + line + "\n";
+        File textFile = new File(context.getFilesDir(), fileName);
+        if(textFile.exists()) {
+            try {
+                BufferedReader fileReader = new BufferedReader(new FileReader(textFile));
+                String line;
+                while ((line = fileReader.readLine()) != null) {
+                    fileContents = fileContents + line + "\n";
+                }
+                //remove last newline if file isn't empty string
+                if (!fileContents.equals("")) {
+                    fileContents = fileContents.substring(0, fileContents.length() - 1);
+                }
+            } catch (IOException e) {
+                Log.d("MAIN", "IOException");
             }
-            //remove last newline if file isn't empty string
-            if(!fileContents.equals("")){
-                fileContents = fileContents.substring(0, fileContents.length() - 1);
-            }
-        } catch(IOException e){
-            Log.d("MAIN", "IOException");
+            return fileContents;
+        } else { //file was renamed or deleted
+            return "";
         }
-        return fileContents;
     }
 }

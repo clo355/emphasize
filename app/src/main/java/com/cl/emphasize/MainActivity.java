@@ -23,15 +23,19 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 
 /**********************************************************************************
  *   Emphasize
@@ -45,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int ACCESSED_SETTINGS_REQUEST_CODE = 1;
     public static final int ACCESSED_FILE_REQUEST_CODE = 2;
+    public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
+    public static final String widgetDataFileName = "widget_data.dat";
     protected ListView listView;
     protected ArrayAdapter<String> listViewAdapter;
     protected ArrayList<String> myFileNameArray;
@@ -277,9 +283,7 @@ public class MainActivity extends AppCompatActivity {
                                         renameEditText.setLayoutParams(renameLayout);
 
                                         switch (which){
-                                            case DialogInterface.BUTTON_POSITIVE:{ //OK
-                                                //also need to check if file exists or not
-
+                                            case DialogInterface.BUTTON_POSITIVE:{//OK
                                                 //Get contents of old file
                                                 String oldFileContents = "";
                                                 try {
@@ -308,6 +312,48 @@ public class MainActivity extends AppCompatActivity {
                                                 oldFile.delete();
                                                 updateListView();
                                                 showAsShortToast("Renamed as " + newFile.getName());
+
+                                                //update widget info file with these new values
+                                                File myFile = new File(getFilesDir(), widgetDataFileName);
+                                                try{
+                                                    //get old values
+                                                    ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                                                    HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                                                    HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
+                                                    inputStream.close();
+
+                                                    //loop through all ids
+                                                    for(HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
+                                                        int idKey = entry.getKey();
+                                                        WidgetData oldWidgetData = entry.getValue();
+                                                        if(oldWidgetData.getFileName().equals(longClickedFileName)){
+                                                            String newFileName = newFile.getName();
+                                                            String sameFileContents = oldWidgetData.getFileContents();
+                                                            int sameBlinkDelay = oldWidgetData.getBlinkDelay();
+                                                            String sameBackgroundColor = oldWidgetData.getBackgroundColor();
+                                                            WidgetData newWidgetData = new WidgetData(idKey, newFileName, sameFileContents,
+                                                                    sameBlinkDelay, sameBackgroundColor);
+                                                            newWidgetIdValues.put(idKey, newWidgetData);
+                                                        }
+                                                    }
+
+                                                    //save updated fileName values back into my info file
+                                                    ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                                                    outputStream.writeObject(newWidgetIdValues);
+                                                    outputStream.flush();
+                                                    outputStream.close();
+
+                                                    //trigger widget updates
+                                                    Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                                                    returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                                                    //widget seems to only receive broadcast if there's extras in it
+                                                    returnIntent.putExtra("fileName", newFile.getName());
+                                                    sendBroadcast(returnIntent);
+                                                } catch(IOException e){
+                                                    Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+                                                } catch(ClassNotFoundException e){
+                                                    Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                                }
                                                 break;
                                             }
                                             case DialogInterface.BUTTON_NEGATIVE:{ //Cancel
@@ -335,6 +381,48 @@ public class MainActivity extends AppCompatActivity {
                                                 fileToDelete.delete();
                                                 updateListView();
                                                 showAsShortToast(fileToDelete.getName() + " deleted");
+
+                                                //update widget info file with 'Note deleted' values
+                                                File myFile = new File(getFilesDir(), widgetDataFileName);
+                                                try{
+                                                    //get old values
+                                                    ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                                                    HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                                                    HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
+                                                    inputStream.close();
+
+                                                    //loop through all ids
+                                                    for(HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
+                                                        int idKey = entry.getKey();
+                                                        WidgetData oldWidgetData = entry.getValue();
+                                                        if(oldWidgetData.getFileName().equals(longClickedFileName)){
+                                                            String newFileName = "";
+                                                            String sameFileContents = "Deleted";
+                                                            int noBlinkDelay = 0;
+                                                            String sameBackgroundColor = oldWidgetData.getBackgroundColor();
+                                                            WidgetData newWidgetData = new WidgetData(idKey, newFileName, sameFileContents,
+                                                                    noBlinkDelay, sameBackgroundColor);
+                                                            newWidgetIdValues.put(idKey, newWidgetData);
+                                                        }
+                                                    }
+
+                                                    //save updated fileName values back into my info file
+                                                    ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                                                    outputStream.writeObject(newWidgetIdValues);
+                                                    outputStream.flush();
+                                                    outputStream.close();
+
+                                                    //trigger widget updates
+                                                    Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                                                    returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                                                    //widget seems to only receive broadcast if there's extras in it
+                                                    returnIntent.putExtra("fileName", "");
+                                                    sendBroadcast(returnIntent);
+                                                } catch(IOException e){
+                                                    Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+                                                } catch(ClassNotFoundException e){
+                                                    Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                                }
                                                 break;
                                             }
                                             case DialogInterface.BUTTON_NEGATIVE: {
