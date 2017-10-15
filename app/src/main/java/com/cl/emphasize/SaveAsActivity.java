@@ -35,6 +35,7 @@ public class SaveAsActivity extends AppCompatActivity {
     protected EditText saveAsFileName;
     protected FileOutputStream myOutputStream;
     public static final String PREFS_NAME = "PreferenceFile";
+    public static final String notesDirectory = "notes";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +83,12 @@ public class SaveAsActivity extends AppCompatActivity {
             public void onClick(View v){
                 final String userInputFileName = saveAsFileName.getText().toString();
                 if(userInputFileName.equals("")){ //user left file name empty, name as "New Note #"
+                    File myDirectory = new File(getFilesDir(), notesDirectory);
+                    if(!myDirectory.exists()){
+                        myDirectory.mkdirs();
+                    }
                     if(isNewFile){ //Use free default name
-                        File newDefaultFile = new File(getFilesDir(), defaultFileName);
+                        File newDefaultFile = new File(myDirectory, defaultFileName);
                         try {
                             myOutputStream = new FileOutputStream(newDefaultFile, false);
                             myOutputStream.write(fileContents.getBytes());
@@ -100,7 +105,7 @@ public class SaveAsActivity extends AppCompatActivity {
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
                     } else{ //save as fileName
-                        File newDefaultFile = new File(getFilesDir(), fileName);
+                        File newDefaultFile = new File(myDirectory, fileName);
                         try {
                             myOutputStream = new FileOutputStream(newDefaultFile, false);
                             myOutputStream.write(fileContents.getBytes());
@@ -118,11 +123,15 @@ public class SaveAsActivity extends AppCompatActivity {
                         finish();
                     }
                 } else{ //user wrote a file name
+                    final File myDirectory = new File(getFilesDir(), notesDirectory);
+                    if(!myDirectory.exists()){
+                        myDirectory.mkdirs();
+                    }
                     if (fileNameAlreadyExists(userInputFileName)) {
                         if (userInputFileName.equals(fileName)) { //user trying to save as same name
-                            File oldFile = new File(getFilesDir(), fileName);
+                            File oldFile = new File(myDirectory, fileName);
                             oldFile.delete();
-                            File newFile = new File(getFilesDir(), fileName);
+                            File newFile = new File(myDirectory, fileName);
                             try {
                                 myOutputStream = new FileOutputStream(newFile, false);
                                 myOutputStream.write(fileContents.getBytes());
@@ -145,9 +154,9 @@ public class SaveAsActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which) {
                                         case DialogInterface.BUTTON_POSITIVE: { //exit
-                                            File oldFile = new File(getFilesDir(), userInputFileName);
+                                            File oldFile = new File(myDirectory, userInputFileName);
                                             oldFile.delete();
-                                            File newFile = new File(getFilesDir(), userInputFileName);
+                                            File newFile = new File(myDirectory, userInputFileName);
                                             try {
                                                 myOutputStream = new FileOutputStream(newFile, false);
                                                 myOutputStream.write(fileContents.getBytes());
@@ -184,9 +193,9 @@ public class SaveAsActivity extends AppCompatActivity {
                         }
                     } else {
                         //file name not taken. Now save it
-                        File oldFile = new File(getFilesDir(), userInputFileName);
+                        File oldFile = new File(myDirectory, userInputFileName);
                         oldFile.delete();
-                        File newFile = new File(getFilesDir(), userInputFileName);
+                        File newFile = new File(myDirectory, userInputFileName);
                         try {
                             myOutputStream = new FileOutputStream(newFile, false);
                             myOutputStream.write(fileContents.getBytes());
@@ -219,7 +228,11 @@ public class SaveAsActivity extends AppCompatActivity {
     }
 
     public boolean fileNameAlreadyExists(String userInputFileName){
-        return (new File(getFilesDir(), userInputFileName)).exists();
+        File myDirectory = new File(getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        return (new File(myDirectory, userInputFileName)).exists();
     }
 
     @Override

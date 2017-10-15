@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int ACCESSED_FILE_REQUEST_CODE = 2;
     public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
     public static final String widgetDataFileName = "widget_data.dat";
+    public static final String notesDirectory = "notes";
     protected ListView listView;
     protected ArrayAdapter<String> listViewAdapter;
     protected ArrayList<String> myFileNameArray;
@@ -89,7 +90,11 @@ public class MainActivity extends AppCompatActivity {
 
         //Initially populate ListView
         myFileNameArray = new ArrayList<String>();
-        File[] fileListOnCreate = getFilesDir().listFiles();
+        File myDirectory = new File(getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        File[] fileListOnCreate = myDirectory.listFiles();
         for(File foundFile : fileListOnCreate){
             String foundFileName = foundFile.getName();
             myFileNameArray.add(foundFileName);
@@ -214,7 +219,11 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
-                File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                File myDirectory = new File(getFilesDir(), notesDirectory);
+                if(!myDirectory.exists()){
+                    myDirectory.mkdirs();
+                }
+                File fileClicked = new File(myDirectory, myFileNameArray.get(position));
                 String fileContents = "";
                 Intent fileIntent = new Intent(getApplicationContext(), TextEditorActivity.class);
                 try {
@@ -243,7 +252,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l){
                 CharSequence options[] = new CharSequence[] {"Edit", "Rename", "Delete", "Properties"};
-                final File longClickedFile = new File(getFilesDir(), myFileNameArray.get(position));
+                final File myDirectory = new File(getFilesDir(), notesDirectory);
+                if(!myDirectory.exists()){
+                    myDirectory.mkdirs();
+                }
+                final File longClickedFile = new File(myDirectory, myFileNameArray.get(position));
                 final String longClickedFileName = longClickedFile.getName();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -298,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
 
                                                 //fill new file with old file's contents
                                                 FileOutputStream myOutputStream;
-                                                File newFile = new File(getFilesDir(), renameEditText.getText().toString());
+                                                File newFile = new File(myDirectory, renameEditText.getText().toString());
                                                 try{
                                                     myOutputStream = new FileOutputStream(newFile, false);
                                                     myOutputStream.write(oldFileContents.getBytes());
@@ -308,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
                                                 } catch(IOException e) {
                                                     Log.d("SAVEAS", "IOException");
                                                 }
-                                                File oldFile = new File(getFilesDir(), longClickedFileName);
+                                                File oldFile = new File(myDirectory, longClickedFileName);
                                                 oldFile.delete();
                                                 updateListView();
                                                 showAsShortToast("Renamed as " + newFile.getName());
@@ -377,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         switch (which){
                                             case DialogInterface.BUTTON_POSITIVE: {
-                                                File fileToDelete = new File(getFilesDir(), longClickedFileName);
+                                                File fileToDelete = new File(myDirectory, longClickedFileName);
                                                 fileToDelete.delete();
                                                 updateListView();
                                                 showAsShortToast(fileToDelete.getName() + " deleted");
@@ -468,7 +481,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateListView(){
         myFileNameArray.clear();
-        File[] fileListUpdateListView = getFilesDir().listFiles();
+        File myDirectory = new File(getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        File[] fileListUpdateListView = myDirectory.listFiles();
         for(File foundFile : fileListUpdateListView){
             String foundFileName = foundFile.getName();
             myFileNameArray.add(foundFileName);

@@ -42,9 +42,10 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
     protected ArrayList<String> myFileNameArray;
     protected String fileContents = "";
     protected String fileName = "";
-    protected boolean globalIsConfig; //differentiate between configuration and user pressing widget button
+    protected boolean globalIsConfig; //to tell between configuration and user pressing widget button
     protected int blinkDelay = 333;
     protected String backgroundColor = "overwritten";
+    public static final String notesDirectory = "notes";
 
     @TargetApi(26)
     @Override
@@ -64,7 +65,11 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
         //Initially populate ListView
         myFileNameArray = new ArrayList<String>();
-        File[] fileListOnCreate = getFilesDir().listFiles();
+        final File myDirectory = new File(getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        File[] fileListOnCreate = myDirectory.listFiles();
         for(File foundFile : fileListOnCreate){
             String foundFileName = foundFile.getName();
             myFileNameArray.add(foundFileName);
@@ -339,7 +344,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                         if(which == DialogInterface.BUTTON_POSITIVE){
                             //Pressed OK in widget settings dialog
                             dialog.dismiss();
-                            File fileClicked = new File(getFilesDir(), myFileNameArray.get(position));
+                            File fileClicked = new File(myDirectory, myFileNameArray.get(position));
                             fileContents = getEmphasizeFileContents(fileClicked);
                             fileName = fileClicked.getName();
 

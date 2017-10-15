@@ -43,6 +43,7 @@ public class BlinkWidget extends AppWidgetProvider {
     public static String EDIT_FILE_ACTION = "ActionEditFileForBlinkWidget";
     public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
     public static final String widgetDataFileName = "widget_data.dat";
+    public static final String notesDirectory = "notes";
     protected static boolean updateAllWidgets = false;
     //Following 3 are overwritten by defaults in onReceive()
     protected static String receivedFileName = "file";
@@ -80,9 +81,9 @@ public class BlinkWidget extends AppWidgetProvider {
                 receivedBlinkDelay = widgetData.getBlinkDelay();
                 receivedBackgroundColor = widgetData.getBackgroundColor();
                 Log.d("got widgetData file", "fileWidgetId is " + widgetData.getWidgetId());
-                Log.d("got widgetData file", "fileName is" + receivedFileName);
+                Log.d("got widgetData file", "fileName is " + receivedFileName);
                 Log.d("widget contents", "fileContents updated: " + receivedFileContents);
-                Log.d("got widgetData file", "blinkDelay is" + receivedBlinkDelay);
+                Log.d("got widgetData file", "blinkDelay is " + receivedBlinkDelay);
                 Log.d("got widgetData file", "backgroundColor is" + receivedBackgroundColor);
             } catch(IOException e){
                 Log.d("BlinkWidget", "IOEXCEPTION when updating all widgets");
@@ -451,6 +452,32 @@ public class BlinkWidget extends AppWidgetProvider {
         //stop these widgets' runnables
         for(int appWidgetId : appWidgetIds){
             widgetIdStopRunnable.put(appWidgetId, true);
+
+            //remove this id and info from widget
+            File myFile = new File(context.getFilesDir(), widgetDataFileName);
+            try {
+                //get old values
+                ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
+                inputStream.close();
+
+                //loop through all ids
+                for (HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
+                    int idKey = entry.getKey();
+                    if(appWidgetId == idKey) {
+                        newWidgetIdValues.remove(idKey);
+                    }
+                }
+
+                //save updated fileName values back into my info file
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                outputStream.writeObject(newWidgetIdValues);
+                outputStream.flush();
+                outputStream.close();
+            } catch(IOException e){
+            } catch(ClassNotFoundException e){
+            }
         }
         super.onDeleted(context, appWidgetIds);
     }
@@ -468,7 +495,11 @@ public class BlinkWidget extends AppWidgetProvider {
 
     public static String getLatestFileContents(String fileName, Context context){
         String fileContents = "";
-        File textFile = new File(context.getFilesDir(), fileName);
+        File myDirectory = new File(context.getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        File textFile = new File(myDirectory, fileName);
         if(textFile.exists()) {
             try {
                 BufferedReader fileReader = new BufferedReader(new FileReader(textFile));

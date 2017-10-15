@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -91,6 +92,14 @@ public class HelpActivity extends AppCompatActivity {
                     }
                 });
                 builder.show();
+            }
+        });
+
+        Button helpBackButton = (Button)findViewById(R.id.helpBackButton);
+        helpBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }

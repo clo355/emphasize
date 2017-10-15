@@ -30,6 +30,7 @@ public class TextEditorActivity extends AppCompatActivity {
     public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
     public static final int NEW_FILE_REQUEST_CODE = 1;
     public static final String PREFS_NAME = "PreferenceFile";
+    public static final String notesDirectory = "notes";
 
     String fileName;
     String originalFileContents;
@@ -80,9 +81,13 @@ public class TextEditorActivity extends AppCompatActivity {
                     //on return to Main, goes to the overridden onActivityResult()
                 } else{
                     //overwrite file with given fileName
-                    File oldFile = new File(getFilesDir(), fileName);
+                    File myDirectory = new File(getFilesDir(), notesDirectory);
+                    if(!myDirectory.exists()){
+                        myDirectory.mkdirs();
+                    }
+                    File oldFile = new File(myDirectory, fileName);
                     oldFile.delete();
-                    File newFile = new File(getFilesDir(), fileName);
+                    File newFile = new File(myDirectory, fileName);
                     try{
                         FileOutputStream myOutputStream = new FileOutputStream(newFile, false);
                         myOutputStream.write(textEditor.getText().toString().getBytes());
