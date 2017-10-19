@@ -1,6 +1,8 @@
 package com.cl.emphasize;
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -592,6 +594,12 @@ public class MainActivity extends AppCompatActivity {
     public void onResume(){
         updateListView();
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy(){
+        Log.d("Main", "Called onDestroy()");
+        super.onDestroy();
     }
 
     public void loadSortIcon(Button sortButton){
