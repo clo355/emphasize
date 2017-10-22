@@ -359,7 +359,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                                 editor.putInt("configWidgetId", returnConfigId);
                                 editor.commit();
 
-                                Intent configIntent = new Intent(getBaseContext(), ChooseFileForWidgetActivity.class);
+                                Intent configIntent = new Intent(getBaseContext(), BlinkWidget.class);
                                 configIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, returnConfigId);
                                 setResult(RESULT_OK, configIntent);
                                 Log.d("CFFWactivity", "CFFWactivity config RESULT_OK, doing finish()");

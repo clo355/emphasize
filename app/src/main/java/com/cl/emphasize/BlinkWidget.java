@@ -84,7 +84,7 @@ public class BlinkWidget extends AppWidgetProvider {
                 Log.d("got widgetData file", "fileName is " + receivedFileName);
                 Log.d("widget contents", "fileContents updated: " + receivedFileContents);
                 Log.d("got widgetData file", "blinkDelay is " + receivedBlinkDelay);
-                Log.d("got widgetData file", "backgroundColor is" + receivedBackgroundColor);
+                Log.d("got widgetData file", "backgroundColor is " + receivedBackgroundColor);
             } catch(IOException e){
                 Log.d("BlinkWidget", "IOEXCEPTION when updating all widgets");
             } catch(ClassNotFoundException e){
@@ -217,7 +217,7 @@ public class BlinkWidget extends AppWidgetProvider {
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
                                     Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue)); //turn light on
                             appWidgetManager.updateAppWidget(appWidgetId, views);
-                            Log.d("Focusing Here", "***** blink on *****");
+                            //Log.d("Focusing Here", "***** blink on *****");
                             myHandler.postDelayed(this, blinkDelay);
                         }
                     } else {
@@ -261,7 +261,7 @@ public class BlinkWidget extends AppWidgetProvider {
                     //old runnable stopped. start new runnable
                     widgetIdStopRunnable.put(appWidgetId, false);
                     widgetIdIsRunning.put(appWidgetId, true);
-                    Log.d("---------------", "Posted blink runnable");
+                    Log.d("BlinkWidget", "*******Posted blink runnable*******");
                     myHandler.post(runnable);
                     widgetIdWait.add(new Integer(appWidgetId));
                 }
@@ -414,7 +414,7 @@ public class BlinkWidget extends AppWidgetProvider {
 
                             //service to restart widget blink for when user swipe-closes app
                             context.startService(new Intent(context, WidgetRunnablesService.class));
-                            Log.d("Service1", "Called startService() in BlinkWidget");
+                            Log.d("WidgetService", "Called startService() in BlinkWidget 1");
                         } catch(IOException e){
                             Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
                         } catch(ClassNotFoundException e){

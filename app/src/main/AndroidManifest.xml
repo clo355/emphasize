@@ -49,7 +49,7 @@
             android:name=".WidgetRunnablesService"
             android:stopWithTask="false"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="false"/>
     </application>
 
 </manifest>
