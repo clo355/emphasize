@@ -25,12 +25,17 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * @author Chris Lo
@@ -39,6 +44,8 @@ import java.util.Comparator;
 public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "PreferenceFile";
+    public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
+    public static final String widgetDataFileName = "widget_data.dat";
     protected ArrayList<String> myFileNameArray;
     protected String fileContents = "";
     protected String fileName = "";
@@ -359,10 +366,57 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                                 editor.putInt("configWidgetId", returnConfigId);
                                 editor.commit();
 
+                                //on some devices, widget will update on config start, before getting
+                                //blink and color from user. Need to manually update again after config.
+                                //First, update widget file with values
+                                File myFile = new File(getFilesDir(), widgetDataFileName);
+                                if(myFile.exists()) { //widget info file found
+                                    try {
+                                        //get old values
+                                        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                                        HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                                        inputStream.close();
+
+                                        //save values of this new widget into my info file
+                                        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                                        WidgetData widgetData = new WidgetData(returnConfigId, fileName, fileContents,
+                                                blinkDelay, backgroundColor);
+                                        widgetIdValues.put(returnConfigId, widgetData);
+                                        outputStream.writeObject(widgetIdValues);
+                                        outputStream.flush();
+                                        outputStream.close();
+                                    } catch (IOException e) {
+                                        Log.d("CFFWactivity", "IOEXCEPTION in onReceive()");
+                                    } catch (ClassNotFoundException e) {
+                                        Log.d("CFFWactivity", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                    }
+                                }  else{ //not found, create it, add data
+                                    try {
+                                        ObjectOutputStream ooStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                                        HashMap<Integer, WidgetData> widgetIdValues = new HashMap<Integer, WidgetData>();
+                                        WidgetData widgetData = new WidgetData(returnConfigId, fileName, fileContents,
+                                                blinkDelay, backgroundColor);
+                                        widgetIdValues.put(returnConfigId, widgetData);
+                                        ooStream.writeObject(widgetIdValues);
+                                        ooStream.flush();
+                                        ooStream.close();
+                                    } catch(IOException e){
+                                        Log.d("CFFWactivity", "IOEXCEPTION 2");
+                                    }
+                                }
+
+                                //normal config finish
                                 Intent configIntent = new Intent(getBaseContext(), BlinkWidget.class);
                                 configIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, returnConfigId);
                                 setResult(RESULT_OK, configIntent);
-                                Log.d("CFFWactivity", "CFFWactivity config RESULT_OK, doing finish()");
+                                Log.d("CFFWactivity", "CFFWactivity config RESULT_OK");
+
+                                //Broadcast widget update
+                                Intent updateIntent = new Intent(EDIT_FILE_FROM_OUTSIDE_ACTION,
+                                        null, getApplicationContext(), BlinkWidget.class);
+                                updateIntent.putExtra("x", "x");
+                                sendBroadcast(updateIntent);
+
                                 finish();
                             } else{ //CFFWactivity was started by widget corner button
                                 intent.setAction(BlinkWidget.CHOOSE_FILE_ACTION);

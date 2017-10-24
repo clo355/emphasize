@@ -306,35 +306,38 @@ public class BlinkWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent){
         //onUpdate, delete, disabled, and enabled all caught here
+        //different devices will send different ACTIONS even though
+        //the user does the same thing
+        Log.d("BlinkWidget", "in onReceive()");
         if(intent.getExtras() == null){
+            Log.d("BlinkWidget", "intent.getExtras() was null.");
             //user put down new widget or removed a widget. Let super handle it.
             super.onReceive(context, intent);
-        } else{
+        } else {
             SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
             String action = intent.getAction();
             Bundle extras = intent.getExtras();
-            Log.d("BlinkWidget", "in onReceive()");
             Log.d("BlinkWidget", "action is " + action);
             final AppWidgetManager mgr = AppWidgetManager.getInstance(context);
             ComponentName name = new ComponentName(context, BlinkWidget.class);
             int[] myAppWidgetIds = AppWidgetManager.getInstance(context).getAppWidgetIds(name);
             final int appWidgetIdLength = myAppWidgetIds.length;
-            if(action != null && (action.equals(CHOOSE_FILE_ACTION))){
+            if (action != null && (action.equals(CHOOSE_FILE_ACTION))) {
                 //from widget corner button
                 Log.d("BlinkWidget", "action is was CHOOSE_FILE_ACTION");
                 receivedFileName = extras.getString("fileName");
                 receivedFileContents = extras.getString("fileContents");
                 receivedBlinkDelay = extras.getInt("blinkDelay");
                 receivedBackgroundColor = extras.getString("backgroundColor");
-                if(appWidgetIdLength < 1){
+                if (appWidgetIdLength < 1) {
                     return;
-                } else{
+                } else {
                     int id = extras.getInt("widgetId");
                     Log.d("BlinkWidget", "id is " + String.valueOf(id));
 
                     //update widget info file with these new values
                     File myFile = new File(context.getFilesDir(), widgetDataFileName);
-                    try{
+                    try {
                         //get old values
                         ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
                         HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
@@ -348,15 +351,19 @@ public class BlinkWidget extends AppWidgetProvider {
                         outputStream.writeObject(widgetIdValues);
                         outputStream.flush();
                         outputStream.close();
-                    } catch(IOException e){
+                    } catch (IOException e) {
                         Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
-                    } catch(ClassNotFoundException e){
+                    } catch (ClassNotFoundException e) {
                         Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
                     }
 
                     updateAppWidget(context, mgr, id);
                     super.onReceive(context, intent);
                 }
+            } if(action != null && (action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE))){
+                //service to restart widget blink for when user swipe-closes app
+                context.startService(new Intent(context, WidgetRunnablesService.class));
+                Log.d("BlinkService", "Called startService() in BlinkWidget");
             } else if(action != null && (action.equals(EDIT_FILE_ACTION))){
                 //Text editor from widget, just update that widget
                 Log.d("BlinkWidget", "action is was EDIT_FILE_ACTION");
@@ -413,8 +420,8 @@ public class BlinkWidget extends AppWidgetProvider {
                             outputStream.close();
 
                             //service to restart widget blink for when user swipe-closes app
-                            context.startService(new Intent(context, WidgetRunnablesService.class));
-                            Log.d("WidgetService", "Called startService() in BlinkWidget 1");
+                            //context.startService(new Intent(context, WidgetRunnablesService.class));
+                            //Log.d("BlinkService", "Called startService() in BlinkWidget 2");
                         } catch(IOException e){
                             Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
                         } catch(ClassNotFoundException e){
