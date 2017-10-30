@@ -12,6 +12,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
         Button mainSettingsButton = (Button)findViewById(R.id.mainSettingsButton);
         mainSettingsButton.setBackgroundResource(R.mipmap.settings_icon_normal);
         Button mainBackButton = (Button)findViewById(R.id.mainBackButton);
-        mainBackButton.setBackgroundResource(R.mipmap.left_chevron_icon_normal);
 
         //Load theme
         ConstraintLayout mainLayout = (ConstraintLayout)findViewById(R.id.activity_main);
@@ -288,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             case 1: { //Rename
                                 final EditText renameEditText = new EditText(MainActivity.this);
+                                renameEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener(){
                                     @Override
                                     public void onClick(DialogInterface dialog, int which){
@@ -299,6 +300,11 @@ public class MainActivity extends AppCompatActivity {
 
                                         switch (which){
                                             case DialogInterface.BUTTON_POSITIVE:{//OK
+                                                //if renaming to same name or blank, do nothing
+                                                if(renameEditText.getText().toString().equals("") ||
+                                                        renameEditText.getText().toString().equals(longClickedFileName)){
+                                                    break;
+                                                }
                                                 //Get contents of old file
                                                 String oldFileContents = "";
                                                 try {

@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -54,6 +55,9 @@ public class TextEditorActivity extends AppCompatActivity {
 
         fileNameDisplay = (TextView)findViewById(R.id.fileNameDisplay);
         textEditor = (EditText)findViewById(R.id.textEditor);
+        textEditor.setInputType(InputType.TYPE_CLASS_TEXT |
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE|
+                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
         fromWidget = getIntent().getExtras().getBoolean("fromWidget", false);
         fileName = getIntent().getExtras().getString("fileName");
@@ -126,7 +130,6 @@ public class TextEditorActivity extends AppCompatActivity {
         });
 
         Button backButton = (Button)findViewById(R.id.textEditorBackButton);
-        backButton.setBackgroundResource(R.mipmap.left_chevron_icon_normal);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

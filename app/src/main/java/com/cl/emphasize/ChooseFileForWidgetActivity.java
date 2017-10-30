@@ -358,6 +358,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                             if(globalIsConfig){ //is widget configuration
                                 //store everything in SharedPreferences. onReceive() will
                                 //get them only after config, then update to start runnable
+                                /*
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putString("configFileName", fileName);
                                 editor.putString("configFileContents", fileContents);
@@ -365,6 +366,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                                 editor.putString("configBackgroundColor", backgroundColor);
                                 editor.putInt("configWidgetId", returnConfigId);
                                 editor.commit();
+                                */
 
                                 //on some devices, widget will update on config start, before getting
                                 //blink and color from user. Need to manually update again after config.

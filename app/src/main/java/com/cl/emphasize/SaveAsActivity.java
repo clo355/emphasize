@@ -11,6 +11,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -55,6 +56,7 @@ public class SaveAsActivity extends AppCompatActivity {
         saveAsOkButton = (Button)findViewById(R.id.saveAsOkButton);
         saveAsCancelButton = (Button)findViewById(R.id.saveAsCancelButton);
         saveAsFileName = (EditText)findViewById(R.id.saveAsFileName);
+        saveAsFileName.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         //Existing file "New Note", keep hint. New "New Note", search for available "New Note #"
         String freeFileName = "";
         if(isNewFile == true) {

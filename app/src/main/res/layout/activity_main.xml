@@ -57,9 +57,9 @@
 
     <Button
         android:id="@+id/mainBackButton"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:background="@drawable/static_icon"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:background="@mipmap/left_chevron_icon_normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintLeft_toLeftOf="parent"
