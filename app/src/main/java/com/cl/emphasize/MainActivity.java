@@ -16,6 +16,8 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -317,6 +319,14 @@ public class MainActivity extends AppCompatActivity {
                             case 1: { //Rename
                                 final EditText renameEditText = new EditText(MainActivity.this);
                                 renameEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                                renameEditText.setHint(longClickedFileName);
+
+                                InputMethodManager imm = (InputMethodManager)getApplicationContext().
+                                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                                if(imm != null){
+                                    imm.showSoftInput(renameEditText, 0);
+                                }
+
                                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener(){
                                     @Override
                                     public void onClick(DialogInterface dialog, int which){
@@ -416,8 +426,21 @@ public class MainActivity extends AppCompatActivity {
                                 builder.setMessage("Rename file:")
                                         .setView(renameEditText)
                                         .setPositiveButton("OK", dialogClickListener)
-                                        .setNegativeButton("Cancel", dialogClickListener)
-                                        .show();
+                                        .setNegativeButton("Cancel", dialogClickListener);
+                                final AlertDialog renameDialog = builder.create();
+                                renameDialog.show();
+
+                                //Bring up keyboard for dialog's EditText
+                                renameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                    @Override
+                                    public void onFocusChange(View view, boolean hasFocus) {
+                                        if(hasFocus){
+                                            renameDialog.getWindow()
+                                                    .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                                        }
+                                    }
+                                });
+
                                 break;
                             }
                             case 2: { //Delete
