@@ -9,27 +9,27 @@
 
     <Button
         android:id="@+id/saveAsOkButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OK"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@mipmap/confirm_square_icon_normal"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.387"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.317"
         app:layout_constraintVertical_bias="0.373" />
 
     <Button
         android:id="@+id/saveAsCancelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@mipmap/cancel_square_icon_normal"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.616"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.373"
-        app:layout_constraintHorizontal_bias="0.685" />
+        app:layout_constraintVertical_bias="0.373" />
 
     <TextView
         android:id="@+id/saveAsDisplay"

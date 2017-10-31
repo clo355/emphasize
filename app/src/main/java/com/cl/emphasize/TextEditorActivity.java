@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -71,6 +72,17 @@ public class TextEditorActivity extends AppCompatActivity {
         } else{
             fileNameDisplay.setText(fileName.substring(0, 13) + "...");
         }
+
+        fileNameDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
+                saveAsIntent.putExtra("fileName", fileName);
+                saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
+                saveAsIntent.putExtra("isNewFile", isNewFile);
+                startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
+            }
+        });
 
         Button saveButton = (Button)findViewById(R.id.textEditorSaveButton);
         saveButton.setOnClickListener(new View.OnClickListener(){
@@ -182,7 +194,7 @@ public class TextEditorActivity extends AppCompatActivity {
                 finish();
             }
         } else{
-            //changes were made. ask "You have unsaved changes. Exit without saving?" Cancel Exit
+            //changes were made. ask "Save changes before exiting?" Cancel Exit
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -194,14 +206,54 @@ public class TextEditorActivity extends AppCompatActivity {
                         case DialogInterface.BUTTON_NEGATIVE: { //cancel
                             break;
                         }
+                        case DialogInterface.BUTTON_NEUTRAL: { //Save
+                            if(isNewFile){
+                                Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
+                                saveAsIntent.putExtra("fileName", fileName);
+                                saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
+                                saveAsIntent.putExtra("isNewFile", isNewFile);
+                                startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
+                            } else{
+                                //overwrite file with given fileName
+                                File myDirectory = new File(getFilesDir(), notesDirectory);
+                                if(!myDirectory.exists()){
+                                    myDirectory.mkdirs();
+                                }
+                                File oldFile = new File(myDirectory, fileName);
+                                oldFile.delete();
+                                File newFile = new File(myDirectory, fileName);
+                                try{
+                                    FileOutputStream myOutputStream = new FileOutputStream(newFile, false);
+                                    myOutputStream.write(textEditor.getText().toString().getBytes());
+                                    myOutputStream.close();
+                                } catch(FileNotFoundException e){
+                                    Log.d("SAVEAS", "FileNotFoundException");
+                                } catch(IOException e) {
+                                    Log.d("SAVEAS", "IOException");
+                                }
+                                originalFileContents = textEditor.getText().toString();
+                                showAsShortToast("Saved");
+
+                                //trigger widget updates
+                                Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                                returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                                //widget seems to only receive broadcast if there's extras in it
+                                returnIntent.putExtra("fileName", fileName);
+                                returnIntent.putExtra("fileContents", originalFileContents);
+                                sendBroadcast(returnIntent);
+                            }
+                            finish();
+                            break;
+                        }
                     }
                 }
             };
 
             AlertDialog.Builder builder = new AlertDialog.Builder(TextEditorActivity.this);
-            builder.setMessage("Changes unsaved. Exit anyway?")
+            builder.setMessage("Save changes before exiting?")
                     .setPositiveButton("Exit", dialogClickListener)
                     .setNegativeButton("Cancel", dialogClickListener)
+                    .setNeutralButton("Save", dialogClickListener)
                     .show();
         }
     }

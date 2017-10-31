@@ -212,7 +212,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                     }
                     case "orange":{
                         backgroundColorSeekBar.setProgress(1);
-                        backgroundColorDisplay.setBackgroundColor(Color.rgb(225, 231, 175));
+                        backgroundColorDisplay.setBackgroundColor(Color.rgb(255, 231, 175));
                         break;
                     }
                     case "yellow":{

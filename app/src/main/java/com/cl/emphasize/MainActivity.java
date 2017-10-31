@@ -14,11 +14,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -112,6 +114,32 @@ public class MainActivity extends AppCompatActivity {
             textPrint.setText("No notes found");
         } else{
             textPrint.setText("");
+        }
+
+        //First time user dialog
+        boolean isFirstTime = settings.getBoolean("isFirstTime", true);
+        if(isFirstTime){
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+            View inflatedView = inflater.inflate(R.layout.help_dialog_image_layout, null);
+            ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
+            helpImage.setImageResource(R.mipmap.help0);
+            builder.setTitle("Welcome to Blink Note");
+            builder.setMessage("You can pin a note on your home screen through" +
+                    " your device's widget menu.");
+            builder.setView(inflatedView);
+            builder.setCancelable(true);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("isFirstTime", false);
+            editor.commit();
         }
 
         //Press sort
