@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listViewAdapter);
 
         if(fileListOnCreate.length == 0){
-            textPrint.setText("No notes found");
+            textPrint.setText("Your notes will be listed here.");
         } else{
             textPrint.setText("");
         }
@@ -293,9 +293,9 @@ public class MainActivity extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(longClickedFileName);
-                builder.setItems(options, new DialogInterface.OnClickListener() {
+                builder.setItems(options, new DialogInterface.OnClickListener(){
                     @Override
-                    public void onClick(DialogInterface dialog, int clickedOption) {
+                    public void onClick(DialogInterface dialog, int clickedOption){
                         switch(clickedOption){
                             case 0: { //Edit: open in TextEditorActivity
                                 String fileContents = "";
@@ -321,12 +321,6 @@ public class MainActivity extends AppCompatActivity {
                                 renameEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                                 renameEditText.setHint(longClickedFileName);
 
-                                InputMethodManager imm = (InputMethodManager)getApplicationContext().
-                                        getSystemService(Context.INPUT_METHOD_SERVICE);
-                                if(imm != null){
-                                    imm.showSoftInput(renameEditText, 0);
-                                }
-
                                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener(){
                                     @Override
                                     public void onClick(DialogInterface dialog, int which){
@@ -342,78 +336,172 @@ public class MainActivity extends AppCompatActivity {
                                                 if(renameEditText.getText().toString().equals("") ||
                                                         renameEditText.getText().toString().equals(longClickedFileName)){
                                                     break;
-                                                }
-                                                //Get contents of old file
-                                                String oldFileContents = "";
-                                                try {
-                                                    BufferedReader fileReader = new BufferedReader(new FileReader(longClickedFile));
-                                                    String line;
-                                                    while((line = fileReader.readLine()) != null) {
-                                                        oldFileContents = oldFileContents + line + "\n";
-                                                    }
-                                                } catch(IOException e){
-                                                    Log.d("MAIN", "IOException");
-                                                }
+                                                } else if(fileNameAlreadyExists(renameEditText.getText().toString())){
+                                                    //use dialog to ask if user wants to overwrite it
+                                                    //yes = replace file
+                                                    //no = do nothing/break
+                                                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            switch (which) {
+                                                                case DialogInterface.BUTTON_POSITIVE: { //Overwrite
+                                                                    //Get contents of old file
+                                                                    String oldFileContents = "";
+                                                                    try {
+                                                                        BufferedReader fileReader = new BufferedReader(new FileReader(longClickedFile));
+                                                                        String line;
+                                                                        while ((line = fileReader.readLine()) != null) {
+                                                                            oldFileContents = oldFileContents + line + "\n";
+                                                                        }
+                                                                    } catch (IOException e) {
+                                                                        Log.d("MAIN", "IOException");
+                                                                    }
 
-                                                //fill new file with old file's contents
-                                                FileOutputStream myOutputStream;
-                                                File newFile = new File(myDirectory, renameEditText.getText().toString());
-                                                try{
-                                                    myOutputStream = new FileOutputStream(newFile, false);
-                                                    myOutputStream.write(oldFileContents.getBytes());
-                                                    myOutputStream.close();
-                                                } catch(FileNotFoundException e){
-                                                    Log.d("SAVEAS", "FileNotFoundException");
-                                                } catch(IOException e) {
-                                                    Log.d("SAVEAS", "IOException");
-                                                }
-                                                File oldFile = new File(myDirectory, longClickedFileName);
-                                                oldFile.delete();
-                                                updateListView();
-                                                showAsShortToast("Renamed as " + newFile.getName());
+                                                                    //fill new file with old file's contents
+                                                                    FileOutputStream myOutputStream;
+                                                                    File newFile = new File(myDirectory, renameEditText.getText().toString());
+                                                                    try {
+                                                                        myOutputStream = new FileOutputStream(newFile, false);
+                                                                        myOutputStream.write(oldFileContents.getBytes());
+                                                                        myOutputStream.close();
+                                                                    } catch (FileNotFoundException e) {
+                                                                        Log.d("SAVEAS", "FileNotFoundException");
+                                                                    } catch (IOException e) {
+                                                                        Log.d("SAVEAS", "IOException");
+                                                                    }
+                                                                    File oldFile = new File(myDirectory, longClickedFileName);
+                                                                    oldFile.delete();
+                                                                    updateListView();
+                                                                    showAsShortToast("Renamed as " + newFile.getName());
 
-                                                //update widget info file with these new values
-                                                File myFile = new File(getFilesDir(), widgetDataFileName);
-                                                try{
-                                                    //get old values
-                                                    ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
-                                                    HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
-                                                    HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
-                                                    inputStream.close();
+                                                                    //update widget info file with these new values
+                                                                    File myFile = new File(getFilesDir(), widgetDataFileName);
+                                                                    try {
+                                                                        //get old values
+                                                                        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                                                                        HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                                                                        HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
+                                                                        inputStream.close();
 
-                                                    //loop through all ids
-                                                    for(HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
-                                                        int idKey = entry.getKey();
-                                                        WidgetData oldWidgetData = entry.getValue();
-                                                        if(oldWidgetData.getFileName().equals(longClickedFileName)){
-                                                            String newFileName = newFile.getName();
-                                                            String sameFileContents = oldWidgetData.getFileContents();
-                                                            int sameBlinkDelay = oldWidgetData.getBlinkDelay();
-                                                            String sameBackgroundColor = oldWidgetData.getBackgroundColor();
-                                                            WidgetData newWidgetData = new WidgetData(idKey, newFileName, sameFileContents,
-                                                                    sameBlinkDelay, sameBackgroundColor);
-                                                            newWidgetIdValues.put(idKey, newWidgetData);
+                                                                        //loop through all ids, change file name of any widgets displaying old file to new file.
+                                                                        for (HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
+                                                                            int idKey = entry.getKey();
+                                                                            WidgetData oldWidgetData = entry.getValue();
+                                                                            if (oldWidgetData.getFileName().equals(longClickedFileName)) {
+                                                                                String newFileName = newFile.getName();
+                                                                                String sameFileContents = oldWidgetData.getFileContents();
+                                                                                int sameBlinkDelay = oldWidgetData.getBlinkDelay();
+                                                                                String sameBackgroundColor = oldWidgetData.getBackgroundColor();
+                                                                                WidgetData newWidgetData = new WidgetData(idKey, newFileName, sameFileContents,
+                                                                                        sameBlinkDelay, sameBackgroundColor);
+                                                                                newWidgetIdValues.put(idKey, newWidgetData);
+                                                                            }
+                                                                        }
+
+                                                                        //save updated fileName values back into my info file
+                                                                        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                                                                        outputStream.writeObject(newWidgetIdValues);
+                                                                        outputStream.flush();
+                                                                        outputStream.close();
+
+                                                                        //tell widgets to update with new name
+                                                                        Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                                                                        returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                                                                        //widget seems to only receive broadcast if there's extras in it
+                                                                        returnIntent.putExtra("fileName", newFile.getName());
+                                                                        sendBroadcast(returnIntent);
+                                                                    } catch (IOException e) {
+                                                                        Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+                                                                    } catch (ClassNotFoundException e) {
+                                                                        Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                                                    }
+                                                                    break;
+                                                                }
+                                                                case DialogInterface.BUTTON_NEGATIVE: { //cancel
+                                                                    break;
+                                                                }
+                                                            }
                                                         }
+                                                    };
+                                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                                    builder.setMessage("A note named \"" + renameEditText.getText().toString() +
+                                                            "\" already exists.\nOverwrite it?")
+                                                            .setPositiveButton("Overwrite", dialogClickListener)
+                                                            .setNegativeButton("Cancel", dialogClickListener)
+                                                            .show();
+                                                } else{ //else, file name not taken. Replace old with new
+                                                    //Get contents of old file
+                                                    String oldFileContents = "";
+                                                    try {
+                                                        BufferedReader fileReader = new BufferedReader(new FileReader(longClickedFile));
+                                                        String line;
+                                                        while ((line = fileReader.readLine()) != null) {
+                                                            oldFileContents = oldFileContents + line + "\n";
+                                                        }
+                                                    } catch (IOException e) {
+                                                        Log.d("MAIN", "IOException");
                                                     }
 
-                                                    //save updated fileName values back into my info file
-                                                    ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
-                                                    outputStream.writeObject(newWidgetIdValues);
-                                                    outputStream.flush();
-                                                    outputStream.close();
+                                                    //fill new file with old file's contents
+                                                    FileOutputStream myOutputStream;
+                                                    File newFile = new File(myDirectory, renameEditText.getText().toString());
+                                                    try {
+                                                        myOutputStream = new FileOutputStream(newFile, false);
+                                                        myOutputStream.write(oldFileContents.getBytes());
+                                                        myOutputStream.close();
+                                                    } catch (FileNotFoundException e) {
+                                                        Log.d("SAVEAS", "FileNotFoundException");
+                                                    } catch (IOException e) {
+                                                        Log.d("SAVEAS", "IOException");
+                                                    }
+                                                    File oldFile = new File(myDirectory, longClickedFileName);
+                                                    oldFile.delete();
+                                                    updateListView();
+                                                    showAsShortToast("Renamed as " + newFile.getName());
 
-                                                    //trigger widget updates
-                                                    Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
-                                                    returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
-                                                    //widget seems to only receive broadcast if there's extras in it
-                                                    returnIntent.putExtra("fileName", newFile.getName());
-                                                    sendBroadcast(returnIntent);
-                                                } catch(IOException e){
-                                                    Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
-                                                } catch(ClassNotFoundException e){
-                                                    Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                                    //update widget info file with these new values
+                                                    File myFile = new File(getFilesDir(), widgetDataFileName);
+                                                    try {
+                                                        //get old values
+                                                        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+                                                        HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+                                                        HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
+                                                        inputStream.close();
+
+                                                        //loop through all ids, change file name of any widgets displaying old file to new file.
+                                                        for (HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
+                                                            int idKey = entry.getKey();
+                                                            WidgetData oldWidgetData = entry.getValue();
+                                                            if (oldWidgetData.getFileName().equals(longClickedFileName)) {
+                                                                String newFileName = newFile.getName();
+                                                                String sameFileContents = oldWidgetData.getFileContents();
+                                                                int sameBlinkDelay = oldWidgetData.getBlinkDelay();
+                                                                String sameBackgroundColor = oldWidgetData.getBackgroundColor();
+                                                                WidgetData newWidgetData = new WidgetData(idKey, newFileName, sameFileContents,
+                                                                        sameBlinkDelay, sameBackgroundColor);
+                                                                newWidgetIdValues.put(idKey, newWidgetData);
+                                                            }
+                                                        }
+
+                                                        //save updated fileName values back into my info file
+                                                        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+                                                        outputStream.writeObject(newWidgetIdValues);
+                                                        outputStream.flush();
+                                                        outputStream.close();
+
+                                                        //tell widgets to update with new name
+                                                        Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+                                                        returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+                                                        //widget seems to only receive broadcast if there's extras in it
+                                                        returnIntent.putExtra("fileName", newFile.getName());
+                                                        sendBroadcast(returnIntent);
+                                                    } catch (IOException e) {
+                                                        Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+                                                    } catch (ClassNotFoundException e) {
+                                                        Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                                    }
+                                                    break;
                                                 }
-                                                break;
                                             }
                                             case DialogInterface.BUTTON_NEGATIVE:{ //Cancel
                                                 break;
@@ -431,15 +519,19 @@ public class MainActivity extends AppCompatActivity {
                                 renameDialog.show();
 
                                 //Bring up keyboard for dialog's EditText
-                                renameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                                    @Override
-                                    public void onFocusChange(View view, boolean hasFocus) {
-                                        if(hasFocus){
-                                            renameDialog.getWindow()
-                                                    .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                                try {
+                                    renameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                                        @Override
+                                        public void onFocusChange(View view, boolean hasFocus) {
+                                            if (hasFocus) {
+                                                renameDialog.getWindow()
+                                                        .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                } catch(NullPointerException e){
+                                    //Keyboard won't automatically show
+                                }
 
                                 break;
                             }
@@ -582,7 +674,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listViewAdapter);
 
         if(fileListUpdateListView.length == 0){
-            textPrint.setText("No notes found");
+            textPrint.setText("Your notes will be listed here.");
         } else{
             textPrint.setText("");
         }
@@ -672,6 +764,14 @@ public class MainActivity extends AppCompatActivity {
         } else{ //3
             sortButton.setBackgroundResource(R.mipmap.sort_recent_up_icon_normal);
         }
+    }
+
+    public boolean fileNameAlreadyExists(String userInputFileName){
+        File myDirectory = new File(getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        return (new File(myDirectory, userInputFileName)).exists();
     }
 
     public void showAsShortToast(String text){

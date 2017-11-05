@@ -103,7 +103,7 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
 
         //"No files found" label
         if(fileListOnCreate.length == 0){
-            noFilesView.setText("No notes found");
+            noFilesView.setText("You haven't made any notes.\nPlease create one first.");
         } else{
             noFilesView.setText("");
         }

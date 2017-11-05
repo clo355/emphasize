@@ -75,21 +75,14 @@ public class BlinkWidget extends AppWidgetProvider {
 
                     WidgetData widgetData = widgetIdValues.get(appWidgetId);
                     if(widgetData != null){ //placing 2nd widget, this might be null at first.
-                        Log.d("Before", "Before it");
-                        receivedFileName = widgetData.getFileName(); //this crashes when placing 2nd widget
-                        Log.d("Before", "After it");
+                        receivedFileName = widgetData.getFileName();
                         if (receivedFileName.equals("")) { //for if note was deleted from Main
                             receivedFileContents = "Deleted";
-                        } else {
+                        }else {
                             receivedFileContents = getLatestFileContents(receivedFileName, context);
                         }
                         receivedBlinkDelay = widgetData.getBlinkDelay();
                         receivedBackgroundColor = widgetData.getBackgroundColor();
-                        Log.d("got widgetData file", "fileWidgetId is " + widgetData.getWidgetId());
-                        Log.d("got widgetData file", "fileName is " + receivedFileName);
-                        Log.d("widget contents", "fileContents updated: " + receivedFileContents);
-                        Log.d("got widgetData file", "blinkDelay is " + receivedBlinkDelay);
-                        Log.d("got widgetData file", "backgroundColor is " + receivedBackgroundColor);
                     }
                 } catch (IOException e) {
                     Log.d("BlinkWidget", "IOEXCEPTION when updating all widgets");
@@ -115,7 +108,7 @@ public class BlinkWidget extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetId, views);
 
         //Click main body
-        if(receivedFileName.equals("")){ //disable opening TextEditor
+        if(receivedFileName.equals("")){ //Note deleted, disable opening TextEditor
             PendingIntent nullPendingIntent = null;
             views.setOnClickPendingIntent(R.id.mainBodyButton, nullPendingIntent);
             views.setTextViewText(R.id.appwidgetText, "Deleted");
@@ -321,47 +314,6 @@ public class BlinkWidget extends AppWidgetProvider {
             //user put down new widget or removed a widget. Let super handle it.
             super.onReceive(context, intent);
         } else {
-
-            //debug, write all actions to actions.log note/////////////////////////////
-            //get current logs
-            /*
-            File myDirectory = new File(context.getFilesDir(), notesDirectory);
-            if(!myDirectory.exists()){
-                myDirectory.mkdirs();
-            }
-            File logFile = new File(myDirectory, "actions.log");
-            String fileContents = "";
-            try {
-                BufferedReader fileReader = new BufferedReader(new FileReader(logFile));
-                String line;
-                while((line = fileReader.readLine()) != null) {
-                    fileContents = fileContents + line + "\n";
-                }
-                //remove last newline if file isn't empty string
-                if(!fileContents.equals("")){
-                    fileContents = fileContents.substring(0, fileContents.length() - 1);
-                }
-            } catch(IOException e){
-                Log.d("actionlog", "IOException");
-            }
-
-            //record action
-            fileContents = fileContents + "\n\n" + intent.getAction();
-
-            //write action back to log
-            File oldFile = new File(myDirectory, "actions.log");
-            oldFile.delete();
-            File newFile = new File(myDirectory, "actions.log");
-            try{
-                FileOutputStream myOutputStream = new FileOutputStream(newFile, false);
-                myOutputStream.write(fileContents.getBytes());
-                myOutputStream.close();
-            } catch(IOException e) {
-                Log.d("actionlog", "IOException");
-            }
-            */
-            /////////////////////////////////////////////////////////////
-
             SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, 0);
             String action = intent.getAction();
             Bundle extras = intent.getExtras();
@@ -429,7 +381,7 @@ public class BlinkWidget extends AppWidgetProvider {
                     super.onReceive(context, intent);
                 }
             } else if(action != null && (action.equals(EDIT_FILE_FROM_OUTSIDE_ACTION))){
-                //Happens when save pressed, and when
+                //Happens whening saving, deleting, or renaming file.
                 //Text editor from main, doesn't know what widgets are displaying this filename,
                 //so update all widgets to get contents of whichever files again.
                 Log.d("UPDATE", "UPDATING ALL WIDGETS!");
@@ -439,73 +391,9 @@ public class BlinkWidget extends AppWidgetProvider {
             } else if(action.equals(ACTION_APPWIDGET_OPTIONS_CHANGED)){
                 //Happens when resizing widgets
                 Log.d("BlinkWidget", "action was APPWIDGET_OPTIONS_CHANGED or UPDATE_OPTIONS");
-                //came here from config for some devices.
-                //Get the SharedPreference values and start the runnable
                 if(appWidgetIdLength < 1){
                     return;
                 } else{
-                    /*
-                    //2nd params are defaults for new widget instances
-                    receivedFileName = settings.getString("configFileName", "file1");
-                    receivedFileContents = settings.getString("configFileContents", "Select note 1");
-                    receivedBlinkDelay = settings.getInt("configBlinkDelay", 0);
-                    receivedBackgroundColor = settings.getString("configBackgroundColor", "red");
-                    */
-
-                    //should get receivedX from widget file instead, because widgets are randomly resetting
-                    //to white 'select note'. Maybe related to some random widget action
-                    //using ACTION_APPWIDGET_OPTIONS_CHANGED that accesss SharedPrefs
-
-                    //and resizing widget also uses OPTIONS_CHANGED
-
-                    /*
-                    int id = settings.getInt("configWidgetId", 0);
-                    Log.d("BlinkWidget", "id is " + String.valueOf(id));
-
-                    //get widget info file if it exists
-                    File myFile = new File(context.getFilesDir(), widgetDataFileName);
-                    if(myFile.exists()){ //widget info file found
-                        Log.d("BlinkDelay", "onReceive() widget file found.");
-                        try{
-                            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
-                            HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
-                            inputStream.close();
-
-                            //save values of this new widget into my info file
-                            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
-                            WidgetData widgetData = new WidgetData(id, receivedFileName, receivedFileContents,
-                                    receivedBlinkDelay, receivedBackgroundColor);
-                            widgetIdValues.put(id, widgetData);
-                            outputStream.writeObject(widgetIdValues);
-                            outputStream.flush();
-                            outputStream.close();
-
-                            //service to restart widget blink for when user swipe-closes app
-                            //context.startService(new Intent(context, WidgetRunnablesService.class));
-                            //Log.d("BlinkService", "Called startService() in BlinkWidget 2");
-                        } catch(IOException e){
-                            Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
-                        } catch(ClassNotFoundException e){
-                            Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
-                        }
-                    } else{ //not found, create it, add data
-                        Log.d("BlinkDelay", "onReceive() widget file not found. Creating one.");
-                        try {
-                            ObjectOutputStream ooStream = new ObjectOutputStream(new FileOutputStream(myFile));
-                            HashMap<Integer, WidgetData> widgetIdValues = new HashMap<Integer, WidgetData>();
-                            WidgetData widgetData = new WidgetData(id, receivedFileName, receivedFileContents,
-                                    receivedBlinkDelay, receivedBackgroundColor);
-                            Log.d("BlinkDelay", "putting values for id " + id);
-                            widgetIdValues.put(id, widgetData);
-                            ooStream.writeObject(widgetIdValues);
-                            ooStream.flush();
-                            ooStream.close();
-                        } catch(IOException e){
-                            Log.d("BlinkWidget", "IOEXCEPTION 2 in onReceive()");
-                        }
-                    }
-                    updateAppWidget(context, mgr, id);
-                    */
                     super.onReceive(context, intent);
                 }
             }

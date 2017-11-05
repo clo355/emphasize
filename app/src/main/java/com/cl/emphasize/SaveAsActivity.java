@@ -31,6 +31,7 @@ public class SaveAsActivity extends AppCompatActivity {
     protected String fileContents;
     protected String fileName;
     protected boolean isNewFile;
+    protected boolean isRenamedNewFile = false;
     protected Button saveAsOkButton;
     protected Button saveAsCancelButton;
     protected EditText saveAsFileName;
@@ -59,9 +60,12 @@ public class SaveAsActivity extends AppCompatActivity {
         saveAsFileName.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         //Existing file "New Note", keep hint. New "New Note", search for available "New Note #"
         String freeFileName = "";
-        if(isNewFile == true) {
+        if(isNewFile && !fileName.equals("New Note")){
+            isRenamedNewFile = true;
+            saveAsFileName.setHint(fileName);
+        } else if(isNewFile && fileName.equals("New Note")){
             String newFilePrefix = "New Note";
-            if(fileNameAlreadyExists(newFilePrefix)) { //"New Note" already taken
+            if(fileNameAlreadyExists(newFilePrefix)){ //"New Note" already taken
                 int newFileSuffix = 1;
                 while(fileNameAlreadyExists(newFilePrefix + " " + newFileSuffix)){
                     newFileSuffix++;
@@ -84,9 +88,9 @@ public class SaveAsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 final String userInputFileName = saveAsFileName.getText().toString();
-                if(userInputFileName.equals("")){ //user left file name empty, name as "New Note #"
-                    File myDirectory = new File(getFilesDir(), notesDirectory);
-                    if(!myDirectory.exists()){
+                if(userInputFileName.equals("") && !isRenamedNewFile){ //user left file name empty, name as "New Note #"
+                    final File myDirectory = new File(getFilesDir(), notesDirectory);
+                    if (!myDirectory.exists()) {
                         myDirectory.mkdirs();
                     }
                     if(isNewFile){ //Use free default name
@@ -106,7 +110,7 @@ public class SaveAsActivity extends AppCompatActivity {
                         returnIntent.putExtra("changesSaved", true);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
-                    } else{ //save as fileName
+                    } else { //save as same fileName
                         File newDefaultFile = new File(myDirectory, fileName);
                         try {
                             myOutputStream = new FileOutputStream(newDefaultFile, false);
@@ -124,14 +128,21 @@ public class SaveAsActivity extends AppCompatActivity {
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
                     }
-                } else{ //user wrote a file name
+                } else{ //user wrote a file name, or it's a renamed new file from TextEditor
                     final File myDirectory = new File(getFilesDir(), notesDirectory);
                     if(!myDirectory.exists()){
                         myDirectory.mkdirs();
                     }
-                    if (fileNameAlreadyExists(userInputFileName)) {
-                        if (userInputFileName.equals(fileName)) { //user trying to save as same name
-                            File oldFile = new File(myDirectory, fileName);
+
+                    final String wroteOrRenamedName;
+                    if(isRenamedNewFile){
+                        wroteOrRenamedName = fileName;
+                    } else{
+                        wroteOrRenamedName = userInputFileName;
+                    }
+                    if(fileNameAlreadyExists(wroteOrRenamedName)){ //isRenamedFile, name already taken?
+                        if (wroteOrRenamedName.equals(fileName)) { //user trying to save as same name
+                            File oldFile = new File(myDirectory, fileName); //just overwrite/create it.
                             oldFile.delete();
                             File newFile = new File(myDirectory, fileName);
                             try {
@@ -150,15 +161,15 @@ public class SaveAsActivity extends AppCompatActivity {
                             returnIntent.putExtra("changesSaved", true);
                             setResult(Activity.RESULT_OK, returnIntent);
                             finish();
-                        } else { //user trying to save file as another name
+                        } else { //user trying to save file as another name that already exists
                             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which) {
-                                        case DialogInterface.BUTTON_POSITIVE: { //exit
-                                            File oldFile = new File(myDirectory, userInputFileName);
+                                        case DialogInterface.BUTTON_POSITIVE: { //Overwrite
+                                            File oldFile = new File(myDirectory, wroteOrRenamedName);
                                             oldFile.delete();
-                                            File newFile = new File(myDirectory, userInputFileName);
+                                            File newFile = new File(myDirectory, wroteOrRenamedName);
                                             try {
                                                 myOutputStream = new FileOutputStream(newFile, false);
                                                 myOutputStream.write(fileContents.getBytes());
@@ -171,7 +182,7 @@ public class SaveAsActivity extends AppCompatActivity {
 
                                             Intent returnIntent = new Intent();
                                             returnIntent.putExtra("isNewFile", false);
-                                            returnIntent.putExtra("fileName", userInputFileName);
+                                            returnIntent.putExtra("fileName", wroteOrRenamedName);
                                             setResult(Activity.RESULT_OK, returnIntent);
                                             finish();
                                             break;
@@ -187,17 +198,17 @@ public class SaveAsActivity extends AppCompatActivity {
                             };
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(SaveAsActivity.this);
-                            builder.setMessage("A note named \"" + userInputFileName +
+                            builder.setMessage("A note named \"" + wroteOrRenamedName +
                                     "\" already exists.\nOverwrite it?")
                                     .setPositiveButton("Overwrite", dialogClickListener)
                                     .setNegativeButton("Cancel", dialogClickListener)
                                     .show();
                         }
-                    } else {
-                        //file name not taken. Now save it
-                        File oldFile = new File(myDirectory, userInputFileName);
+                    } else{ //input file name not taken.
+                        //Or isRenamedFile, and not taken. Now save it.
+                        File oldFile = new File(myDirectory, wroteOrRenamedName);
                         oldFile.delete();
-                        File newFile = new File(myDirectory, userInputFileName);
+                        File newFile = new File(myDirectory, wroteOrRenamedName);
                         try {
                             myOutputStream = new FileOutputStream(newFile, false);
                             myOutputStream.write(fileContents.getBytes());
@@ -210,7 +221,7 @@ public class SaveAsActivity extends AppCompatActivity {
 
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("isNewFile", false);
-                        returnIntent.putExtra("fileName", userInputFileName);
+                        returnIntent.putExtra("fileName", wroteOrRenamedName);
                         returnIntent.putExtra("changesSaved", true);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
