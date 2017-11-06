@@ -483,18 +483,22 @@ public class TextEditorActivity extends AppCompatActivity {
             }
         });
 
-        Button saveAsButton = (Button)findViewById(R.id.textEditorSaveAsButton);
-        saveAsButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
-                saveAsIntent.putExtra("fileName", fileName);
-                saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
-                saveAsIntent.putExtra("isNewFile", isNewFile);
-                startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
-                //on return to Main, goes to the overridden onActivityResult()
-            }
-        });
+        Button saveAsButton = (Button) findViewById(R.id.textEditorSaveAsButton);
+        if(fromWidget){ //"disable" saveAs button if user is editing through widget
+            saveAsButton.setBackgroundResource(R.mipmap.save_as_icon_disabled);
+        } else {
+            saveAsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent saveAsIntent = new Intent(getApplicationContext(), SaveAsActivity.class);
+                    saveAsIntent.putExtra("fileName", fileName);
+                    saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
+                    saveAsIntent.putExtra("isNewFile", isNewFile);
+                    startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
+                    //on return to Main, goes to the overridden onActivityResult()
+                }
+            });
+        }
 
         Button backButton = (Button)findViewById(R.id.textEditorBackButton);
         backButton.setOnClickListener(new View.OnClickListener() {

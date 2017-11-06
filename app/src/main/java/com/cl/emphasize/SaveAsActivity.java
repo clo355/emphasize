@@ -1,13 +1,10 @@
 package com.cl.emphasize;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.os.Environment;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,9 +16,13 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 /**
  * @author Chris Lo
@@ -36,7 +37,9 @@ public class SaveAsActivity extends AppCompatActivity {
     protected Button saveAsCancelButton;
     protected EditText saveAsFileName;
     protected FileOutputStream myOutputStream;
+    public static String EDIT_FILE_FROM_OUTSIDE_ACTION = "ActionEditFileFromOutside";
     public static final String PREFS_NAME = "PreferenceFile";
+    public static final String widgetDataFileName = "widget_data.dat";
     public static final String notesDirectory = "notes";
 
     @Override
@@ -110,7 +113,7 @@ public class SaveAsActivity extends AppCompatActivity {
                         returnIntent.putExtra("changesSaved", true);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
-                    } else { //save as same fileName
+                    } else { //save as same given/same fileName
                         File newDefaultFile = new File(myDirectory, fileName);
                         try {
                             myOutputStream = new FileOutputStream(newDefaultFile, false);
@@ -121,6 +124,7 @@ public class SaveAsActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             Log.d("SAVEAS", "IOException");
                         }
+
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("isNewFile", false);
                         returnIntent.putExtra("fileName", fileName);
@@ -253,5 +257,52 @@ public class SaveAsActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED, returnIntent);
         finish();
+    }
+
+    public void updateWidgetFileFromAtoB(String fileA, String fileB, String newContents){
+        //In the widget file, for every id displaying fileA, change it to display fileB
+        //with newContents. Blink rate and BgColor are kept the same.
+        //This method is only needed for existing files that get saveAs'd,
+        //as only existing files can be displayed in a widget.
+        File myFile = new File(getFilesDir(), widgetDataFileName);
+        try {
+            //get old values
+            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(myFile));
+            HashMap<Integer, WidgetData> widgetIdValues = (HashMap<Integer, WidgetData>) inputStream.readObject();
+            HashMap<Integer, WidgetData> newWidgetIdValues = new HashMap<Integer, WidgetData>(widgetIdValues);
+            inputStream.close();
+
+            //loop through all ids, change file name of any widgets displaying A to B.
+            for (HashMap.Entry<Integer, WidgetData> entry : widgetIdValues.entrySet()) {
+                int idKey = entry.getKey();
+                WidgetData oldWidgetData = entry.getValue();
+                if (oldWidgetData.getFileName().equals(fileA)) {
+                    String newFileName = fileB;
+                    String updatedFileContents = newContents;
+                    int sameBlinkDelay = oldWidgetData.getBlinkDelay();
+                    String sameBackgroundColor = oldWidgetData.getBackgroundColor();
+                    WidgetData newWidgetData = new WidgetData(idKey, newFileName, updatedFileContents,
+                            sameBlinkDelay, sameBackgroundColor);
+                    newWidgetIdValues.put(idKey, newWidgetData);
+                }
+            }
+
+            //save updated fileName values back into my info file
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(myFile));
+            outputStream.writeObject(newWidgetIdValues);
+            outputStream.flush();
+            outputStream.close();
+
+            //tell widgets to update with new name
+            Intent returnIntent = new Intent(getApplicationContext(), BlinkWidget.class);
+            returnIntent.setAction(EDIT_FILE_FROM_OUTSIDE_ACTION);
+            //widget seems to only receive broadcast if there's extras in it
+            returnIntent.putExtra("fileName", fileB);
+            sendBroadcast(returnIntent);
+        } catch (IOException e) {
+            Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+        } catch (ClassNotFoundException e) {
+            Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+        }
     }
 }
