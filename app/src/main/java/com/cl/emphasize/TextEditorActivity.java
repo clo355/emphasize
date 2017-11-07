@@ -269,7 +269,7 @@ public class TextEditorActivity extends AppCompatActivity {
                 };
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(TextEditorActivity.this);
-                builder.setMessage("Rename file:")
+                builder.setMessage("Rename note:")
                         .setView(renameEditText)
                         .setPositiveButton("OK", dialogClickListener)
                         .setNegativeButton("Cancel", dialogClickListener);

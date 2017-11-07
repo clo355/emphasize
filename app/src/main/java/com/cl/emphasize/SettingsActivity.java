@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * @author Chris Lo
@@ -19,6 +20,7 @@ import android.widget.Button;
 public class SettingsActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "PreferenceFile";
+    Toast toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_settings);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_LONG);
 
         Button themeButton = (Button)findViewById(R.id.themeButton);
         themeButton.setOnClickListener(new View.OnClickListener() {
@@ -77,6 +81,17 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 });
                 builder.create().show();
+            }
+        });
+
+        Button syncButton = (Button)findViewById(R.id.syncButton);
+        syncButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //initialized toast in onCreate()
+                CharSequence toastText = "This function is being upgraded.\nYou will be notified when it is available.";
+                toast.setText(toastText); //setting text ends previous toast
+                toast.show();
             }
         });
 

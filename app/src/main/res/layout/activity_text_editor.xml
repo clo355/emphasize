@@ -9,27 +9,36 @@
 
     <Button
         android:id="@+id/textEditorSaveAsButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="@mipmap/save_as_icon_normal"/>
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@mipmap/save_as_icon_normal" />
 
     <Button
         android:id="@+id/textEditorSaveButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@id/textEditorSaveAsButton"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp"
         android:background="@mipmap/save_icon_normal" />
 
-   <Button
-       android:id="@+id/textEditorBackButton"
-       android:layout_width="48dp"
-       android:layout_height="48dp"
-       android:layout_alignParentBottom="true"
-       android:layout_alignParentLeft="true"
-       android:background="@mipmap/left_chevron_icon_normal" />
+    <Button
+        android:id="@+id/textEditorBackButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@mipmap/left_chevron_icon_normal" />
 
     <TextView
         android:id="@+id/fileNameDisplay"
@@ -39,10 +48,10 @@
         android:text=""
         android:textSize="16dp"
         android:textStyle="bold"
-        android:layout_alignBaseline="@+id/textEditorBackButton"
-        android:layout_alignBottom="@+id/textEditorBackButton"
+        android:maxLines="1"
         android:layout_toRightOf="@+id/textEditorBackButton"
-        android:layout_toEndOf="@+id/textEditorBackButton" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="15dp"/>
 
     <EditText
         android:id="@+id/textEditor"
@@ -52,6 +61,9 @@
         android:layout_above="@id/textEditorSaveAsButton"
         android:ems="10"
         android:gravity="top|start"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:fitsSystemWindows="true"/>
 
 </RelativeLayout>

@@ -36,8 +36,7 @@ public class HelpActivity extends AppCompatActivity {
         helpQueryArray.add("❔    Save As"); //0
         helpQueryArray.add("❔    Renaming and deleting notes"); //1
         helpQueryArray.add("❔    Pinning notes on your home screen"); //2
-        helpQueryArray.add("❔    Blink rate and color of pinned notes"); //3
-        helpQueryArray.add("❔    Adjusting size of pinned notes");
+        helpQueryArray.add("❔    Adjusting size of pinned notes"); //3
 
         ListView helpList = (ListView)findViewById(R.id.helpList);
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this,
@@ -73,12 +72,6 @@ public class HelpActivity extends AppCompatActivity {
                     case 3:{
                         builder.setTitle(R.string.help3_title);
                         builder.setMessage(R.string.help3_text);
-                        helpImage.setImageResource(R.mipmap.help0);
-                        break;
-                    }
-                    case 4:{
-                        builder.setTitle(R.string.help4_title);
-                        builder.setMessage(R.string.help4_text);
                         helpImage.setImageResource(R.mipmap.help0);
                         break;
                     }

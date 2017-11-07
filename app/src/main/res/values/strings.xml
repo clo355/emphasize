@@ -5,13 +5,11 @@
     <string name="help0_title">Save As</string>
     <string name="help0_text">\nYou can tap the Save As icon to save a copy of your current note under a different name.</string>
     <string name="help1_title">Rename and delete</string>
-    <string name="help1_text">\nIn your notes list, press and hold a note to show options.</string>
+    <string name="help1_text">\nIn your notes list, press and hold a note to show options. You can also rename a note by tapping its name in the text editor.</string>
     <string name="help2_title">Pinning notes</string>
-    <string name="help2_text">\nPress and hold your home screen to access the widget menu. Choose "Blink" or "Normal". Tap the new widget to choose which note to display.</string>
-    <string name="help3_title">Blink rate and color</string>
-    <string name="help3_text">\nTap a note pinned on your home screen. Tap the widget settings icon to adjust blink rate and color.</string>
-    <string name="help4_title">Adjusting size of pinned notes</string>
-    <string name="help4_text">\nOn your home screen, press and hold your pinned note. Release to enable widget border control. Drag a border to stretch, enlarge, or shrink the widget.</string>
+    <string name="help2_text">\nLook for Blink Note in your device\'s widget menu. The menu\'s location may vary across devices.</string>
+    <string name="help3_title">Adjusting size of pinned notes</string>
+    <string name="help3_text">\nOn your home screen, press and hold your pinned note. Release to enable widget border control. Drag a border to stretch, enlarge, or shrink the widget.</string>
     <string name="main_new_text_file_button_label">New</string>
     <string name="main_settings_button_label">Settings</string>
     <string name="main_sort_button_label">Sort</string>

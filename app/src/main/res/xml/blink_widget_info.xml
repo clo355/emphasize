@@ -4,7 +4,7 @@
     android:initialLayout="@layout/blink_widget"
     android:minHeight="40dp"
     android:minWidth="40dp"
-    android:previewImage="@drawable/widget_icon_blink"
+    android:previewImage="@drawable/widget_preview_icon"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
     android:configure="com.cl.emphasize.ChooseFileForWidgetActivity"

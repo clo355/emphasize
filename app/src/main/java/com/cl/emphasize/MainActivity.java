@@ -118,31 +118,8 @@ public class MainActivity extends AppCompatActivity {
             textPrint.setText("");
         }
 
-        //First time user dialog
-        boolean isFirstTime = settings.getBoolean("isFirstTime", true);
-        if(isFirstTime){
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-            View inflatedView = inflater.inflate(R.layout.help_dialog_image_layout, null);
-            ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
-            helpImage.setImageResource(R.mipmap.help0);
-            builder.setTitle("Welcome to Blink Note");
-            builder.setMessage("You can pin a note on your home screen through" +
-                    " your device's widget menu.");
-            builder.setView(inflatedView);
-            builder.setCancelable(true);
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.cancel();
-                }
-            });
-            builder.show();
-
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean("isFirstTime", false);
-            editor.commit();
-        }
+        //Notification about pinning widgets, after user has created first note
+        checkToShowWidgetNotification();
 
         //Press sort
         mainSortButton.setOnClickListener(new View.OnClickListener(){
@@ -511,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                                 };
 
                                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                builder.setMessage("Rename file:")
+                                builder.setMessage("Rename note:")
                                         .setView(renameEditText)
                                         .setPositiveButton("OK", dialogClickListener)
                                         .setNegativeButton("Cancel", dialogClickListener);
@@ -741,6 +718,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onResume(){
+        checkToShowWidgetNotification();
         updateListView();
         super.onResume();
     }
@@ -749,6 +727,41 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         Log.d("Main", "Called onDestroy()");
         super.onDestroy();
+    }
+
+    public void checkToShowWidgetNotification(){
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        File myDirectory = new File(getFilesDir(), notesDirectory);
+        if(!myDirectory.exists()){
+            myDirectory.mkdirs();
+        }
+        File[] fileListOnCreate = myDirectory.listFiles();
+        boolean widgetNotificationShown = settings.getBoolean("widgetNotificationShown", false);
+        if(fileListOnCreate.length > 0) {
+            if(!widgetNotificationShown) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+                View inflatedView = inflater.inflate(R.layout.help_dialog_image_layout, null);
+                ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
+                helpImage.setImageResource(R.mipmap.help0);
+                builder.setTitle("Welcome to Blink Note");
+                builder.setMessage("You can pin a note on your home screen through" +
+                        " your device's widget menu.");
+                builder.setView(inflatedView);
+                builder.setCancelable(true);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+                builder.show();
+
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putBoolean("widgetNotificationShown", true);
+                editor.commit();
+            }
+        }
     }
 
     public void loadSortIcon(Button sortButton){
