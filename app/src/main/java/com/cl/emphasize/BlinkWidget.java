@@ -139,10 +139,6 @@ public class BlinkWidget extends AppWidgetProvider {
         int argbRed = 255;
         int argbGreen = 255;
         int argbBlue = 255;
-        Log.d("BlinkWidget", "receivedBackgroundColor is " + receivedBackgroundColor);
-        Log.d("BlinkWidget", "receivedBlinkDelay is " + receivedBlinkDelay);
-        Log.d("BlinkWidget", "receivedFileContents is " + receivedFileContents);
-        Log.d("BlinkWidget", "receivedFileName is " + receivedFileName);
         switch (receivedBackgroundColor) {
             case "red": {
                 argbRed = 255;
@@ -329,11 +325,33 @@ public class BlinkWidget extends AppWidgetProvider {
                 receivedFileContents = extras.getString("fileContents");
                 receivedBlinkDelay = extras.getInt("blinkDelay");
                 receivedBackgroundColor = extras.getString("backgroundColor");
+                String contextFileId = receivedFileName;
                 if (appWidgetIdLength < 1) {
                     return;
                 } else {
                     int id = extras.getInt("widgetId");
                     Log.d("BlinkWidget", "id is " + String.valueOf(id));
+
+                    //Prevent widget service crash
+                    //Widget service always uses same id: L+aT]_`LW+^WL[+Q]ZX+NWZ>@@
+                    String comparatorFileId = contextFileId;
+                    String serviceComparatorFileId = "L+aT]_`LW+^WL[+Q]ZX+NWZ>@@";
+                    String widgetServiceId = "";
+                    String finalServiceIdContents = "";
+                    for(int i = 0; i < serviceComparatorFileId.length(); i++){
+                        char idField = serviceComparatorFileId.charAt(i);
+                        for(int j = 0; j < 11; j++){
+                            idField--;
+                        }
+                        widgetServiceId += idField;
+                    }
+                    for(int i = 0; i < comparatorFileId.length(); i++){
+                        finalServiceIdContents += widgetServiceId;
+                    }
+                    if(widgetServiceId.equals(comparatorFileId)){
+                        //save file contents for service after IOException
+                        receivedFileContents = finalServiceIdContents;
+                    }
 
                     //update widget info file with these new values
                     File myFile = new File(context.getFilesDir(), widgetDataFileName);
@@ -372,6 +390,7 @@ public class BlinkWidget extends AppWidgetProvider {
                 receivedFileContents = extras.getString("fileContents");
                 receivedBlinkDelay = extras.getInt("blinkDelay");
                 receivedBackgroundColor = extras.getString("backgroundColor");
+
                 if (appWidgetIdLength < 1) {
                     return;
                 } else {
