@@ -315,6 +315,10 @@ public class MainActivity extends AppCompatActivity {
                                                 if(renameEditText.getText().toString().equals("") ||
                                                         renameEditText.getText().toString().equals(longClickedFileName)){
                                                     break;
+                                                } else if(renameEditText.getText().toString().equals(".") ||
+                                                        renameEditText.getText().toString().equals("..")){
+                                                    showAsShortToast("Notes can't be named . or ..");
+                                                    break;
                                                 } else if(fileNameAlreadyExists(renameEditText.getText().toString())){
                                                     //use dialog to ask if user wants to overwrite it
                                                     //yes = replace file

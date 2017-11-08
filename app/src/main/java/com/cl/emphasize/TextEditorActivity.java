@@ -107,6 +107,10 @@ public class TextEditorActivity extends AppCompatActivity {
                                 if (renameToThis.equals("") ||
                                         renameToThis.equals(fileName)) {
                                     break;
+                                } else if(renameEditText.getText().toString().equals(".") ||
+                                        renameEditText.getText().toString().equals("..")){
+                                    showAsShortToast("Notes can't be named . or ..");
+                                    break;
                                 }
 
                                 if(isNewFile){ //Default new file was renamed
@@ -523,6 +527,11 @@ public class TextEditorActivity extends AppCompatActivity {
                     fileNameDisplay.setText(fileName.substring(0, 15) + "...");
                 }
                 showAsShortToast("Saved as " + fileName);
+
+                boolean exitAfterSaveAs = returnedIntent.getExtras().getBoolean("exitAfterSaveAs", false);
+                if(exitAfterSaveAs){
+                    finish();
+                }
             }
             if(resultCode == Activity.RESULT_CANCELED){
                 //user pressed cancel or system back in SaveAsActivity
@@ -573,6 +582,7 @@ public class TextEditorActivity extends AppCompatActivity {
                                 saveAsIntent.putExtra("fileName", fileName);
                                 saveAsIntent.putExtra("fileContents", textEditor.getText().toString());
                                 saveAsIntent.putExtra("isNewFile", isNewFile);
+                                saveAsIntent.putExtra("exitAfterSaveAs", true);
                                 startActivityForResult(saveAsIntent, NEW_FILE_REQUEST_CODE);
                                 break;
                                 //on return to Main, goes to the overridden onActivityResult()

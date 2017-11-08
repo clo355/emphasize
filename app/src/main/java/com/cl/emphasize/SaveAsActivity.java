@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,6 +57,7 @@ public class SaveAsActivity extends AppCompatActivity {
         fileContents = getIntent().getExtras().getString("fileContents");
         fileName = getIntent().getExtras().getString("fileName");
         isNewFile = getIntent().getExtras().getBoolean("isNewFile");
+        final boolean exitAfterSaveAs = getIntent().getExtras().getBoolean("exitAfterSaveAs", false);
 
         saveAsOkButton = (Button)findViewById(R.id.saveAsOkButton);
         saveAsCancelButton = (Button)findViewById(R.id.saveAsCancelButton);
@@ -111,6 +113,7 @@ public class SaveAsActivity extends AppCompatActivity {
                         returnIntent.putExtra("isNewFile", false);
                         returnIntent.putExtra("fileName", defaultFileName);
                         returnIntent.putExtra("changesSaved", true);
+                        returnIntent.putExtra("exitAfterSaveAs", exitAfterSaveAs);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
                     } else { //save as same given/same fileName
@@ -129,10 +132,12 @@ public class SaveAsActivity extends AppCompatActivity {
                         returnIntent.putExtra("isNewFile", false);
                         returnIntent.putExtra("fileName", fileName);
                         returnIntent.putExtra("changesSaved", true);
+                        returnIntent.putExtra("exitAfterSaveAs", exitAfterSaveAs);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
                     }
                 } else{ //user wrote a file name, or it's a renamed new file from TextEditor
+
                     final File myDirectory = new File(getFilesDir(), notesDirectory);
                     if(!myDirectory.exists()){
                         myDirectory.mkdirs();
@@ -144,7 +149,11 @@ public class SaveAsActivity extends AppCompatActivity {
                     } else{
                         wroteOrRenamedName = userInputFileName;
                     }
-                    if(fileNameAlreadyExists(wroteOrRenamedName)){ //isRenamedFile, name already taken?
+                    if(saveAsFileName.getText().toString().equals(".") ||
+                            saveAsFileName.getText().toString().equals("..")){
+                        showAsShortToast("Notes can't be named . or ..");
+                        saveAsFileName.setText("");
+                    } else if(fileNameAlreadyExists(wroteOrRenamedName)){ //isRenamedFile, name already taken?
                         if (wroteOrRenamedName.equals(fileName)) { //user trying to save as same name
                             File oldFile = new File(myDirectory, fileName); //just overwrite/create it.
                             oldFile.delete();
@@ -163,6 +172,7 @@ public class SaveAsActivity extends AppCompatActivity {
                             returnIntent.putExtra("isNewFile", false);
                             returnIntent.putExtra("fileName", fileName);
                             returnIntent.putExtra("changesSaved", true);
+                            returnIntent.putExtra("exitAfterSaveAs", exitAfterSaveAs);
                             setResult(Activity.RESULT_OK, returnIntent);
                             finish();
                         } else { //user trying to save file as another name that already exists
@@ -187,6 +197,8 @@ public class SaveAsActivity extends AppCompatActivity {
                                             Intent returnIntent = new Intent();
                                             returnIntent.putExtra("isNewFile", false);
                                             returnIntent.putExtra("fileName", wroteOrRenamedName);
+                                            returnIntent.putExtra("changesSaved", true);
+                                            returnIntent.putExtra("exitAfterSaveAs", exitAfterSaveAs);
                                             setResult(Activity.RESULT_OK, returnIntent);
                                             finish();
                                             break;
@@ -227,6 +239,7 @@ public class SaveAsActivity extends AppCompatActivity {
                         returnIntent.putExtra("isNewFile", false);
                         returnIntent.putExtra("fileName", wroteOrRenamedName);
                         returnIntent.putExtra("changesSaved", true);
+                        returnIntent.putExtra("exitAfterSaveAs", exitAfterSaveAs);
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
                     }
@@ -257,6 +270,13 @@ public class SaveAsActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED, returnIntent);
         finish();
+    }
+
+    public void showAsShortToast(String text){
+        CharSequence toastText = text;
+        int duration = Toast.LENGTH_SHORT; //2 seconds
+        Toast toast = Toast.makeText(getApplicationContext(), toastText, duration);
+        toast.show();
     }
 
     public void updateWidgetFileFromAtoB(String fileA, String fileB, String newContents){
