@@ -21,9 +21,8 @@ public class WidgetRunnablesService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         Log.d("WidgetService", "Calling onStartCommand()");
-
         //may need this because some devices destroy service and runnable after user uses some other
-        // app. OnTaskRemoved() not called.
+        // app. OnTaskRemoved() not called when that happens.
         //But it starts up again from START_STICKY. This should post runnable again.
 
         //first check if widgetfile is empty. If empty, don't broadcast because of exception when
@@ -46,13 +45,12 @@ public class WidgetRunnablesService extends Service{
                     sendBroadcast(returnIntent);
                 }
             } catch (IOException e) {
-                Log.d("WidgetService", "IOEXCEPTION @@@@@@@@@@@@@@@@@@@");
+                Log.d("WidgetService", "IOEXCEPTION in service");
             } catch (ClassNotFoundException e) {
-                Log.d("WidgetService", "CLASSNOTFOUND @@@@@@@@@@@@@@@@@@@");
+                Log.d("WidgetService", "CLASSNOTFOUND in service");
             }
         }
 
-        Log.d("WidgetService", "Bottom");
         return START_STICKY; //service restarts when ended
     }
 
@@ -70,7 +68,6 @@ public class WidgetRunnablesService extends Service{
 
     @Override
     public IBinder onBind(Intent intent){
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException("onBind UnsupportedOperationException");
     }
 }

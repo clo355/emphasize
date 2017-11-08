@@ -209,13 +209,13 @@ public class BlinkWidget extends AppWidgetProvider {
                         if (lightOn) {
                             lightOn = false;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
-                                    Color.argb(160, new Integer(runArgbRed), runArgbGreen, runArgbBlue)); //turn light off
+                                    Color.argb(125, new Integer(runArgbRed), runArgbGreen, runArgbBlue)); //turn light off
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             myHandler.postDelayed(this, blinkDelay);
                         } else {
                             lightOn = true;
                             views.setInt(R.id.RelativeLayoutBlink, "setBackgroundColor",
-                                    Color.argb(230, runArgbRed, runArgbGreen, runArgbBlue)); //turn light on
+                                    Color.argb(240, runArgbRed, runArgbGreen, runArgbBlue)); //turn light on
                             appWidgetManager.updateAppWidget(appWidgetId, views);
                             //Log.d("Focusing Here", "***** blink on *****");
                             myHandler.postDelayed(this, blinkDelay);
@@ -453,7 +453,6 @@ public class BlinkWidget extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
-        //might need to do handler.removeCallbacksAndMessages(null); to stop all runnables
         Log.d("CFFWactivity", "Called onDisabled()");
     }
 

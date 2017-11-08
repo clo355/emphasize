@@ -213,6 +213,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent accessSettingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivityForResult(accessSettingsIntent, ACCESSED_SETTINGS_REQUEST_CODE);
+                //settings slides in from right. main fades out
+                overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
             }
         });
 
@@ -743,8 +745,8 @@ public class MainActivity extends AppCompatActivity {
                 LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
                 View inflatedView = inflater.inflate(R.layout.help_dialog_image_layout, null);
                 ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
-                helpImage.setImageResource(R.mipmap.help0);
-                builder.setTitle("Welcome to Blink Note");
+                helpImage.setImageResource(R.mipmap.help2_image);
+                builder.setTitle("Note widgets");
                 builder.setMessage("You can pin a note on your home screen through" +
                         " your device's widget menu.");
                 builder.setView(inflatedView);

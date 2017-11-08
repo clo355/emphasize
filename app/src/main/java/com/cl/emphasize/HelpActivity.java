@@ -37,6 +37,8 @@ public class HelpActivity extends AppCompatActivity {
         helpQueryArray.add("❔    Renaming and deleting notes"); //1
         helpQueryArray.add("❔    Pinning notes on your home screen"); //2
         helpQueryArray.add("❔    Adjusting size of pinned notes"); //3
+        helpQueryArray.add("❔    Widgets stopped blinking"); //4
+        helpQueryArray.add("❔    Frozen widget displays"); //5
 
         ListView helpList = (ListView)findViewById(R.id.helpList);
         ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this,
@@ -54,25 +56,37 @@ public class HelpActivity extends AppCompatActivity {
                     case 0:{
                         builder.setTitle(R.string.help0_title);
                         builder.setMessage(R.string.help0_text);
-                        helpImage.setImageResource(R.mipmap.help0);
+                        helpImage.setImageResource(R.mipmap.help0_image);
                         break;
                     }
                     case 1:{
                         builder.setTitle(R.string.help1_title);
                         builder.setMessage(R.string.help1_text);
-                        helpImage.setImageResource(R.mipmap.help0);
+                        helpImage.setImageResource(R.mipmap.help1_image);
                         break;
                     }
                     case 2:{
                         builder.setTitle(R.string.help2_title);
                         builder.setMessage(R.string.help2_text);
-                        helpImage.setImageResource(R.mipmap.help0);
+                        helpImage.setImageResource(R.mipmap.help2_image);
                         break;
                     }
                     case 3:{
                         builder.setTitle(R.string.help3_title);
                         builder.setMessage(R.string.help3_text);
-                        helpImage.setImageResource(R.mipmap.help0);
+                        helpImage.setImageResource(R.mipmap.help3_image);
+                        break;
+                    }
+                    case 4:{
+                        builder.setTitle(R.string.help4_title);
+                        builder.setMessage(R.string.help4_text);
+                        helpImage.setImageResource(R.mipmap.help_skull_image);
+                        break;
+                    }
+                    case 5:{
+                        builder.setTitle(R.string.help5_title);
+                        builder.setMessage(R.string.help5_text);
+                        helpImage.setImageResource(R.mipmap.help_skull_image);
                         break;
                     }
                 }
@@ -92,7 +106,7 @@ public class HelpActivity extends AppCompatActivity {
         helpBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                onBackPressed();
             }
         });
     }
@@ -100,5 +114,6 @@ public class HelpActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         finish();
+        overridePendingTransition(0, 0);
     }
 }

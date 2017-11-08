@@ -101,6 +101,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent helpIntent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(helpIntent);
+                overridePendingTransition(0, 0);
             }
         });
 
@@ -108,7 +109,7 @@ public class SettingsActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                onBackPressed();
             }
         });
     }
@@ -118,5 +119,7 @@ public class SettingsActivity extends AppCompatActivity {
         Intent returnIntent = new Intent(getApplicationContext(), MainActivity.class);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
+        //main fades in. settings slides out right
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.slide_out_right);
     }
 }

@@ -163,21 +163,18 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 if(blinkDelay == 0){
                     speedDisplay.setText("No Blink");
                     delaySeekBar.setProgress(0);
-                } else if(blinkDelay <= 166){
-                    speedDisplay.setText("Faster");
-                    delaySeekBar.setProgress(100);
                 } else if(blinkDelay <= 332) {
                     speedDisplay.setText("Fast");
-                    delaySeekBar.setProgress(80);
+                    delaySeekBar.setProgress(100);
                 } else if(blinkDelay <= 498){
-                    speedDisplay.setText("Normal");
-                    delaySeekBar.setProgress(60);
+                    speedDisplay.setText("Medium");
+                    delaySeekBar.setProgress(75);
                 } else if(blinkDelay <= 664){
                     speedDisplay.setText("Slow");
-                    delaySeekBar.setProgress(40);
+                    delaySeekBar.setProgress(50);
                 } else if(blinkDelay <= 830){
                     speedDisplay.setText("Slower");
-                    delaySeekBar.setProgress(20);
+                    delaySeekBar.setProgress(25);
                 } else{
                     speedDisplay.setText("No Blink");
                     delaySeekBar.setProgress(0);
@@ -251,16 +248,13 @@ public class ChooseFileForWidgetActivity extends AppCompatActivity {
                 delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int speed, boolean fromUser) {
-                        if(speed > 80){
-                            blinkDelay = 166;
-                            speedDisplay.setText("Faster");
-                        } else if(speed > 60) {
+                        if(speed > 75) {
                             blinkDelay = 332;
                             speedDisplay.setText("Fast");
-                        } else if(speed > 40){
+                        } else if(speed > 50){
                             blinkDelay = 498;
-                            speedDisplay.setText("Normal");
-                        } else if(speed > 20){
+                            speedDisplay.setText("Medium");
+                        } else if(speed > 25){
                             blinkDelay = 664;
                             speedDisplay.setText("Slow");
                         } else if(speed > 1){

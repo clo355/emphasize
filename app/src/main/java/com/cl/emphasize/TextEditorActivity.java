@@ -677,7 +677,7 @@ public class TextEditorActivity extends AppCompatActivity {
                                         Log.d("SAVEAS", "IOException");
                                     }
 
-                                    //update widget info file with the new name
+                                    //update widget info file with the new name.
                                     File myFile = new File(getFilesDir(), widgetDataFileName);
                                     try {
                                         //get old values
@@ -719,9 +719,12 @@ public class TextEditorActivity extends AppCompatActivity {
                                         showAsShortToast("Saved");
                                         finish();
                                     } catch (IOException e) {
-                                        Log.d("BlinkWidget", "IOEXCEPTION in onReceive()");
+                                        Log.d("TextEditor", "IOEXCEPTION. No widget file yet (Normal).");
+                                        //If user never put down a widget, widget file data won't exist.
+                                        //The exception is caught and widget file and updates are skipped.
+                                        finish();
                                     } catch (ClassNotFoundException e) {
-                                        Log.d("BlinkWidget", "CLASSNOTEFOUNDEXCEPTION in onReceive()");
+                                        Log.d("TextEditor", "CLASSNOTEFOUNDEXCEPTION for back save");
                                     }
                                 }
                             } else{ //else it's an existing file. Just save it

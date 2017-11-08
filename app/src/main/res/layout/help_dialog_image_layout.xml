@@ -8,6 +8,6 @@
         android:id="@+id/helpDialogImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/help0" />
+        android:src="@mipmap/help2_image" />
 
 </LinearLayout>

@@ -8,8 +8,12 @@
     <string name="help1_text">\nIn your notes list, press and hold a note to show options. You can also rename a note by tapping its name in the text editor.</string>
     <string name="help2_title">Pinning notes</string>
     <string name="help2_text">\nLook for Blink Note in your device\'s widget menu. The menu\'s location may vary across devices.</string>
-    <string name="help3_title">Adjusting size of pinned notes</string>
+    <string name="help3_title">Adjusting size</string>
     <string name="help3_text">\nOn your home screen, press and hold your pinned note. Release to enable widget border control. Drag a border to stretch, enlarge, or shrink the widget.</string>
+    <string name="help4_title">Widgets stopped blinking</string>
+    <string name="help4_text">\nSome devices can\'t handle numerous blinking widgets (Memory related). If your widgets frequently stop blinking, try reducing the number of home screen widgets or lowering their blink speed.</string>
+    <string name="help5_title">Frozen widget displays</string>
+    <string name="help5_text">\nSome devices will suddenly prevent all widgets from changing if there are too many widgets blinking at high speeds (Launcher related). Try reducing the number of home screen widgets or lowering their blink speed.</string>
     <string name="main_new_text_file_button_label">New</string>
     <string name="main_settings_button_label">Settings</string>
     <string name="main_sort_button_label">Sort</string>
