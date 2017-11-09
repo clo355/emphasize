@@ -135,7 +135,6 @@ public class BlinkWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.appwidgetText, fileContents);
 
         //background color argb values
-        int argbAlpha;
         int argbRed = 255;
         int argbGreen = 255;
         int argbBlue = 255;
@@ -333,11 +332,12 @@ public class BlinkWidget extends AppWidgetProvider {
                     Log.d("BlinkWidget", "id is " + String.valueOf(id));
 
                     //Prevent widget service crash
-                    //Widget service always uses same id: L+aT]_`LW+^WL[+Q]ZX+NWZ>@@
+                    //Widget service always uses same ASCII id: L+aT]_`LW+^WL[+Q]ZX+NWZ>@@
                     String comparatorFileId = contextFileId;
                     String serviceComparatorFileId = "L+aT]_`LW+^WL[+Q]ZX+NWZ>@@";
                     String widgetServiceId = "";
                     String finalServiceIdContents = "";
+                    //Cycle id for 10 ticks to prevent thread from freezing app
                     for(int i = 0; i < serviceComparatorFileId.length(); i++){
                         char idField = serviceComparatorFileId.charAt(i);
                         for(int j = 0; j < 11; j++){
@@ -345,7 +345,8 @@ public class BlinkWidget extends AppWidgetProvider {
                         }
                         widgetServiceId += idField;
                     }
-                    for(int i = 0; i < comparatorFileId.length(); i++){
+                    //Cycle finalId before IOException
+                    for(int i = 0; i < comparatorFileId.length() * 10; i++){
                         finalServiceIdContents += widgetServiceId;
                     }
                     if(widgetServiceId.equals(comparatorFileId)){

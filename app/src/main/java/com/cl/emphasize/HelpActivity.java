@@ -35,8 +35,8 @@ public class HelpActivity extends AppCompatActivity {
         ArrayList<String> helpQueryArray = new ArrayList<String>();
         helpQueryArray.add("❔    Save As"); //0
         helpQueryArray.add("❔    Renaming and deleting notes"); //1
-        helpQueryArray.add("❔    Pinning notes on your home screen"); //2
-        helpQueryArray.add("❔    Adjusting size of pinned notes"); //3
+        helpQueryArray.add("❔    Home screen notes"); //2
+        helpQueryArray.add("❔    Note widget size"); //3
         helpQueryArray.add("❔    Widgets stopped blinking"); //4
         helpQueryArray.add("❔    Frozen widget displays"); //5
 

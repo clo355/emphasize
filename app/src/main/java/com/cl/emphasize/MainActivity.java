@@ -750,9 +750,9 @@ public class MainActivity extends AppCompatActivity {
                 View inflatedView = inflater.inflate(R.layout.help_dialog_image_layout, null);
                 ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
                 helpImage.setImageResource(R.mipmap.help2_image);
-                builder.setTitle("Note widgets");
+                builder.setTitle("Pinning notes");
                 builder.setMessage("You can pin a note on your home screen through" +
-                        " your device's widget menu.");
+                        " your device's widget menu. The menu's location may vary across devices.");
                 builder.setView(inflatedView);
                 builder.setCancelable(true);
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {

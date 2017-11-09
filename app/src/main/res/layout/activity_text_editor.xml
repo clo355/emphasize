@@ -59,6 +59,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_above="@id/textEditorSaveAsButton"
+        android:scrollbars="vertical"
         android:ems="10"
         android:gravity="top|start"
         android:layout_marginTop="10dp"
