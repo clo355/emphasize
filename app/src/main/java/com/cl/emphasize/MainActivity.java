@@ -48,6 +48,7 @@ import java.util.HashMap;
  *   Emphasize
  *
  *   This app allows you to post blinking note widgets to your home screen.
+ *   Tested for API 19 through 26
  *
  *   @author Chris Lo
  **********************************************************************************/
@@ -318,6 +319,9 @@ public class MainActivity extends AppCompatActivity {
                                                 } else if(renameEditText.getText().toString().equals(".") ||
                                                         renameEditText.getText().toString().equals("..")){
                                                     showAsShortToast("Notes can't be named . or ..");
+                                                    break;
+                                                } else if(containsSlashes(renameEditText.getText().toString())){
+                                                    showAsShortToast("Name can't contain slashes");
                                                     break;
                                                 } else if(fileNameAlreadyExists(renameEditText.getText().toString())){
                                                     //use dialog to ask if user wants to overwrite it
@@ -667,7 +671,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent){
         if(requestCode == ACCESSED_SETTINGS_REQUEST_CODE){
             //user might have changed theme
-            recreate();
+            //delay recreate() to prevent "performing pause... not resumed" runtime exception
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recreate();
+                }
+            }, 1);
         } else if(requestCode == ACCESSED_FILE_REQUEST_CODE){
             updateListView();
         }
@@ -751,7 +762,7 @@ public class MainActivity extends AppCompatActivity {
                 ImageView helpImage = inflatedView.findViewById(R.id.helpDialogImageView);
                 helpImage.setImageResource(R.mipmap.help2_image);
                 builder.setTitle("Pinning notes");
-                builder.setMessage("You can pin a note on your home screen through" +
+                builder.setMessage("You can pin notes on your home screen through" +
                         " your device's widget menu. The menu's location may vary across devices.");
                 builder.setView(inflatedView);
                 builder.setCancelable(true);
@@ -791,6 +802,16 @@ public class MainActivity extends AppCompatActivity {
             myDirectory.mkdirs();
         }
         return (new File(myDirectory, userInputFileName)).exists();
+    }
+
+    public boolean containsSlashes(String myString){
+        for(int i = 0; i < myString.length(); i++){
+            if((myString.charAt(i) == '/') ||
+                    (myString.charAt(i) == '\\')){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void showAsShortToast(String text){

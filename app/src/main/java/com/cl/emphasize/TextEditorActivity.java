@@ -113,6 +113,9 @@ public class TextEditorActivity extends AppCompatActivity {
                                         renameToThis.equals("..")){
                                     showAsShortToast("Notes can't be named . or ..");
                                     break;
+                                } else if(containsSlashes(renameToThis)){
+                                    showAsShortToast("Name can't contain slashes");
+                                    break;
                                 }
                                 if(fileNameAlreadyExists(renameToThis)){
                                     //ask to overwrite. Yes = file replacement. No = cancel
@@ -800,6 +803,16 @@ public class TextEditorActivity extends AppCompatActivity {
             myDirectory.mkdirs();
         }
         return (new File(myDirectory, userInputFileName)).exists();
+    }
+
+    public boolean containsSlashes(String myString){
+        for(int i = 0; i < myString.length(); i++){
+            if((myString.charAt(i) == '/') ||
+                    (myString.charAt(i) == '\\')){
+                return true;
+            }
+        }
+        return false;
     }
 
     public void showAsShortToast(String text){

@@ -153,6 +153,9 @@ public class SaveAsActivity extends AppCompatActivity {
                             saveAsFileName.getText().toString().equals("..")){
                         showAsShortToast("Notes can't be named . or ..");
                         saveAsFileName.setText("");
+                    } else if(containsSlashes(saveAsFileName.getText().toString())){
+                        showAsShortToast("Name can't contain slashes");
+                        saveAsFileName.setText("");
                     } else if(fileNameAlreadyExists(wroteOrRenamedName)){ //isRenamedFile, name already taken?
                         if (wroteOrRenamedName.equals(fileName)) { //user trying to save as same name
                             File oldFile = new File(myDirectory, fileName); //just overwrite/create it.
@@ -263,6 +266,16 @@ public class SaveAsActivity extends AppCompatActivity {
             myDirectory.mkdirs();
         }
         return (new File(myDirectory, userInputFileName)).exists();
+    }
+
+    public boolean containsSlashes(String myString){
+        for(int i = 0; i < myString.length(); i++){
+            if((myString.charAt(i) == '/') ||
+                    (myString.charAt(i) == '\\')){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

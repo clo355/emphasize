@@ -293,9 +293,6 @@ public class BlinkWidget extends AppWidgetProvider {
                 appWidgetManager.updateAppWidget(appWidgetId, views);
             }
         }
-
-        //now save widget values to file
-
     }
 
     @Override
